@@ -44,8 +44,6 @@ struct Sha_256 {
  *
  * @note If all of the data you are calculating the hash value on is available in a contiguous buffer in memory, this is
  * the function you should use.
- *
- * @note If either of the passed pointers is NULL, the results are unpredictable.
  */
 void calc_sha_256(uint8_t hash[SHA256_HASH_SIZE], const void *input, size_t len);
 
