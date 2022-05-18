@@ -24,8 +24,8 @@ static_assert (CHAR_BIT == 8);
  * @param datalen Length of the input data, in byte.
  * @param out Hash array, where the result is delivered.
  */
-void hmac_sha1(const void* key, const size_t keylen, const void* data, const size_t datalen, void* out);
-void hmac_sha256(const void* key, const size_t keylen, const void* data, const size_t datalen, void* out);
+void hmac_sha1(const unsigned char* key, const size_t keylen, const unsigned char* data, const size_t datalen, unsigned char* out);
+void hmac_sha256(const unsigned char* key, const size_t keylen, const unsigned char* data, const size_t datalen, unsigned char* out);
 
 #ifdef __cplusplus
 }

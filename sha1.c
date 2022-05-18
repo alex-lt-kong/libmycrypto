@@ -51,7 +51,7 @@ A million repetitions of "a"
 
 /* Hash a single 512-bit block. This is the core of the algorithm. */
 
-void SHA1Transform(
+void sha1_transform(
     uint32_t state[5],
     const unsigned char buffer[64]
 )
@@ -179,7 +179,7 @@ void SHA1Transform(
 
 /* SHA1Init - Initialize new context */
 
-void SHA1Init(
+void sha1_init(
     SHA1_CTX * context
 )
 {
@@ -198,7 +198,7 @@ void SHA1Init(
 void SHA1Update(
     SHA1_CTX * context,
     const unsigned char *data,
-    uint32_t len
+    size_t len
 )
 {
     uint32_t i;
@@ -213,10 +213,10 @@ void SHA1Update(
     if ((j + len) > 63)
     {
         memcpy(&context->buffer[j], data, (i = 64 - j));
-        SHA1Transform(context->state, context->buffer);
+        sha1_transform(context->state, context->buffer);
         for (; i + 63 < len; i += 64)
         {
-            SHA1Transform(context->state, &data[i]);
+            sha1_transform(context->state, &data[i]);
         }
         j = 0;
     }
@@ -228,7 +228,7 @@ void SHA1Update(
 
 /* Add padding and return the message digest. */
 
-void SHA1Final(
+void sha1_final(
     unsigned char digest[20],
     SHA1_CTX * context
 )
@@ -266,9 +266,9 @@ void cal_sha1_hash(unsigned char* hash, const unsigned char* str, size_t len)
     SHA1_CTX ctx;
     unsigned int ii;
 
-    SHA1Init(&ctx);
+    sha1_init(&ctx);
     for (ii=0; ii<len; ii+=1)
         SHA1Update(&ctx, (const unsigned char*)str + ii, 1);
-    SHA1Final((unsigned char *)hash, &ctx);
+    sha1_final((unsigned char *)hash, &ctx);
 }
 

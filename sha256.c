@@ -112,7 +112,7 @@ static inline void consume_chunk(uint32_t *h, const unsigned char *p)
  * Public functions. See header file for documentation.
  */
 
-void sha_256_init(struct Sha_256 *sha_256, unsigned char hash[SHA256_HASH_SIZE])
+void sha256_init(struct Sha_256 *sha_256, unsigned char hash[SHA256_HASH_SIZE])
 {
 	sha_256->hash = hash;
 	sha_256->chunk_pos = sha_256->chunk;
@@ -165,7 +165,7 @@ void sha_256_write(struct Sha_256 *sha_256, const void *data, size_t len)
 	}
 }
 
-unsigned char *sha_256_close(struct Sha_256 *sha_256)
+unsigned char *sha256_close(struct Sha_256 *sha_256)
 {
 	unsigned char *pos = sha_256->chunk_pos;
 	size_t space_left = sha_256->space_left;
@@ -216,7 +216,7 @@ unsigned char *sha_256_close(struct Sha_256 *sha_256)
 void cal_sha256_hash(unsigned char hash[SHA256_HASH_SIZE], const unsigned char *input, size_t len)
 {
 	struct Sha_256 sha_256;
-	sha_256_init(&sha_256, hash);
+	sha256_init(&sha_256, hash);
 	sha_256_write(&sha_256, input, len);
-	(void)sha_256_close(&sha_256);
+	(void)sha256_close(&sha_256);
 }

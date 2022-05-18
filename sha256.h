@@ -59,7 +59,7 @@ void cal_sha256_hash(unsigned char hash[SHA256_HASH_SIZE], const unsigned char *
  *
  * @note If either of the passed pointers is NULL, the results are unpredictable.
  */
-void sha_256_init(struct Sha_256 *sha_256, unsigned char hash[SHA256_HASH_SIZE]);
+void sha256_init(struct Sha_256 *sha_256, unsigned char hash[SHA256_HASH_SIZE]);
 
 /*
  * @brief Stream more input data for an on-going SHA-256 calculation.
@@ -76,7 +76,7 @@ void sha_256_init(struct Sha_256 *sha_256, unsigned char hash[SHA256_HASH_SIZE])
  *
  * @note If either of the passed pointers is NULL, the results are unpredictable.
  */
-void sha_256_write(struct Sha_256 *sha_256, const unsigned *data, size_t len);
+void sha256_write(struct Sha_256 *sha_256, const unsigned *data, size_t len);
 
 /*
  * @brief Conclude a SHA-256 streaming calculation, making the hash value available.
@@ -92,7 +92,7 @@ void sha_256_write(struct Sha_256 *sha_256, const unsigned *data, size_t len);
  * @note Invoking this function for a calculation with no data (the writing function has never been invoked, or it only
  * has been invoked with empty data) is legal. It will calculate the SHA-256 value of the empty string.
  */
-unsigned char *sha_256_close(struct Sha_256 *sha_256);
+unsigned char *sha256_close(struct Sha_256 *sha_256);
 
 #ifdef __cplusplus
 }

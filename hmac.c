@@ -10,10 +10,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-
-static void* H(
+static unsigned char* H(
   void (*hash_func)(unsigned char*, const unsigned char*, size_t),
-  const void* x, const size_t xlen, const void* y, const size_t ylen, void* out
+  const unsigned char* x, const size_t xlen, const unsigned char* y, const size_t ylen, unsigned char* out
 ) {
   size_t buflen = (xlen + ylen);
   unsigned char* buf = (unsigned char*)malloc(buflen);
@@ -28,8 +27,8 @@ static void* H(
 void hmac(
   const size_t BLOCK_SIZE, const size_t HASH_SIZE,
   void (*hash_func)(unsigned char*, const unsigned char*, size_t),
-  const void* key, const size_t key_len,
-  const void* msg, const size_t msg_len, void* out) {
+  const unsigned char* key, const size_t key_len,
+  const unsigned char* msg, const size_t msg_len, unsigned char* out) {
   unsigned char k_prime[BLOCK_SIZE];
   unsigned char ipad[BLOCK_SIZE]; // ipad is the block-sized inner padding, consisting of repeated bytes valued 0x36
   unsigned char opad[BLOCK_SIZE]; // opad is the block-sized outer padding, consisting of repeated bytes valued 0x5c
@@ -53,14 +52,13 @@ void hmac(
   //      `H(K XOR opad, H(K XOR ipad, data))`
   H(hash_func, ipad, BLOCK_SIZE, msg, msg_len, ihash);
   H(hash_func, opad, BLOCK_SIZE, ihash, HASH_SIZE, ohash);
-
   memcpy(out, ohash, HASH_SIZE);
 }
 
-void hmac_sha1(const void* key, const size_t key_len, const void* msg, const size_t msg_len, void* out) {
+void hmac_sha1(const unsigned char* key, const size_t key_len, const unsigned char* msg, const size_t msg_len, unsigned char* out) {
   hmac(SHA1_BLOCK_SIZE, SHA1_HASH_SIZE, cal_sha1_hash, key, key_len, msg, msg_len, out);
 }
 
-void hmac_sha256(const void* key, const size_t key_len, const void* msg, const size_t msg_len, void* out) {
+void hmac_sha256(const unsigned char* key, const size_t key_len, const unsigned char* msg, const size_t msg_len, unsigned char* out) {
   hmac(SHA256_BLOCK_SIZE, SHA256_HASH_SIZE, cal_sha256_hash, key, key_len, msg, msg_len, out);
 }
