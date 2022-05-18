@@ -3,8 +3,8 @@
     Originally written by https://github.com/h5p9sl
 */
 
-#ifndef _HMAC_SHA256_H_
-#define _HMAC_SHA256_H_
+#ifndef _HMAC_SHA1_H_
+#define _HMAC_SHA1_H_
 
 #ifdef __cplusplus
 extern "C" {
@@ -24,9 +24,8 @@ static_assert (CHAR_BIT == 8);
  * @param datalen Length of the input data, in byte.
  * @param out Hash array, where the result is delivered.
  */
-void hmac_sha256(
-    const void* key, const size_t keylen, const void* data, const size_t datalen, void* out
-);
+void hmac_sha1(const void* key, const size_t keylen, const void* data, const size_t datalen, void* out);
+void hmac_sha256(const void* key, const size_t keylen, const void* data, const size_t datalen, void* out);
 
 #ifdef __cplusplus
 }

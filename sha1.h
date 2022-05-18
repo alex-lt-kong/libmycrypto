@@ -14,6 +14,7 @@ extern "C" {
 #endif
 
 #define SHA1_HASH_SIZE 20
+#define SHA1_BLOCK_SIZE 64
 
 typedef struct
 {
@@ -51,7 +52,7 @@ void SHA1Final(
  * @note If all of the data you are calculating the hash value on is available in a contiguous buffer in memory, this is
  * the function you should use.
  */
-void cal_sha1_hash(unsigned char* hash, const unsigned char* str, int len);
+void cal_sha1_hash(unsigned char* hash, const unsigned char* str, size_t len);
 
 #ifdef __cplusplus
 }

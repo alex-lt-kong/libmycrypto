@@ -28,7 +28,7 @@ static inline uint32_t right_rot(uint32_t value, unsigned int count)
  *
  * @note This is the SHA-256 work horse.
  */
-static inline void consume_chunk(uint32_t *h, const uint8_t *p)
+static inline void consume_chunk(uint32_t *h, const unsigned char *p)
 {
 	unsigned i, j;
 	uint32_t ah[8];
@@ -112,7 +112,7 @@ static inline void consume_chunk(uint32_t *h, const uint8_t *p)
  * Public functions. See header file for documentation.
  */
 
-void sha_256_init(struct Sha_256 *sha_256, uint8_t hash[SHA256_HASH_SIZE])
+void sha_256_init(struct Sha_256 *sha_256, unsigned char hash[SHA256_HASH_SIZE])
 {
 	sha_256->hash = hash;
 	sha_256->chunk_pos = sha_256->chunk;
@@ -136,7 +136,7 @@ void sha_256_write(struct Sha_256 *sha_256, const void *data, size_t len)
 {
 	sha_256->total_len += len;
 
-	const uint8_t *p = (uint8_t*)data;
+	const unsigned char *p = (unsigned char*)data;
 
 	while (len > 0) {
 		/*
@@ -165,9 +165,9 @@ void sha_256_write(struct Sha_256 *sha_256, const void *data, size_t len)
 	}
 }
 
-uint8_t *sha_256_close(struct Sha_256 *sha_256)
+unsigned char *sha_256_close(struct Sha_256 *sha_256)
 {
-	uint8_t *pos = sha_256->chunk_pos;
+	unsigned char *pos = sha_256->chunk_pos;
 	size_t space_left = sha_256->space_left;
 	uint32_t *const h = sha_256->h;
 
@@ -193,27 +193,27 @@ uint8_t *sha_256_close(struct Sha_256 *sha_256)
 	memset(pos, 0x00, left);
 	pos += left;
 	size_t len = sha_256->total_len;
-	pos[7] = (uint8_t)(len << 3);
+	pos[7] = (unsigned char)(len << 3);
 	len >>= 5;
 	int i;
 	for (i = 6; i >= 0; --i) {
-		pos[i] = (uint8_t)len;
+		pos[i] = (unsigned char)len;
 		len >>= 8;
 	}
 	consume_chunk(h, sha_256->chunk);
 	/* Produce the final hash value (big-endian): */
 	int j;
-	uint8_t *const hash = sha_256->hash;
+	unsigned char *const hash = sha_256->hash;
 	for (i = 0, j = 0; i < 8; i++) {
-		hash[j++] = (uint8_t)(h[i] >> 24);
-		hash[j++] = (uint8_t)(h[i] >> 16);
-		hash[j++] = (uint8_t)(h[i] >> 8);
-		hash[j++] = (uint8_t)h[i];
+		hash[j++] = (unsigned char)(h[i] >> 24);
+		hash[j++] = (unsigned char)(h[i] >> 16);
+		hash[j++] = (unsigned char)(h[i] >> 8);
+		hash[j++] = (unsigned char)h[i];
 	}
 	return sha_256->hash;
 }
 
-void calc_sha_256(uint8_t hash[SHA256_HASH_SIZE], const void *input, size_t len)
+void cal_sha256_hash(unsigned char hash[SHA256_HASH_SIZE], const unsigned char *input, size_t len)
 {
 	struct Sha_256 sha_256;
 	sha_256_init(&sha_256, hash);
