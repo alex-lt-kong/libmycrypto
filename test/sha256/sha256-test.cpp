@@ -29,7 +29,7 @@ void test_rsp_file(string rsp_file_dir) {
       cout << "Msg = " << msg.substr(0, 128) << (msg.length() > 128 ? "...[Truncated]" : "" ) << "\n";
       unsigned char msg_bytes[next_msg_len / CHAR_BIT];      
       hex_string_to_bytes(msg, msg_bytes);
-      calc_sha_256(sha_hash, msg_bytes, next_msg_len / CHAR_BIT);
+      cal_sha256_hash(sha_hash, msg_bytes, next_msg_len / CHAR_BIT);
       cout << "MD = " << bytes_to_hex_string(sha_hash, SHA256_HASH_SIZE) << " ";
     } else if (line.length() >= 2 && line.substr(0, 2) == "MD") {
       string official_md = line.substr(5, line.length() - 5 - 1);
