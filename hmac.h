@@ -14,7 +14,7 @@ extern "C" {
 #include <assert.h>
 #include <limits.h>
 
-static_assert (CHAR_BIT == 8);
+static_assert (CHAR_BIT == 8, "This computer's byte is not 8-bit long");
 
 /*
  * @brief The simple HMAC-SHA256 calculation function.

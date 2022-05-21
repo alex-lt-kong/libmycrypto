@@ -3,6 +3,7 @@
 
 #include <assert.h>
 #include <limits.h>
+#include <string>
 
 static_assert (CHAR_BIT == 8);
 
