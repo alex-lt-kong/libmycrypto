@@ -13,7 +13,7 @@ using namespace std;
  * @param input A pointer to an array of bytes.
  * @param input_len length of input
  */
-string bytes_to_hex_string(const unsigned char* input, size_t input_len);
+string bytes_to_hex_string(const unsigned char* input, const size_t input_len);
 /*
  * @brief Convert a hex std::string to an array of bytes
  * @param hex_input A std:string containing the hex-encoded string.

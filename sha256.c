@@ -132,7 +132,7 @@ void sha256_init(struct Sha_256 *sha_256, unsigned char hash[SHA256_HASH_SIZE])
 	sha_256->h[7] = 0x5be0cd19;
 }
 
-void sha_256_write(struct Sha_256 *sha_256, const void *data, size_t len)
+void sha256_write(struct Sha_256 *sha_256, const unsigned char *data, size_t len)
 {
 	sha_256->total_len += len;
 
@@ -213,10 +213,10 @@ unsigned char *sha256_close(struct Sha_256 *sha_256)
 	return sha_256->hash;
 }
 
-void cal_sha256_hash(unsigned char hash[SHA256_HASH_SIZE], const unsigned char *input, size_t len)
+void cal_sha256_hash(unsigned char hash[SHA256_HASH_SIZE], const unsigned char *input, const size_t len)
 {
 	struct Sha_256 sha_256;
 	sha256_init(&sha_256, hash);
-	sha_256_write(&sha_256, input, len);
+	sha256_write(&sha_256, input, len);
 	(void)sha256_close(&sha_256);
 }
