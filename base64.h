@@ -19,7 +19,19 @@ extern "C" {
 
 #include <sys/types.h>
 
-char* encode_bytes_to_base64_string(const unsigned char *src, size_t len, size_t *out_len);
+/**
+ * base64_encode - Base64 encode
+ * @param input_bytes Data in bytes to be encoded
+ * @param input_len Length of the data to be encoded
+ * @param out_len Pointer to output length variable, or %NULL if not used
+ * Returns: Allocated buffer of out_len bytes of encoded data,
+ * or %NULL on failure
+ *
+ * Caller is responsible for freeing the returned buffer. Returned buffer is
+ * nul terminated to make it easier to use as a C string. The nul terminator is
+ * not included in out_len.
+ */
+char* encode_bytes_to_base64_string(const unsigned char *input_bytes, const size_t input_len, size_t *out_len);
 unsigned char* decode_base64_string_to_bytes(const char *src, size_t len, size_t *out_len);
             
 #ifdef __cplusplus
