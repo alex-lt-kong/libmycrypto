@@ -20,7 +20,7 @@
 static const unsigned char base64_table[65] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 // This table is defined in RFC 4648
 
-char* encode_bytes_to_base64_string(const unsigned char* input_bytes, const size_t input_len, size_t *out_len)
+char* encode_bytes_to_base64_string(const unsigned char* input_bytes, const size_t input_len, size_t *output_len)
 {
 	char *output_chars, *pos;
 	const size_t CHARS_PER_LINE = 72;
@@ -50,7 +50,7 @@ char* encode_bytes_to_base64_string(const unsigned char* input_bytes, const size
 		// extract the first 4 bits from the 2nd byte: input_start[1] >> 4: 11100110 >> 4 = 00001110
 		// concatenate last 2 bits from 1st byte and first 4 bits from 2nd byte: 00110000 | 00001110 = 00111110
 		*pos++ = base64_table[((input_start[1] & 0x0f) << 2) | (input_start[2] >> 6)];
-		// Very similar to the above
+		// Very similar to the above, 0x0f == 0b00001111
 		*pos++ = base64_table[input_start[2] & 0x3f];
 		// 0x3f = 0b00111111, so we extract the last 6 bits from the 3rd byte.
 		input_start += 3;
@@ -62,16 +62,25 @@ char* encode_bytes_to_base64_string(const unsigned char* input_bytes, const size
 	}
 
 	if (input_end - input_start) {
+		// There could be one or two remaining bytes, either case, we need to encode the first 6 bits and ensure
+		// the final result is 3-byte (i.e., 24-bit) long.
 		*pos++ = base64_table[input_start[0] >> 2];
 		if (input_end - input_start == 1) {
+			// If there is one byte left, say, 11100111, we want to make it 11100111 00000000 00000000
+			// we need to encode it into two characters and two extra padding character as follows			
+			// [111001][11 0000][0000 00][000000]
 			*pos++ = base64_table[(input_start[0] & 0x03) << 4];
+			// [111001] is done before if, now we handle the 111001[11 0000]0000 part
 			*pos++ = '=';
+			// handles 11100111 0000[0000 00]000000 part. The last 6 bits will be handled after if.
 		} else {
-			*pos++ = base64_table[((input_start[0] & 0x03) << 4) |
-					       (input_start[1] >> 4)];
+			// If there are two bytes left, say, 11100111, we want to make it 11100111 01001001 00000000
+			*pos++ = base64_table[((input_start[0] & 0x03) << 4) | (input_start[1] >> 4)];
+			// handles the 111001[11 0100]1001 00000000 part
 			*pos++ = base64_table[(input_start[1] & 0x0f) << 2];
+			// handles 11100111 0100[1001 00]000000 part, 0x0f == 0b00001111
 		}
-		*pos++ = '=';
+		*pos++ = '='; // either case, the last = stands for the last 4 zero bits
 		line_len += 4;
 	}
 
@@ -79,8 +88,8 @@ char* encode_bytes_to_base64_string(const unsigned char* input_bytes, const size
 		*pos++ = '\n';
 
 	*pos = '\0';
-	if (out_len)
-		*out_len = pos - output_chars;
+
+	*output_len = pos - output_chars;
 	return output_chars;
 }
 
