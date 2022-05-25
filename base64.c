@@ -23,13 +23,14 @@ static const unsigned char base64_table[65] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefg
 char* encode_bytes_to_base64_string(const unsigned char* input_bytes, const size_t input_len, size_t *out_len)
 {
 	char *output_chars, *pos;
+	const size_t CHARS_PER_LINE = 72;
 	const unsigned char* input_start = input_bytes;
 	const unsigned char* input_end = input_start + input_len;
 	size_t olen;
 	int line_len;
 
 	olen = input_len * 4 / 3 + 4; /* 3-byte blocks to 4-byte */
-	olen += olen / 72; /* line feeds */
+	olen += olen / CHARS_PER_LINE; /* line feeds */
 	olen++; /* nul termination */
 	output_chars = (char *)calloc(olen, sizeof(char));
 	if (output_chars == NULL)
@@ -38,13 +39,23 @@ char* encode_bytes_to_base64_string(const unsigned char* input_bytes, const size
 	pos = output_chars;
 	line_len = 0;
 	while (input_end - input_start >= 3) {
+		// Let's have an example here, say we need to encode three 3 bytes 01001111 11100110 10010111
 		*pos++ = base64_table[input_start[0] >> 2];
+		// The funny (*pos++ = val) means we assign val to *pos and then we point pos to the next address (i.e., pos + 1)
+		// encode the first 6 bits, [010011]11 by right shifting them: 00[010011]
 		*pos++ = base64_table[((input_start[0] & 0x03) << 4) | (input_start[1] >> 4)];
+		// encode the 7th to 12th bits, 010011[11 1110]0110
+		// extract the last two bits: input_start[0] & 0x03: 01001111 & 0000011 = 00000011
+		// shift them to lower places:  ((input_start[0] & 0x03) << 4): 00110000
+		// extract the first 4 bits from the 2nd byte: input_start[1] >> 4: 11100110 >> 4 = 00001110
+		// concatenate last 2 bits from 1st byte and first 4 bits from 2nd byte: 00110000 | 00001110 = 00111110
 		*pos++ = base64_table[((input_start[1] & 0x0f) << 2) | (input_start[2] >> 6)];
+		// Very similar to the above
 		*pos++ = base64_table[input_start[2] & 0x3f];
+		// 0x3f = 0b00111111, so we extract the last 6 bits from the 3rd byte.
 		input_start += 3;
 		line_len += 4;
-		if (line_len >= 72) {
+		if (line_len >= CHARS_PER_LINE) {
 			*pos++ = '\n';
 			line_len = 0;
 		}
