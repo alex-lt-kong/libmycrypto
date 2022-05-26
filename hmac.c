@@ -29,6 +29,7 @@ void hmac(
   void (*hash_func)(unsigned char*, const unsigned char*, size_t),
   const unsigned char* key, const size_t key_len,
   const unsigned char* msg, const size_t msg_len, unsigned char* out) {
+
   unsigned char k_prime[BLOCK_SIZE];
   unsigned char ipad[BLOCK_SIZE]; // ipad is the block-sized inner padding, consisting of repeated bytes valued 0x36
   unsigned char opad[BLOCK_SIZE]; // opad is the block-sized outer padding, consisting of repeated bytes valued 0x5c
@@ -55,10 +56,16 @@ void hmac(
   memcpy(out, ohash, HASH_SIZE);
 }
 
-void hmac_sha1(const unsigned char* key, const size_t key_len, const unsigned char* msg, const size_t msg_len, unsigned char* out) {
+void hmac_sha1(
+  const unsigned char* key, const size_t key_len,
+  const unsigned char* msg, const size_t msg_len,
+  unsigned char* out) {
   hmac(SHA1_BLOCK_SIZE, SHA1_HASH_SIZE, cal_sha1_hash, key, key_len, msg, msg_len, out);
 }
 
-void hmac_sha256(const unsigned char* key, const size_t key_len, const unsigned char* msg, const size_t msg_len, unsigned char* out) {
+void hmac_sha256(
+  const unsigned char* key, const size_t key_len,
+  const unsigned char* msg, const size_t msg_len,
+  unsigned char* out) {
   hmac(SHA256_BLOCK_SIZE, SHA256_HASH_SIZE, cal_sha256_hash, key, key_len, msg, msg_len, out);
 }
