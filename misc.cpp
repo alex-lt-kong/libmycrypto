@@ -2,11 +2,11 @@
 #include <sstream>
 #include <iomanip>
 
-#include "utils.h"
+#include "misc.h"
 
 using namespace std;
 
-string bytes_to_hex_string(const unsigned char* input, size_t input_len) {
+string bytes_to_hex_string(const unsigned char* input, const size_t input_len) {
 
   stringstream ss;
 

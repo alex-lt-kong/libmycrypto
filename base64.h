@@ -19,7 +19,14 @@ extern "C" {
 
 #include <sys/types.h>
 
-char* encode_bytes_to_base64_string(const unsigned char *src, size_t len, size_t *out_len);
+/**
+ * Encode a byte array into a printable base64 char array
+ * @param input_bytes Input data in bytes to be encoded
+ * @param input_len Length of the data to be encoded
+ * @param output_len Length of output_chars (the final '\0' is not included in Length)
+ * @returns: Pointer to a null-terminated char array
+ */
+char* encode_bytes_to_base64_string(const unsigned char* input_bytes, const size_t input_len, size_t *output_len);
 unsigned char* decode_base64_string_to_bytes(const char *src, size_t len, size_t *out_len);
             
 #ifdef __cplusplus

@@ -17,63 +17,70 @@
 
 #include "base64.h"
 
-static const unsigned char base64_table[65] =
-	"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+static const unsigned char base64_table[65] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+// This table is defined in RFC 4648
 
-/**
- * base64_encode - Base64 encode
- * @src: Data to be encoded
- * @len: Length of the data to be encoded
- * @out_len: Pointer to output length variable, or %NULL if not used
- * Returns: Allocated buffer of out_len bytes of encoded data,
- * or %NULL on failure
- *
- * Caller is responsible for freeing the returned buffer. Returned buffer is
- * nul terminated to make it easier to use as a C string. The nul terminator is
- * not included in out_len.
- */
-char* encode_bytes_to_base64_string(const unsigned char *src, size_t len, size_t *out_len)
+char* encode_bytes_to_base64_string(const unsigned char* input_bytes, const size_t input_len, size_t *output_len)
 {
-	char *out, *pos;
-	const unsigned char *end, *in;
+	char *output_chars, *pos;
+	const size_t CHARS_PER_LINE = 72;
+	const unsigned char* input_start = input_bytes;
+	const unsigned char* input_end = input_start + input_len;
 	size_t olen;
 	int line_len;
 
-	olen = len * 4 / 3 + 4; /* 3-byte blocks to 4-byte */
-	olen += olen / 72; /* line feeds */
+	olen = input_len * 4 / 3 + 4; /* 3-byte blocks to 4-byte */
+	olen += olen / CHARS_PER_LINE; /* line feeds */
 	olen++; /* nul termination */
-	out = (char *)malloc(olen);
-	if (out == NULL)
+	output_chars = (char *)calloc(olen, sizeof(char));
+	if (output_chars == NULL)
 		return NULL;
 
-	end = src + len;
-	in = src;
-	pos = out;
+	pos = output_chars;
 	line_len = 0;
-	while (end - in >= 3) {
-		*pos++ = base64_table[in[0] >> 2];
-		*pos++ = base64_table[((in[0] & 0x03) << 4) | (in[1] >> 4)];
-		*pos++ = base64_table[((in[1] & 0x0f) << 2) | (in[2] >> 6)];
-		*pos++ = base64_table[in[2] & 0x3f];
-		in += 3;
+	while (input_end - input_start >= 3) {
+		// Let's have an example here, say we need to encode three 3 bytes 01001111 11100110 10010111
+		*pos++ = base64_table[input_start[0] >> 2];
+		// The funny (*pos++ = val) means we assign val to *pos and then we point pos to the next address (i.e., pos + 1)
+		// encode the first 6 bits, [010011]11 by right shifting them: 00[010011]
+		*pos++ = base64_table[((input_start[0] & 0x03) << 4) | (input_start[1] >> 4)];
+		// encode the 7th to 12th bits, 010011[11 1110]0110
+		// extract the last two bits: input_start[0] & 0x03: 01001111 & 0000011 = 00000011
+		// shift them to lower places:  ((input_start[0] & 0x03) << 4): 00110000
+		// extract the first 4 bits from the 2nd byte: input_start[1] >> 4: 11100110 >> 4 = 00001110
+		// concatenate last 2 bits from 1st byte and first 4 bits from 2nd byte: 00110000 | 00001110 = 00111110
+		*pos++ = base64_table[((input_start[1] & 0x0f) << 2) | (input_start[2] >> 6)];
+		// Very similar to the above, 0x0f == 0b00001111
+		*pos++ = base64_table[input_start[2] & 0x3f];
+		// 0x3f = 0b00111111, so we extract the last 6 bits from the 3rd byte.
+		input_start += 3;
 		line_len += 4;
-		if (line_len >= 72) {
+		if (line_len >= CHARS_PER_LINE) {
 			*pos++ = '\n';
 			line_len = 0;
 		}
 	}
 
-	if (end - in) {
-		*pos++ = base64_table[in[0] >> 2];
-		if (end - in == 1) {
-			*pos++ = base64_table[(in[0] & 0x03) << 4];
+	if (input_end - input_start) {
+		// There could be one or two remaining bytes, either case, we need to encode the first 6 bits and ensure
+		// the final result is 3-byte (i.e., 24-bit) long.
+		*pos++ = base64_table[input_start[0] >> 2];
+		if (input_end - input_start == 1) {
+			// If there is one byte left, say, 11100111, we want to make it 11100111 00000000 00000000
+			// we need to encode it into two characters and two extra padding character as follows			
+			// [111001][11 0000][0000 00][000000]
+			*pos++ = base64_table[(input_start[0] & 0x03) << 4];
+			// [111001] is done before if, now we handle the 111001[11 0000]0000 part
 			*pos++ = '=';
+			// handles 11100111 0000[0000 00]000000 part. The last 6 bits will be handled after if.
 		} else {
-			*pos++ = base64_table[((in[0] & 0x03) << 4) |
-					       (in[1] >> 4)];
-			*pos++ = base64_table[(in[1] & 0x0f) << 2];
+			// If there are two bytes left, say, 11100111, we want to make it 11100111 01001001 00000000
+			*pos++ = base64_table[((input_start[0] & 0x03) << 4) | (input_start[1] >> 4)];
+			// handles the 111001[11 0100]1001 00000000 part
+			*pos++ = base64_table[(input_start[1] & 0x0f) << 2];
+			// handles 11100111 0100[1001 00]000000 part, 0x0f == 0b00001111
 		}
-		*pos++ = '=';
+		*pos++ = '='; // either case, the last = stands for the last 4 zero bits
 		line_len += 4;
 	}
 
@@ -81,14 +88,14 @@ char* encode_bytes_to_base64_string(const unsigned char *src, size_t len, size_t
 		*pos++ = '\n';
 
 	*pos = '\0';
-	if (out_len)
-		*out_len = pos - out;
-	return out;
+
+	*output_len = pos - output_chars;
+	return output_chars;
 }
 
 /**
  * base64_decode - Base64 decode
- * @src: Data to be decoded
+ * @input_bytes: Data to be decoded
  * @len: Length of the data to be decoded
  * @out_len: Pointer to output length variable
  * Returns: Allocated buffer of out_len bytes of decoded data,
@@ -96,7 +103,7 @@ char* encode_bytes_to_base64_string(const unsigned char *src, size_t len, size_t
  *
  * Caller is responsible for freeing the returned buffer.
  */
-unsigned char * decode_base64_string_to_bytes(const char *src, size_t len, size_t *out_len)
+unsigned char * decode_base64_string_to_bytes(const char *input_bytes, size_t len, size_t *out_len)
 {
 	unsigned char dtable[256], *out, *pos, in[4], block[4], tmp;
 	size_t i, count, olen;
@@ -109,7 +116,7 @@ unsigned char * decode_base64_string_to_bytes(const char *src, size_t len, size_
   
 	count = 0;
 	for (i = 0; i < len; i++) {
-		if (dtable[src[i]] != 0x80)
+		if (dtable[input_bytes[i]] != 0x80)
 			count++;
 	}
   
@@ -123,11 +130,11 @@ unsigned char * decode_base64_string_to_bytes(const char *src, size_t len, size_
   
 	count = 0;
 	for (i = 0; i < len; i++) {
-		tmp = dtable[src[i]];
+		tmp = dtable[input_bytes[i]];
 		if (tmp == 0x80)
 			continue;
 
-		in[count] = src[i];
+		in[count] = input_bytes[i];
 		block[count] = tmp;
 		count++;
 		if (count == 4) {
