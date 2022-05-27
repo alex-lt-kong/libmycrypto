@@ -1,95 +1,77 @@
-
-/**
- * `encode.c' - b32
- *
- * copyright (c) 2016 jay rama fisher
- * copyright (c) 2014 joseph werle
- */
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
+#include <math.h>
 #include "base32.h"
 
-char *
-b32_encode (const unsigned char *src, size_t len) {
+static const char b32_table[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
+static const size_t IN_BLK_SIZE = 5;
+static const size_t OUT_GRP_SIZE = 8;
+
+/*
+ * @brief Encode
+ * @param in a 5-byte long input block
+ * @param out an array of 8 bytes of base32 character
+ */
+void encode_block(unsigned char* in, char* out) {
+    out[0] =  (in[0] & 0b11111000) >> 3;
+    out[1] = ((in[0] & 0b00000111) << 2) | ((in[1] & 0b11000000) >> 6);
+    out[2] =  (in[1] & 0b00111110) >> 1;
+    out[3] = ((in[1] & 0b00000001) << 4) | ((in[2] & 0b11110000) >> 4);
+    out[4] = ((in[2] & 0b00001111) << 1) | ((in[3] & 0b10000000) >> 7);
+    out[5] =  (in[3] & 0b01111100) >> 2;
+    out[6] = ((in[3] & 0b00000011) << 3) | ((in[4] & 0b11100000) >> 5);
+    out[7] =   in[4] & 0b00011111;
+}
+
+
+char* encode_bytes_to_base32_string(const unsigned char *input_bytes, size_t input_len, size_t* output_len) {
   int i = 0;
   int j = 0;
-  char *enc = NULL;
-  size_t size = 0;
-  unsigned char buf[8];
-  unsigned char tmp[5];
+  char* output = NULL;
+  
+  int out_pos = 0;  
+  *output_len = ceil((float)input_len / IN_BLK_SIZE) * OUT_GRP_SIZE; /* 5-byte block into 8 groups of 5 bits */  
+  char buf[OUT_GRP_SIZE];
+  unsigned char tmp[IN_BLK_SIZE];
 
-  // alloc
-  enc = (char *) malloc(0);
-  if (NULL == enc) { return NULL; }
+  output = (char *)calloc(*output_len, sizeof(char));
+  if (output == NULL) { return NULL; }
 
   // parse until end of source
-  while (len--) {
-    // read up to 5 bytes at a time into `tmp'
-    tmp[i++] = *(src++);
-
-    // if 5 bytes read then encode into `buf'
-    if (5 == i) {
-      buf[0] = (tmp[0] & 0xf8) >> 3;
-      buf[1] = ((tmp[0] & 0x07) << 2) + ((tmp[1] & 0xc0) >> 6);
-      buf[2] = ((tmp[1] & 0x3e) >> 1);
-      buf[3] = ((tmp[1] & 0x01) << 4) + ((tmp[2] & 0xf0) >> 4);
-      buf[4] = ((tmp[2] & 0x0f) << 1) + ((tmp[3] & 0x80) >> 7);
-      buf[5] = (tmp[3] & 0x7c) >> 2;
-      buf[6] = ((tmp[3] & 0x03) << 3) + ((tmp[4] & 0xe0) >> 5);
-      buf[7] = tmp[4] & 0x1f;
-
-      // allocate 8 new bytes for `enc` and
-      // then translate each encoded buffer
-      // part by index from the base 32 index table
-      // into `enc' unsigned char array
-      enc = (char *) realloc(enc, size + 8);
-      for (i = 0; i < 8; ++i) {
-        enc[size++] = b32_table[buf[i]];
-      }
-
-      // reset index
-      i = 0;
+  while (input_len--) {
+    tmp[i++] = *(input_bytes++);
+    if (i < IN_BLK_SIZE) { continue; }
+    // we read IN_BLK_SIZE bytes or until the end of input_bytes into tmp
+    encode_block(tmp, buf);
+    
+    for (i = 0; i < OUT_GRP_SIZE; ++i) {
+      output[out_pos++] = b32_table[buf[i]];
     }
+    i = 0;
   }
 
   // remainder
   if (i > 0) {
     // fill `tmp' with `\0' at most 5 times
-    for (j = i; j < 5; ++j) {
+    for (j = i; j < IN_BLK_SIZE; ++j) {
       tmp[j] = '\0';
     }
-
-    // perform same codec as above
-    buf[0] = (tmp[0] & 0xf8) >> 3;
-    buf[1] = ((tmp[0] & 0x07) << 2) + ((tmp[1] & 0xc0) >> 6);
-    buf[2] = ((tmp[1] & 0x3e) >> 1);
-    buf[3] = ((tmp[1] & 0x01) << 4) + ((tmp[2] & 0xf0) >> 4);
-    buf[4] = ((tmp[2] & 0x0f) << 1) + ((tmp[3] & 0x80) >> 7);
-    buf[5] = (tmp[3] & 0x7c) >> 2;
-    buf[6] = ((tmp[3] & 0x03) << 3) + ((tmp[4] & 0xe0) >> 5);
-    buf[7] = tmp[4] & 0x1f;
-
-    // perform same write to `enc` with new allocation
-    for (j = 0; (j < i*8/5 + 1); ++j) {
-      enc = (char *) realloc(enc, size + 1);
-      enc[size++] = b32_table[buf[j]];
+    encode_block(tmp, buf);
+    // perform same write to `output` with new allocation
+    for (j = 0; (j < i*8/IN_BLK_SIZE + 1); ++j) {
+    //  output = (char *) realloc(output, out_pos + 1);
+      output[out_pos++] = b32_table[buf[j]];
     }
 
     // while there is still a remainder
-    // append `=' to `enc'
-    while ((j++ < 8)) {
-      enc = (char *) realloc(enc, size + 1);
-      enc[size++] = '=';
+    // append `=' to `output'
+    while ((j++ < OUT_GRP_SIZE)) {
+      output[out_pos++] = '=';
     }
   }
 
-  // Make sure we have enough space to add '\0' character at end.
-  enc = (char *) realloc(enc, size + 1);
-  enc[size] = '\0';
-
-  return enc;
+  return output;
 }
 
 

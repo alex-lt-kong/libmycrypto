@@ -2,8 +2,8 @@
 
 * A few cryptographic algorithms for study and general usage
 
-* Available algorithms are: SHA1, SHA256, HMAC-SHA256, HMAC-SHA1, Base64 encoding
+* Available algorithms are: SHA1, SHA256, HMAC-SHA256, HMAC-SHA1, Base64, Base32
 
-* Can pass Cryptographic Algorithm Validation Program's test vectors from NIST: SHA1, SHA256
+* Algorithms that pass Cryptographic Algorithm Validation Program's test vectors from NIST: SHA1, SHA256
 
 * https://csrc.nist.gov/projects/cryptographic-algorithm-validation-program

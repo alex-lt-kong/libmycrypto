@@ -8,16 +8,7 @@
 #ifndef B32_H
 #define B32_H 1
 
-/**
- * Base32 index table.
- */
 
-static const char b32_table[] = {
-  'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H',
-  'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P',
-  'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X',
-  'Y', 'Z', '2', '3', '4', '5', '6', '7'
-};
 
 #ifdef __cplusplus
 extern "C" {
@@ -28,8 +19,7 @@ extern "C" {
  * Returns a `char *' base64 encoded string.
  */
 
-char *
-b32_encode (const unsigned char *, size_t);
+char* encode_bytes_to_base32_string(const unsigned char *, size_t input_len, size_t* output_len);
 
 /**
  * Dencode `char *' source with `size_t' size.
