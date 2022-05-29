@@ -3,6 +3,8 @@
 #include <string.h>
 #include <stdio.h>
 
+// From: https://github.com/bitcoin/libbase58/blob/master/base58.c
+
 static const char b58digits_ordered[] = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
 
 bool b58enc(char *b58, size_t *b58sz, const void *data, size_t binsz)
