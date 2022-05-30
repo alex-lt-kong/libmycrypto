@@ -16,12 +16,12 @@ int main() {
   //delete output_len;
   cout << endl;
   
-  /*unsigned char* new_output;
+  unsigned char* new_output;
   size_t* new_output_len = (size_t*)malloc(sizeof(size_t));
 
-  new_output = decode_base64_string_to_bytes(output, *output_len, new_output_len);
+  new_output = decode_base32_string_to_bytes(output, *output_len, new_output_len);
   for (int i = 0; i < *new_output_len; i++) {
     cout << new_output[i];
-  }*/
+  }
   return 0;
 }

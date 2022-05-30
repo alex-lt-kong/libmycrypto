@@ -30,7 +30,7 @@ char* encode_bytes_to_base32_string(const unsigned char *input_bytes, size_t inp
   int j = 0;
   char* output = NULL;
   
-  int out_pos = 0;  
+  int out_pos = 0;
   *output_len = ceil((float)input_len / IN_BLK_SIZE) * OUT_GRP_SIZE; /* 5-byte block into 8 groups of 5 bits */  
   char buf[OUT_GRP_SIZE];
   unsigned char tmp[IN_BLK_SIZE];
@@ -38,7 +38,6 @@ char* encode_bytes_to_base32_string(const unsigned char *input_bytes, size_t inp
   output = (char *)calloc(*output_len, sizeof(char));
   if (output == NULL) { return NULL; }
 
-  // parse until end of source
   while (input_len--) {
     tmp[i++] = *(input_bytes++);
     if (i < IN_BLK_SIZE) { continue; }
@@ -57,16 +56,12 @@ char* encode_bytes_to_base32_string(const unsigned char *input_bytes, size_t inp
     for (j = i; j < IN_BLK_SIZE; ++j) {
       tmp[j] = '\0';
     }
-    encode_block(tmp, buf);
-    // perform same write to `output` with new allocation
+    encode_block(tmp, buf);    
     for (j = 0; (j < i*8/IN_BLK_SIZE + 1); ++j) {
-    //  output = (char *) realloc(output, out_pos + 1);
       output[out_pos++] = b32_table[buf[j]];
     }
-
-    // while there is still a remainder
-    // append `=' to `output'
-    while ((j++ < OUT_GRP_SIZE)) {
+    
+    while ((j++ < OUT_GRP_SIZE)) { // while there is still a remainder append `=' to `output'
       output[out_pos++] = '=';
     }
   }
@@ -75,20 +70,7 @@ char* encode_bytes_to_base32_string(const unsigned char *input_bytes, size_t inp
 }
 
 
-/**
- * `decode.c' - b32
- *
- * copyright (c) 2016 jay rama fisher
- * copyright (c) 2014 joseph werle
- */
-
-unsigned char *
-b32_decode (const char *src, size_t len) {
-  return b32_decode_ex(src, len, NULL);
-}
-
-unsigned char *
-b32_decode_ex (const char *src, size_t len, size_t *decsize) {
+unsigned char* decode_base32_string_to_bytes(const char *src, size_t len, size_t *decsize) {
   int i = 0;
   int j = 0;
   int l = 0;
@@ -124,11 +106,11 @@ b32_decode_ex (const char *src, size_t len, size_t *decsize) {
       }
 
       // decode
-      buf[0] = (tmp[0] << 3) + ((tmp[1] & 0x1c) >> 2);
-      buf[1] = ((tmp[1] & 0x03) << 6) + (tmp[2] << 1) + ((tmp[3] & 0x10) >> 4);
-      buf[2] = ((tmp[3] & 0x0f) << 4) + ((tmp[4] & 0x1e) >> 1);
-      buf[3] = ((tmp[4] & 0x01) << 7) + (tmp[5] << 2) + ((tmp[6] & 0x18) >> 3);
-      buf[4] = ((tmp[6] & 0x07) << 5) + tmp[7];
+      buf[0] = ( tmp[0] << 0b00000011) +       ((tmp[1] & 0b00011100) >> 2);
+      buf[1] = ((tmp[1]  & 0b00000011) << 6) +  (tmp[2] << 1) + ((tmp[3] & 0x10) >> 4);
+      buf[2] = ((tmp[3]  & 0b00001111) << 4) + ((tmp[4] & 0b00011110) >> 1);
+      buf[3] = ((tmp[4]  & 0b00000001) << 7) +  (tmp[5] << 2) + ((tmp[6] & 0b00011000) >> 3);
+      buf[4] = ((tmp[6]  & 0b00000111) << 5) +   tmp[7];
 
       // write decoded buffer to `dec'
       dec = (unsigned char *) realloc(dec, size + 5);
