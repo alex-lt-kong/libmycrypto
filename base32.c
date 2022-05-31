@@ -4,12 +4,12 @@
 #include <math.h>
 #include "base32.h"
 
+#define GROUP_SIZE 8
+#define BLOCK_SIZE 5
 static const char b32_table[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
-static const size_t IN_BLK_SIZE = 5;
-static const size_t OUT_GRP_SIZE = 8;
 
 /*
- * @brief Encode
+ * @brief Encode a 5-byte long input bytes block to an 8-byte long output base32 char array
  * @param in a 5-byte long input block
  * @param out an array of 8 bytes of base32 character
  */
@@ -24,44 +24,55 @@ void encode_block(unsigned char* in, char* out) {
     out[7] =   in[4] & 0b00011111;
 }
 
+/*
+ * @brief Decode an 8-byte long input char array to a 5-byte long output byte array
+ * @param in an 8-byte long input char array
+ * @param out an a 5-byte long output bytes array
+ */
+void decode_group(char* in, unsigned char* out) {
+    out[0] = ( in[0] << 0b00000011) +       ((in[1] & 0b00011100) >> 2);
+    out[1] = ((in[1]  & 0b00000011) << 6) +  (in[2] << 1) + ((in[3] & 0x10) >> 4);
+    out[2] = ((in[3]  & 0b00001111) << 4) + ((in[4] & 0b00011110) >> 1);
+    out[3] = ((in[4]  & 0b00000001) << 7) +  (in[5] << 2) + ((in[6] & 0b00011000) >> 3);
+    out[4] = ((in[6]  & 0b00000111) << 5) +   in[7];
+}
 
 char* encode_bytes_to_base32_string(const unsigned char *input_bytes, size_t input_len, size_t* output_len) {
-  int i = 0;
-  int j = 0;
+  int blk_idx = 0;
+  int grp_idx = 0;
   char* output = NULL;
   
   int out_pos = 0;
-  *output_len = ceil((float)input_len / IN_BLK_SIZE) * OUT_GRP_SIZE; /* 5-byte block into 8 groups of 5 bits */  
-  char buf[OUT_GRP_SIZE];
-  unsigned char tmp[IN_BLK_SIZE];
+  *output_len = ceil((float)input_len / BLOCK_SIZE) * GROUP_SIZE; /* 5-byte block into 8 groups of 5 bits */  
+  char buf[GROUP_SIZE];
+  unsigned char tmp[BLOCK_SIZE];
 
   output = (char *)calloc(*output_len, sizeof(char));
   if (output == NULL) { return NULL; }
 
   while (input_len--) {
-    tmp[i++] = *(input_bytes++);
-    if (i < IN_BLK_SIZE) { continue; }
-    // we read IN_BLK_SIZE bytes or until the end of input_bytes into tmp
+    tmp[blk_idx++] = *(input_bytes++);
+    if (blk_idx < BLOCK_SIZE) { continue; }
+    // we read BLOCK_SIZE bytes or until the end of input_bytes into tmp
     encode_block(tmp, buf);
     
-    for (i = 0; i < OUT_GRP_SIZE; ++i) {
-      output[out_pos++] = b32_table[buf[i]];
+    for (blk_idx = 0; blk_idx < GROUP_SIZE; blk_idx++) {
+      output[out_pos++] = b32_table[buf[blk_idx]];
     }
-    i = 0;
+    blk_idx = 0;
   }
 
-  // remainder
-  if (i > 0) {
-    // fill `tmp' with `\0' at most 5 times
-    for (j = i; j < IN_BLK_SIZE; ++j) {
-      tmp[j] = '\0';
+  // handle remainder
+  if (blk_idx > 0) {    
+    for (grp_idx = blk_idx; grp_idx < BLOCK_SIZE; grp_idx++) {
+      tmp[grp_idx] = '\0';
     }
     encode_block(tmp, buf);    
-    for (j = 0; (j < i*8/IN_BLK_SIZE + 1); ++j) {
-      output[out_pos++] = b32_table[buf[j]];
+    for (grp_idx = 0; (grp_idx < blk_idx * 8 / BLOCK_SIZE + 1); grp_idx++) {
+      output[out_pos++] = b32_table[buf[grp_idx]]; 
     }
     
-    while ((j++ < OUT_GRP_SIZE)) { // while there is still a remainder append `=' to `output'
+    while (grp_idx++ < GROUP_SIZE) { // while there is still a remainder append `=' to `output'
       output[out_pos++] = '=';
     }
   }
@@ -70,63 +81,54 @@ char* encode_bytes_to_base32_string(const unsigned char *input_bytes, size_t inp
 }
 
 
-unsigned char* decode_base32_string_to_bytes(const char *src, size_t len, size_t *decsize) {
-  int i = 0;
+unsigned char* decode_base32_string_to_bytes(const char *input_chars, size_t input_len, size_t *decsize) {
+  int grp_idx = 0;
   int j = 0;
   int l = 0;
   size_t size = 0;
-  unsigned char *dec = NULL;
-  unsigned char buf[5];
-  unsigned char tmp[8];
+  size_t output_len = input_len * BLOCK_SIZE / GROUP_SIZE; // There may be a few bytes left un-used
+  unsigned char *output_bytes = NULL;
+  unsigned char buf[BLOCK_SIZE];
+  char tmp[GROUP_SIZE];
 
-  // alloc
-  dec = (unsigned char *) malloc(0);
-  if (NULL == dec) { return NULL; }
+  output_bytes = (unsigned char *)calloc(output_len, sizeof(unsigned char));
+  if (NULL == output_bytes) { return NULL; }
 
-  // parse until end of source
-  while (len--) {
-    // break if char is `=' or not base32 char
-    if ('=' == src[j]) { break; }
-    if (!(isalnum(src[j]) || '+' == src[j] || '/' == src[j])) { break; }
-
+  while (input_len--) {    
+    if ('=' == input_chars[j]) { break; } // reaching the end of the input
+    // if not base32 char
+    if (!((input_chars[j] >= 'A' && input_chars[j] <= 'Z') || 
+          (input_chars[j] >= '2' && input_chars[j] <= '7'))) {
+      break; // If a char is invalid, break!
+    }
+    
+    tmp[grp_idx++] = input_chars[j++];
+    if (grp_idx < GROUP_SIZE) { continue; }
     // read up to 8 bytes at a time into `tmp'
-    tmp[i++] = src[j++];
 
-    // if 8 bytes read then decode into `buf'
-    if (8 == i) {
-      // translate values in `tmp' from table
-      for (i = 0; i < 8; ++i) {
-        // find translation char in `b32_table'
-        for (l = 0; l < 32; ++l) {
-          if (tmp[i] == b32_table[l]) {
-            tmp[i] = l;
-            break;
-          }
+    // translate values in `tmp' from table
+    for (grp_idx = 0; grp_idx < GROUP_SIZE; ++grp_idx) {
+      // find translation char in `b32_table'
+      for (int i = 0; i < 32; i++) {
+        if (tmp[grp_idx] == b32_table[i]) {
+          tmp[grp_idx] = i;
+          break;
         }
       }
-
-      // decode
-      buf[0] = ( tmp[0] << 0b00000011) +       ((tmp[1] & 0b00011100) >> 2);
-      buf[1] = ((tmp[1]  & 0b00000011) << 6) +  (tmp[2] << 1) + ((tmp[3] & 0x10) >> 4);
-      buf[2] = ((tmp[3]  & 0b00001111) << 4) + ((tmp[4] & 0b00011110) >> 1);
-      buf[3] = ((tmp[4]  & 0b00000001) << 7) +  (tmp[5] << 2) + ((tmp[6] & 0b00011000) >> 3);
-      buf[4] = ((tmp[6]  & 0b00000111) << 5) +   tmp[7];
-
-      // write decoded buffer to `dec'
-      dec = (unsigned char *) realloc(dec, size + 5);
-      for (i = 0; i < 5; ++i) {
-        dec[size++] = buf[i];
-      }
-
-      // reset
-      i = 0;
     }
+    decode_group(tmp, buf);
+    // write decoded buffer to `output_bytes'
+    for (int i = 0; i < 5; i++) {
+      output_bytes[size++] = buf[i];
+    }
+    grp_idx = 0;
+
   }
 
   // remainder
-  if (i > 0) {
+  if (grp_idx > 0) {
     // fill `tmp' with `\0' at most 8 times
-    for (j = i; j < 8; ++j) {
+    for (j = grp_idx; j < 8; ++j) {
       tmp[j] = '\0';
     }
 
@@ -142,25 +144,19 @@ unsigned char* decode_base32_string_to_bytes(const char *src, size_t len, size_t
     }
 
     // decode remainder
-    buf[0] = (tmp[0] << 3) + ((tmp[1] & 0x1c) >> 2);
-    buf[1] = ((tmp[1] & 0x03) << 6) + (tmp[2] << 1) + ((tmp[3] & 0x10) >> 4);
-    buf[2] = ((tmp[3] & 0x0f) << 4) + ((tmp[4] & 0x1e) >> 1);
-    buf[3] = ((tmp[4] & 0x01) << 7) + (tmp[5] << 2) + ((tmp[6] & 0x18) >> 3);
-    buf[4] = ((tmp[6] & 0x07) << 5) + tmp[7];
+    decode_group(tmp, buf);
 
-    // write remainder decoded buffer to `dec'
-    dec = (unsigned char *) realloc(dec, size + i*5/8);
-    for (j = 0; (j < i*5/8); ++j) {
-      dec[size++] = buf[j];
+    // write remainder decoded buffer to `output_bytes'  
+    for (j = 0; (j < grp_idx*5/8); ++j) {
+      output_bytes[size++] = buf[j];
     }
   }
 
-  // Make sure we have enough space to add '\0' character at end.
-  dec = (unsigned char *) realloc(dec, size + 1);
-  dec[size] = '\0';
+  // Make sure we have enough space to add '\0' character at end. 
+  output_bytes[size] = '\0';
 
   // Return back the size of decoded string if demanded.
   if (decsize != NULL) *decsize = size;
 
-  return dec;
+  return output_bytes;
 }
