@@ -2,11 +2,13 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <math.h>
+#include <string.h>
 #include "base32.h"
 
 #define GROUP_SIZE 8
 #define BLOCK_SIZE 5
 static const char b32_table[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
+// If need to change this, also need to change the invalid character check in decode_base32_string_to_bytes()
 
 /*
  * @brief Encode a 5-byte long input bytes block to an 8-byte long output base32 char array
@@ -31,7 +33,7 @@ void encode_block(unsigned char* in, char* out) {
  */
 void decode_group(char* in, unsigned char* out) {
     out[0] = ( in[0] << 0b00000011) +       ((in[1] & 0b00011100) >> 2);
-    out[1] = ((in[1]  & 0b00000011) << 6) +  (in[2] << 1) + ((in[3] & 0x10) >> 4);
+    out[1] = ((in[1]  & 0b00000011) << 6) +  (in[2] << 1) + ((in[3] & 0x00000010) >> 4);
     out[2] = ((in[3]  & 0b00001111) << 4) + ((in[4] & 0b00011110) >> 1);
     out[3] = ((in[4]  & 0b00000001) << 7) +  (in[5] << 2) + ((in[6] & 0b00011000) >> 3);
     out[4] = ((in[6]  & 0b00000111) << 5) +   in[7];
@@ -82,10 +84,8 @@ char* encode_bytes_to_base32_string(const unsigned char *input_bytes, size_t inp
 
 
 unsigned char* decode_base32_string_to_bytes(const char *input_chars, size_t input_len, size_t *decsize) {
-  int grp_idx = 0;
-  int j = 0;
-  int l = 0;
-  size_t size = 0;
+  
+  int out_pos = 0;
   size_t output_len = input_len * BLOCK_SIZE / GROUP_SIZE; // There may be a few bytes left un-used
   unsigned char *output_bytes = NULL;
   unsigned char buf[BLOCK_SIZE];
@@ -94,50 +94,44 @@ unsigned char* decode_base32_string_to_bytes(const char *input_chars, size_t inp
   output_bytes = (unsigned char *)calloc(output_len, sizeof(unsigned char));
   if (NULL == output_bytes) { return NULL; }
 
+  int in_pos = 0;
+  int grp_idx = 0;
   while (input_len--) {    
-    if ('=' == input_chars[j]) { break; } // reaching the end of the input
+    if ('=' == input_chars[in_pos]) { break; } // reaching the end of the input
     // if not base32 char
-    if (!((input_chars[j] >= 'A' && input_chars[j] <= 'Z') || 
-          (input_chars[j] >= '2' && input_chars[j] <= '7'))) {
+    if (!((input_chars[in_pos] >= 'A' && input_chars[in_pos] <= 'Z') || 
+          (input_chars[in_pos] >= '2' && input_chars[in_pos] <= '7'))) {
       break; // If a char is invalid, break!
     }
     
-    tmp[grp_idx++] = input_chars[j++];
+    tmp[grp_idx++] = input_chars[in_pos++];
     if (grp_idx < GROUP_SIZE) { continue; }
-    // read up to 8 bytes at a time into `tmp'
 
-    // translate values in `tmp' from table
-    for (grp_idx = 0; grp_idx < GROUP_SIZE; ++grp_idx) {
-      // find translation char in `b32_table'
-      for (int i = 0; i < 32; i++) {
-        if (tmp[grp_idx] == b32_table[i]) {
-          tmp[grp_idx] = i;
-          break;
+    for (int i = 0; i < GROUP_SIZE; i++) {
+      for (int j = 0; j < 32; j++) {
+        if (tmp[i] == b32_table[j]) {
+          tmp[i] = j; break; // here we translate encoded character back to index (as in b32_table)
         }
       }
     }
     decode_group(tmp, buf);
-    // write decoded buffer to `output_bytes'
-    for (int i = 0; i < 5; i++) {
-      output_bytes[size++] = buf[i];
-    }
+    memcpy(output_bytes + out_pos, buf, BLOCK_SIZE);
+    out_pos += BLOCK_SIZE;
     grp_idx = 0;
-
   }
 
   // remainder
   if (grp_idx > 0) {
-    // fill `tmp' with `\0' at most 8 times
-    for (j = grp_idx; j < 8; ++j) {
-      tmp[j] = '\0';
+    for (int i = grp_idx; i < GROUP_SIZE; i++) {
+      tmp[i] = '\0';
     }
 
     // translate remainder
-    for (j = 0; j < 8; ++j) {
+    for (int i = 0; i < GROUP_SIZE; i++) {
         // find translation char in `b32_table'
-        for (l = 0; l < 32; ++l) {
-          if (tmp[j] == b32_table[l]) {
-            tmp[j] = l;
+        for (int j = 0; j < 32; ++j) {
+          if (tmp[i] == b32_table[j]) {
+            tmp[i] = j;
             break;
           }
         }
@@ -147,16 +141,16 @@ unsigned char* decode_base32_string_to_bytes(const char *input_chars, size_t inp
     decode_group(tmp, buf);
 
     // write remainder decoded buffer to `output_bytes'  
-    for (j = 0; (j < grp_idx*5/8); ++j) {
-      output_bytes[size++] = buf[j];
+    for (in_pos = 0; (in_pos < grp_idx*5/8); ++in_pos) {
+      output_bytes[out_pos++] = buf[in_pos];
     }
   }
 
   // Make sure we have enough space to add '\0' character at end. 
-  output_bytes[size] = '\0';
+  output_bytes[out_pos] = '\0';
 
   // Return back the size of decoded string if demanded.
-  if (decsize != NULL) *decsize = size;
+  if (decsize != NULL) *decsize = out_pos;
 
   return output_bytes;
 }
