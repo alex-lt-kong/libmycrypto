@@ -45,7 +45,7 @@ struct Sha_256 {
  * @note If all of the data you are calculating the hash value on is available in a contiguous buffer in memory, this is
  * the function you should use.
  */
-void cal_sha256_hash(const unsigned char *input, const size_t len, char hash[SHA256_HASH_SIZE]);
+void cal_sha256_hash(const unsigned char *input, const size_t len, unsigned char hash[SHA256_HASH_SIZE]);
 
 /**
  * @brief Initialize a SHA-256 streaming calculation.

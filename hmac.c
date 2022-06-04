@@ -11,7 +11,7 @@
 #include <string.h>
 
 static unsigned char* H(
-  void (*hash_func)(unsigned char*, const unsigned char*, size_t),
+  void (*hash_func)(const unsigned char*, size_t, unsigned char*),
   const unsigned char* x, const size_t xlen, const unsigned char* y, const size_t ylen, unsigned char* out
 ) {
   size_t buflen = (xlen + ylen);
@@ -19,14 +19,14 @@ static unsigned char* H(
 
   memcpy(buf, x, xlen);
   memcpy(buf + xlen, y, ylen);
-  (*hash_func)(out, buf, buflen);
+  (*hash_func)(buf, buflen, out);
 
   free(buf);
 }
 
 void hmac(
   const size_t BLOCK_SIZE, const size_t HASH_SIZE,
-  void (*hash_func)(unsigned char*, const unsigned char*, size_t),
+  void (*hash_func)(const unsigned char*, size_t, unsigned char*),
   const unsigned char* key, const size_t key_len,
   const unsigned char* msg, const size_t msg_len, unsigned char* out) {
 
@@ -41,7 +41,7 @@ void hmac(
   memset(ipad, 0x36, BLOCK_SIZE);
   memset(opad, 0x5c, BLOCK_SIZE);
 
-  if (key_len > BLOCK_SIZE) { (*hash_func)(k_prime, key, key_len); }
+  if (key_len > BLOCK_SIZE) { (*hash_func)(key, key_len, k_prime); }
   else { memcpy(k_prime, key, key_len); }
 
   for (int i = 0; i < BLOCK_SIZE; i++) {

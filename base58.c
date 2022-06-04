@@ -43,10 +43,6 @@ bool b58enc(const unsigned char *input_bytes, const size_t input_len, char *outp
 		  --buf_idx;
 		}
 		high = buf_idx;
-		for (int k = 0; k < size; ++k) {
-			printf("%02d,", buf[k]);
-		}
-		printf("\n");
 	}	
 	
 	int k = 0;
