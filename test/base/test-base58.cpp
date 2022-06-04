@@ -1,4 +1,5 @@
 #include <iostream>
+#include <string.h>
 
 #include "../../base58.h"
 
@@ -7,7 +8,9 @@ using namespace std;
 int main() {
   unsigned char input[] = {0x48, 0x65, 0x6C, 0x6C, 0x6F, 0x20, 0x57, 0x6F, 0x72, 0x6C, 0x64, 0x21};
   // Hello World!
-  char* output = (char*)calloc(512, 1);
+  //unsigned char input[] = "The quick brown fox jumps over the lazy dog.";
+  // Answer: USm3fpXnKG5EUBx2ndxBDMPVciP5hGey2Jh4NDv6gmeo1LkMeiKrLJUUBk6Z
+  char* output = (char*)calloc(1024, 1);
   size_t output_len = 512;
   bool res = b58enc(input, sizeof(input), output, &output_len);
   cout << "Result:" << res << "\nLength: " << output_len << endl;
