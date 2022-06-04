@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="UnattendedHostPersistenceState">
+    <option name="openedFilesInfos">
+      <list>
+        <OpenedFileInfo>
+          <option name="caretOffset" value="0" />
+          <option name="fileUrl" value="file://$PROJECT_DIR$/README.md" />
+        </OpenedFileInfo>
+        <OpenedFileInfo>
+          <option name="caretOffset" value="463" />
+          <option name="fileUrl" value="file://$PROJECT_DIR$/base32.h" />
+        </OpenedFileInfo>
+        <OpenedFileInfo>
+          <option name="caretOffset" value="506" />
+          <option name="fileUrl" value="file://$PROJECT_DIR$/test/base/test-base32.cpp" />
+        </OpenedFileInfo>
+        <OpenedFileInfo>
+          <option name="caretOffset" value="4324" />
+          <option name="fileUrl" value="file://$PROJECT_DIR$/base32.c" />
+        </OpenedFileInfo>
+      </list>
+    </option>
+  </component>
+</project>
