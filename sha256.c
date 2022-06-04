@@ -213,7 +213,7 @@ unsigned char *sha256_close(struct Sha_256 *sha_256)
 	return sha_256->hash;
 }
 
-void cal_sha256_hash(unsigned char hash[SHA256_HASH_SIZE], const unsigned char *input, const size_t len)
+void cal_sha256_hash(const unsigned char *input, const size_t len, unsigned char hash[SHA256_HASH_SIZE])
 {
 	struct Sha_256 sha_256;
 	sha256_init(&sha_256, hash);

@@ -31,16 +31,16 @@ void SHA1Update(SHA1_CTX * context, const unsigned char *data, size_t len);
 
 void sha1_final(unsigned char digest[20], SHA1_CTX * context);
 
-/*
- * @brief The simple SHA1 calculation function.
- * @param hash Hash array, where the result is delivered.
+/**
+ * @brief The simple SHA1 calculation function. 
  * @param input Pointer to the data the hash shall be calculated on.
  * @param len Length of the input data, in byte.
+ * @param hash Hash array, where the result is delivered.
  *
  * @note If all of the data you are calculating the hash value on is available in a contiguous buffer in memory, this is
  * the function you should use.
  */
-void cal_sha1_hash(unsigned char* hash, const unsigned char* str, size_t len);
+void cal_sha1_hash(const unsigned char* str, size_t len, unsigned char hash[SHA1_HASH_SIZE]);
 
 #ifdef __cplusplus
 }

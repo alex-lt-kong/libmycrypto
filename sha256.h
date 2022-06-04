@@ -36,7 +36,7 @@ struct Sha_256 {
 	uint32_t h[8];
 };
 
-/*
+/**
  * @brief The simple SHA-256 calculation function.
  * @param hash Hash array, where the result is delivered.
  * @param input Pointer to the data the hash shall be calculated on.
@@ -45,9 +45,9 @@ struct Sha_256 {
  * @note If all of the data you are calculating the hash value on is available in a contiguous buffer in memory, this is
  * the function you should use.
  */
-void cal_sha256_hash(unsigned char hash[SHA256_HASH_SIZE], const unsigned char *input, const size_t len);
+void cal_sha256_hash(const unsigned char *input, const size_t len, char hash[SHA256_HASH_SIZE]);
 
-/*
+/**
  * @brief Initialize a SHA-256 streaming calculation.
  * @param sha_256 A pointer to a SHA-256 structure.
  * @param hash Hash array, where the result will be delivered.

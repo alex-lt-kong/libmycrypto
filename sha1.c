@@ -261,7 +261,7 @@ void sha1_final(
     memset(&finalcount, '\0', sizeof(finalcount));
 }
 
-void cal_sha1_hash(unsigned char* hash, const unsigned char* str, size_t len)
+void cal_sha1_hash(const unsigned char* str, size_t len, unsigned char hash[SHA1_HASH_SIZE])
 {
     SHA1_CTX ctx;
     unsigned int ii;
