@@ -15,13 +15,14 @@ extern "C" {
 
 /*
  * @brief Empty
- * @param b58 pointer to the base58 string
- * @param b58sz pointer to the size of the output base58 string
- * @param bin believed to be the input bytes
- * @param binsz believed to be the lengto of the input bytes
- * 
+ * @param input_bytes the input bytes
+ * @param input_len the length of the input bytes
+ * @param output_char pointer to the base58 string
+ * @param output_len pointer to the size of the output base58 string 
  */
-extern bool b58enc(char *b58, size_t *b58sz, const void *bin, size_t binsz);
+extern bool b58enc(
+  const unsigned char *input_bytes, const size_t input_len, char *output_char, size_t *output_len
+);
 //extern bool b58check_enc(char *b58c, size_t *b58c_sz, uint8_t ver, const void *data, size_t datasz);
 
 #ifdef __cplusplus
