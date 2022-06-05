@@ -6,6 +6,7 @@
     "iosfwd": "cpp",
     "sha1.h": "c",
     "sha256.h": "c",
-    "stdlib.h": "c"
+    "stdlib.h": "c",
+    "string.h": "c"
   }
 }

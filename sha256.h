@@ -1,16 +1,13 @@
-#ifndef SHA_256_H
-#define SHA_256_H
+#ifndef SHA256_H
+#define SHA256_H
 
-#include <stdint.h>
+#include "stdint.h"
 #include <string.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-/*
- * @brief Size of the SHA-256 sum. This times eight is 256 bits.
- */
 #define SHA256_HASH_SIZE 32
 #define SHA256_BLOCK_SIZE 64
 /*
