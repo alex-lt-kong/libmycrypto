@@ -1,9 +1,14 @@
 # cryptographic-algorithms
 
-* A few cryptographic algorithms for study and general usage
+* A few cryptographic algorithms for study and general usage.
 
-* Available algorithms are: SHA1, SHA256, HMAC-SHA256, HMAC-SHA1, Base64, Base32
+* Available algorithms are: SHA1, SHA256, HMAC-SHA256, HMAC-SHA1, Base64, Base58, Base32.
 
-* Algorithms that pass Cryptographic Algorithm Validation Program's test vectors from NIST: SHA1, SHA256
+* Test results
 
-* https://csrc.nist.gov/projects/cryptographic-algorithm-validation-program
+| Algorithm     | Last Tested On  | Test Vectors From|
+| ------------- | -------------   | ------------- |
+| SHA1          | 2022-06-04      | [NIST](https://csrc.nist.gov/Projects/Cryptographic-Algorithm-Validation-Program/Secure-Hashing)|
+| SHA256        | 2022-06-04      | [NIST](https://csrc.nist.gov/Projects/Cryptographic-Algorithm-Validation-Program/Secure-Hashing)|
+| Base32        | 2022-06-05      | [RFC 4648](https://datatracker.ietf.org/doc/html/rfc4648#section-10)|
+| Base64        | 2022-06-05      | [RFC 4648](https://datatracker.ietf.org/doc/html/rfc4648#section-10)|

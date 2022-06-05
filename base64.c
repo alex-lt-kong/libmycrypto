@@ -20,7 +20,7 @@
 static const unsigned char base64_table[65] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 // This table is defined in RFC 4648
 
-char* encode_bytes_to_base64_string(const unsigned char* input_bytes, const size_t input_len, size_t *output_len)
+char* encode_bytes_to_base64_string(const unsigned char* input_bytes, const size_t input_len)
 {
 	char *output_chars, *pos;
 	const size_t CHARS_PER_LINE = 72;
@@ -84,12 +84,7 @@ char* encode_bytes_to_base64_string(const unsigned char* input_bytes, const size
 		line_len += 4;
 	}
 
-	if (line_len)
-		*pos++ = '\n';
-
 	*pos = '\0';
-
-	*output_len = pos - output_chars;
 	return output_chars;
 }
 
