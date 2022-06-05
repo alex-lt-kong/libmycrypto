@@ -1,36 +1,29 @@
-/**
- * `b32.h' - b32
- *
- * copyright (c) 2016 jay rama fisher
- * copyright (c) 2014 joseph werle
- */
-
-#ifndef B32_H
-#define B32_H 1
-
-
+#ifndef BASE32_H
+#define BASE32_H
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-/*
- * @brief Encode bytes into a base32 string
- * @param input_bytes pointer to an array of input bytes
- * @param input_len length of input_bytes
- * @param output_len pointer to the length of output string
- * @returns pointer to a base32 string representing input_bytes
+/**
+ * @brief Encode a byte array into a printable and null-terminated base32 char array
+ * @param input_bytes Pointer to an array of bytes
+ * @param input_len Length of input_bytes
+ * @returns Pointer to a null-terminated char array or NULL if fails to allocate enough memory,
+ * users are reminded to free() the pointer after use.
  */
-char* encode_bytes_to_base32_string(const unsigned char* input_bytes , size_t input_len, size_t* output_len);
+char* encode_bytes_to_base32_string(const unsigned char* input_bytes, const size_t input_len);
 
 /**
- * Dencode `char *' source with `size_t' size.
- * Returns a `unsigned char *' base32 decoded string + size of decoded string.
+ * @brief Decode a null-terminated base32-encoded char array into original bytes
+ * @param input_chars Pointer to an array of base32-encoded chars
+ * @param output_len Length of the output byte array
+ * @returns Pointer to a byte array or NULL (if error occurs), users are reminded to free() the pointer after use.
  */
-unsigned char* decode_base32_string_to_bytes (const char * input_chars, size_t input_len, size_t *);
+unsigned char* decode_base32_string_to_bytes(const char* input_chars, size_t* output_len);
 
 #ifdef __cplusplus
 }
-#endif
+#endif // __cplusplus
 
-#endif
+#endif /* BASE32_H */

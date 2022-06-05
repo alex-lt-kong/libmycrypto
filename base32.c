@@ -39,17 +39,17 @@ void decode_group(char* in, unsigned char* out) {
     out[4] = ((in[6]  & 0b00000111) << 5) +   in[7];
 }
 
-char* encode_bytes_to_base32_string(const unsigned char *input_bytes, size_t input_len, size_t* output_len) {
+char* encode_bytes_to_base32_string(const unsigned char *input_bytes, size_t input_len) {
   int blk_idx = 0;
   int grp_idx = 0;
   char* output = NULL;
   
   int out_pos = 0;
-  *output_len = ceil((float)input_len / BLOCK_SIZE) * GROUP_SIZE; /* 5-byte block into 8 groups of 5 bits */  
+  size_t output_len = ceil((float)input_len / BLOCK_SIZE) * GROUP_SIZE; /* 5-byte block into 8 groups of 5 bits */  
   char buf[GROUP_SIZE];
   unsigned char tmp[BLOCK_SIZE];
 
-  output = (char *)calloc(*output_len, sizeof(char));
+  output = (char *)calloc(output_len, sizeof(char));
   if (output == NULL) { return NULL; }
 
   while (input_len--) {
@@ -83,25 +83,28 @@ char* encode_bytes_to_base32_string(const unsigned char *input_bytes, size_t inp
 }
 
 
-unsigned char* decode_base32_string_to_bytes(const char *input_chars, size_t input_len, size_t *decsize) {
+unsigned char* decode_base32_string_to_bytes(const char *input_chars, size_t *output_len) {
   
   int out_pos = 0;
-  size_t output_len = input_len * BLOCK_SIZE / GROUP_SIZE; // There may be a few bytes left un-used
+  *output_len = strlen(input_chars) * BLOCK_SIZE / GROUP_SIZE;
+  // We pre-allocate this number of bytes, but some of them may not be used due to the existence of padding ='s
+  // *output_len will be shrunk a bit at the end.
   unsigned char *output_bytes = NULL;
   unsigned char buf[BLOCK_SIZE];
   char tmp[GROUP_SIZE];
 
-  output_bytes = (unsigned char *)calloc(output_len, sizeof(unsigned char));
+  output_bytes = (unsigned char *)calloc(*output_len, sizeof(unsigned char));
   if (NULL == output_bytes) { return NULL; }
 
   int in_pos = 0;
   int grp_idx = 0;
-  while (input_len--) {    
+  for (int i = 0; i < strlen(input_chars); ++i) {
     if ('=' == input_chars[in_pos]) { break; } // reaching the end of the input
     // if not base32 char
     if (!((input_chars[in_pos] >= 'A' && input_chars[in_pos] <= 'Z') || 
           (input_chars[in_pos] >= '2' && input_chars[in_pos] <= '7'))) {
-      break; // If a char is invalid, break!
+      free(output_bytes);
+      return NULL;
     }
     
     tmp[grp_idx++] = input_chars[in_pos++];
@@ -122,10 +125,6 @@ unsigned char* decode_base32_string_to_bytes(const char *input_chars, size_t inp
 
   // remainder
   if (grp_idx > 0) {
-    for (int i = grp_idx; i < GROUP_SIZE; i++) {
-      tmp[i] = '\0';
-    }
-
     // translate remainder
     for (int i = 0; i < GROUP_SIZE; i++) {
         // find translation char in `b32_table'
@@ -136,7 +135,6 @@ unsigned char* decode_base32_string_to_bytes(const char *input_chars, size_t inp
           }
         }
     }
-
     // decode remainder
     decode_group(tmp, buf);
 
@@ -146,11 +144,6 @@ unsigned char* decode_base32_string_to_bytes(const char *input_chars, size_t inp
     }
   }
 
-  // Make sure we have enough space to add '\0' character at end. 
-  output_bytes[out_pos] = '\0';
-
-  // Return back the size of decoded string if demanded.
-  if (decsize != NULL) *decsize = out_pos;
-
+  *output_len = out_pos;
   return output_bytes;
 }

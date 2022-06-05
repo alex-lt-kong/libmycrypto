@@ -33,8 +33,7 @@ char* encode_bytes_to_base64_string(const unsigned char* input_bytes, const size
 	olen += olen / CHARS_PER_LINE; /* line feeds */
 	olen++; /* nul termination */
 	output_chars = (char *)calloc(olen, sizeof(char));
-	if (output_chars == NULL)
-		return NULL;
+	if (output_chars == NULL) { return NULL; }
 
 	pos = output_chars;
 	line_len = 0;
@@ -88,17 +87,8 @@ char* encode_bytes_to_base64_string(const unsigned char* input_bytes, const size
 	return output_chars;
 }
 
-/**
- * base64_decode - Base64 decode
- * @input_bytes: Data to be decoded
- * @len: Length of the data to be decoded
- * @out_len: Pointer to output length variable
- * Returns: Allocated buffer of out_len bytes of decoded data,
- * or %NULL on failure
- *
- * Caller is responsible for freeing the returned buffer.
- */
-unsigned char * decode_base64_string_to_bytes(const char *input_bytes, size_t len, size_t *out_len)
+
+unsigned char * decode_base64_string_to_bytes(const char *input_chars, size_t *output_len)
 {
 	unsigned char dtable[256], *out, *pos, in[4], block[4], tmp;
 	size_t i, count, olen;
@@ -110,8 +100,8 @@ unsigned char * decode_base64_string_to_bytes(const char *input_bytes, size_t le
 	dtable['='] = 0;
   
 	count = 0;
-	for (i = 0; i < len; i++) {
-		if (dtable[input_bytes[i]] != 0x80)
+	for (i = 0; i < strlen(input_chars); i++) {
+		if (dtable[input_chars[i]] != 0x80)
 			count++;
 	}
   
@@ -120,16 +110,15 @@ unsigned char * decode_base64_string_to_bytes(const char *input_bytes, size_t le
 
 	olen = count / 4 * 3;
 	pos = out = (unsigned char*)malloc(olen);
-	if (out == NULL)
-		return NULL;
+	if (out == NULL) { return NULL; }
   
 	count = 0;
-	for (i = 0; i < len; i++) {
-		tmp = dtable[input_bytes[i]];
+	for (i = 0; i < strlen(input_chars); i++) {
+		tmp = dtable[input_chars[i]];
 		if (tmp == 0x80)
 			continue;
 
-		in[count] = input_bytes[i];
+		in[count] = input_chars[i];
 		block[count] = tmp;
 		count++;
 		if (count == 4) {
@@ -146,7 +135,7 @@ unsigned char * decode_base64_string_to_bytes(const char *input_bytes, size_t le
 		else if (in[3] == '=')
 			pos--;
 	}
-	*out_len = pos - out;
+	*output_len = pos - out;
   
 	return out;
 }

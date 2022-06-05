@@ -1,6 +1,6 @@
 # cryptographic-algorithms
 
-* A few cryptographic algorithms for study and general usage.
+* A few cryptographic algorithms for study and general usage with a focus on cryptocurrency applications.
 
 * Available algorithms are: SHA1, SHA256, HMAC-SHA256, HMAC-SHA1, Base64, Base58, Base32.
 
