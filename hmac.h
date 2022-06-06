@@ -13,6 +13,7 @@ extern "C" {
 #include <stddef.h>
 #include <assert.h>
 #include <limits.h>
+#include <stdint.h>
 
 /*
  * @brief The simple HMAC-SHA1 calculation function.
