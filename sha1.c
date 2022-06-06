@@ -1,27 +1,8 @@
-/*
-SHA-1 in C
-By Steve Reid <steve@edmweb.com>
-100% Public Domain
-
-Test Vectors (from FIPS PUB 180-1)
-"abc"
-  A9993E36 4706816A BA3E2571 7850C26C 9CD0D89D
-"abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq"
-  84983E44 1C3BD26E BAAE4AA1 F95129E5 E54670F1
-A million repetitions of "a"
-  34AA973C D4C4DAA4 F61EEB2B DBAD2731 6534016F
-*/
-
-/* #define LITTLE_ENDIAN * This should be #define'd already, if true. */
-/* #define SHA1HANDSOFF * Copies data before messing with it. */
-
 #define SHA1HANDSOFF
 
+#include <stdint.h>
 #include <stdio.h>
 #include <string.h>
-
-/* for uint32_t */
-#include <stdint.h>
 
 #include "sha1.h"
 
@@ -179,60 +160,48 @@ void sha1_transform(
 
 /* SHA1Init - Initialize new context */
 
-void sha1_init(
-    SHA1_CTX * context
-)
-{
+void sha1_init(sha1_ctx * ctx) {
     /* SHA1 initialization constants */
-    context->state[0] = 0x67452301;
-    context->state[1] = 0xEFCDAB89;
-    context->state[2] = 0x98BADCFE;
-    context->state[3] = 0x10325476;
-    context->state[4] = 0xC3D2E1F0;
-    context->count[0] = context->count[1] = 0;
+    ctx->state[0] = 0x67452301;
+    ctx->state[1] = 0xEFCDAB89;
+    ctx->state[2] = 0x98BADCFE;
+    ctx->state[3] = 0x10325476;
+    ctx->state[4] = 0xC3D2E1F0;
+    ctx->count[0] = ctx->count[1] = 0;
 }
 
 
 /* Run your data through this. */
 
-void SHA1Update(
-    SHA1_CTX * context,
-    const unsigned char *data,
-    size_t len
-)
-{
+void sha1_update(sha1_ctx * ctx, const unsigned char *data, size_t len) {
     uint32_t i;
 
     uint32_t j;
 
-    j = context->count[0];
-    if ((context->count[0] += len << 3) < j)
-        context->count[1]++;
-    context->count[1] += (len >> 29);
+    j = ctx->count[0];
+    if ((ctx->count[0] += len << 3) < j)
+        ctx->count[1]++;
+    ctx->count[1] += (len >> 29);
     j = (j >> 3) & 63;
     if ((j + len) > 63)
     {
-        memcpy(&context->buffer[j], data, (i = 64 - j));
-        sha1_transform(context->state, context->buffer);
+        memcpy(&ctx->buffer[j], data, (i = 64 - j));
+        sha1_transform(ctx->state, ctx->buffer);
         for (; i + 63 < len; i += 64)
         {
-            sha1_transform(context->state, &data[i]);
+            sha1_transform(ctx->state, &data[i]);
         }
         j = 0;
     }
     else
         i = 0;
-    memcpy(&context->buffer[j], &data[i], len - i);
+    memcpy(&ctx->buffer[j], &data[i], len - i);
 }
 
 
 /* Add padding and return the message digest. */
 
-void sha1_final(
-    unsigned char digest[20],
-    SHA1_CTX * context
-)
-{
+void sha1_final(unsigned char digest[20], sha1_ctx * ctx) {
     unsigned i;
 
     unsigned char finalcount[8];
@@ -240,35 +209,33 @@ void sha1_final(
     unsigned char c;
 
     for (i = 0; i < 8; i++) {
-        finalcount[i] = (unsigned char) ((context->count[(i >= 4 ? 0 : 1)] >> ((3 - (i & 3)) * 8)) & 255);      /* Endian independent */
+        finalcount[i] = (unsigned char) ((ctx->count[(i >= 4 ? 0 : 1)] >> ((3 - (i & 3)) * 8)) & 255);      /* Endian independent */
     }
 
     c = 0200;
-    SHA1Update(context, &c, 1);
-    while ((context->count[0] & 504) != 448)
+    sha1_update(ctx, &c, 1);
+    while ((ctx->count[0] & 504) != 448)
     {
         c = 0000;
-        SHA1Update(context, &c, 1);
+        sha1_update(ctx, &c, 1);
     }
-    SHA1Update(context, finalcount, 8); /* Should cause a SHA1Transform() */
+    sha1_update(ctx, finalcount, 8); /* Should cause a SHA1Transform() */
     for (i = 0; i < 20; i++)
     {
         digest[i] = (unsigned char)
-            ((context->state[i >> 2] >> ((3 - (i & 3)) * 8)) & 255);
+            ((ctx->state[i >> 2] >> ((3 - (i & 3)) * 8)) & 255);
     }
     /* Wipe variables */
-    memset(context, '\0', sizeof(*context));
+    memset(ctx, '\0', sizeof(*ctx));
     memset(&finalcount, '\0', sizeof(finalcount));
 }
 
-void cal_sha1_hash(const unsigned char* str, size_t len, unsigned char hash[SHA1_HASH_SIZE])
+void cal_sha1_hash(const unsigned char* input_bytes, const size_t input_len, unsigned char hash[SHA1_HASH_SIZE])
 {
-    SHA1_CTX ctx;
-    unsigned int ii;
-
+    sha1_ctx ctx;
     sha1_init(&ctx);
-    for (ii=0; ii<len; ii+=1)
-        SHA1Update(&ctx, (const unsigned char*)str + ii, 1);
+    for (int i = 0; i < input_len; ++i)
+        sha1_update(&ctx, input_bytes + i, 1);
     sha1_final((unsigned char *)hash, &ctx);
 }
 

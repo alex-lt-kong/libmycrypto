@@ -1,3 +1,9 @@
+
+
+#include <stdint.h>
+#include <stdio.h>
+#include <string.h>
+
 #include "sha256.h"
 
 #define TOTAL_LEN_LEN 8
@@ -13,8 +19,7 @@
  * @param count The number of bits to rotate by.
  * @return The rotated value.
  */
-static inline uint32_t right_rot(uint32_t value, unsigned int count)
-{
+static inline uint32_t right_rot(uint32_t value, unsigned int count) {
 	/*
 	 * Defined behaviour in standard C for all count where 0 < count < 32, which is what we need here.
 	 */
@@ -28,8 +33,7 @@ static inline uint32_t right_rot(uint32_t value, unsigned int count)
  *
  * @note This is the SHA-256 work horse.
  */
-static inline void consume_chunk(uint32_t *h, const unsigned char *p)
-{
+static inline void consume_chunk(uint32_t *h, const unsigned char *p) {
 	unsigned i, j;
 	uint32_t ah[8];
 
@@ -112,29 +116,27 @@ static inline void consume_chunk(uint32_t *h, const unsigned char *p)
  * Public functions. See header file for documentation.
  */
 
-void sha256_init(struct Sha_256 *sha_256, unsigned char hash[SHA256_HASH_SIZE])
-{
-	sha_256->hash = hash;
-	sha_256->chunk_pos = sha_256->chunk;
-	sha_256->space_left = SHA256_CHUNK_SIZE;
-	sha_256->total_len = 0;
+void sha256_init(sha256_ctx* ctx, unsigned char hash[SHA256_HASH_SIZE]) {
+	ctx->hash = hash;
+	ctx->chunk_pos = ctx->chunk;
+	ctx->space_left = SHA256_CHUNK_SIZE;
+	ctx->total_len = 0;
 	/*
 	 * Initialize hash values (first 32 bits of the fractional parts of the square roots of the first 8 primes
 	 * 2..19):
 	 */
-	sha_256->h[0] = 0x6a09e667;
-	sha_256->h[1] = 0xbb67ae85;
-	sha_256->h[2] = 0x3c6ef372;
-	sha_256->h[3] = 0xa54ff53a;
-	sha_256->h[4] = 0x510e527f;
-	sha_256->h[5] = 0x9b05688c;
-	sha_256->h[6] = 0x1f83d9ab;
-	sha_256->h[7] = 0x5be0cd19;
+	ctx->h[0] = 0x6a09e667;
+	ctx->h[1] = 0xbb67ae85;
+	ctx->h[2] = 0x3c6ef372;
+	ctx->h[3] = 0xa54ff53a;
+	ctx->h[4] = 0x510e527f;
+	ctx->h[5] = 0x9b05688c;
+	ctx->h[6] = 0x1f83d9ab;
+	ctx->h[7] = 0x5be0cd19;
 }
 
-void sha256_write(struct Sha_256 *sha_256, const unsigned char *data, size_t len)
-{
-	sha_256->total_len += len;
+void sha256_update(sha256_ctx* ctx, const unsigned char *data, size_t len) {
+	ctx->total_len += len;
 
 	const unsigned char *p = (unsigned char*)data;
 
@@ -143,33 +145,32 @@ void sha256_write(struct Sha_256 *sha_256, const unsigned char *data, size_t len
 		 * If the input chunks have sizes that are multiples of the calculation chunk size, no copies are
 		 * necessary. We operate directly on the input data instead.
 		 */
-		if (sha_256->space_left == SHA256_CHUNK_SIZE && len >= SHA256_CHUNK_SIZE) {
-			consume_chunk(sha_256->h, p);
+		if (ctx->space_left == SHA256_CHUNK_SIZE && len >= SHA256_CHUNK_SIZE) {
+			consume_chunk(ctx->h, p);
 			len -= SHA256_CHUNK_SIZE;
 			p += SHA256_CHUNK_SIZE;
 			continue;
 		}
 		/* General case, no particular optimization. */
-		const size_t consumed_len = len < sha_256->space_left ? len : sha_256->space_left;
-		memcpy(sha_256->chunk_pos, p, consumed_len);
-		sha_256->space_left -= consumed_len;
+		const size_t consumed_len = len < ctx->space_left ? len : ctx->space_left;
+		memcpy(ctx->chunk_pos, p, consumed_len);
+		ctx->space_left -= consumed_len;
 		len -= consumed_len;
 		p += consumed_len;
-		if (sha_256->space_left == 0) {
-			consume_chunk(sha_256->h, sha_256->chunk);
-			sha_256->chunk_pos = sha_256->chunk;
-			sha_256->space_left = SHA256_CHUNK_SIZE;
+		if (ctx->space_left == 0) {
+			consume_chunk(ctx->h, ctx->chunk);
+			ctx->chunk_pos = ctx->chunk;
+			ctx->space_left = SHA256_CHUNK_SIZE;
 		} else {
-			sha_256->chunk_pos += consumed_len;
+			ctx->chunk_pos += consumed_len;
 		}
 	}
 }
 
-unsigned char *sha256_close(struct Sha_256 *sha_256)
-{
-	unsigned char *pos = sha_256->chunk_pos;
-	size_t space_left = sha_256->space_left;
-	uint32_t *const h = sha_256->h;
+void sha256_final(sha256_ctx *ctx) {
+	unsigned char *pos = ctx->chunk_pos;
+	size_t space_left = ctx->space_left;
+	uint32_t *const h = ctx->h;
 
 	/*
 	 * The current chunk cannot be full. Otherwise, it would already have be consumed. I.e. there is space left for
@@ -185,14 +186,14 @@ unsigned char *sha256_close(struct Sha_256 *sha_256)
 	 */
 	if (space_left < TOTAL_LEN_LEN) {
 		memset(pos, 0x00, space_left);
-		consume_chunk(h, sha_256->chunk);
-		pos = sha_256->chunk;
+		consume_chunk(h, ctx->chunk);
+		pos = ctx->chunk;
 		space_left = SHA256_CHUNK_SIZE;
 	}
 	const size_t left = space_left - TOTAL_LEN_LEN;
 	memset(pos, 0x00, left);
 	pos += left;
-	size_t len = sha_256->total_len;
+	size_t len = ctx->total_len;
 	pos[7] = (unsigned char)(len << 3);
 	len >>= 5;
 	int i;
@@ -200,23 +201,22 @@ unsigned char *sha256_close(struct Sha_256 *sha_256)
 		pos[i] = (unsigned char)len;
 		len >>= 8;
 	}
-	consume_chunk(h, sha_256->chunk);
+	consume_chunk(h, ctx->chunk);
 	/* Produce the final hash value (big-endian): */
 	int j;
-	unsigned char *const hash = sha_256->hash;
+	unsigned char *const hash = ctx->hash;
 	for (i = 0, j = 0; i < 8; i++) {
 		hash[j++] = (unsigned char)(h[i] >> 24);
 		hash[j++] = (unsigned char)(h[i] >> 16);
 		hash[j++] = (unsigned char)(h[i] >> 8);
 		hash[j++] = (unsigned char)h[i];
 	}
-	return sha_256->hash;
 }
 
-void cal_sha256_hash(const unsigned char *input, const size_t len, unsigned char hash[SHA256_HASH_SIZE])
+void cal_sha256_hash(const unsigned char* input_bytes, const size_t input_len, unsigned char hash[SHA256_HASH_SIZE])
 {
-	struct Sha_256 sha_256;
-	sha256_init(&sha_256, hash);
-	sha256_write(&sha_256, input, len);
-	(void)sha256_close(&sha_256);
+	sha256_ctx ctx;
+	sha256_init(&ctx, hash);
+	sha256_update(&ctx, input_bytes, input_len);
+	sha256_final(&ctx);
 }
