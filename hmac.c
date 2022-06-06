@@ -9,7 +9,7 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include <stdint.h>
+
 
 static unsigned char* H(
   void (*hash_func)(const unsigned char*, size_t, unsigned char*),

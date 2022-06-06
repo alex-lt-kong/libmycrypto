@@ -1,6 +1,8 @@
 #ifndef SHA256_H
 #define SHA256_H
 
+#include <string.h>
+#include <stdint.h>
 
 #ifdef __cplusplus
 extern "C" {

@@ -1,9 +1,6 @@
 #define SHA1HANDSOFF
 
-#include <stdint.h>
 #include <stdio.h>
-#include <string.h>
-
 #include "sha1.h"
 
 
@@ -158,10 +155,7 @@ void sha1_transform(
 }
 
 
-/* SHA1Init - Initialize new context */
-
 void sha1_init(sha1_ctx * ctx) {
-    /* SHA1 initialization constants */
     ctx->state[0] = 0x67452301;
     ctx->state[1] = 0xEFCDAB89;
     ctx->state[2] = 0x98BADCFE;
