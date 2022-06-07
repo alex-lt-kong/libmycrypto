@@ -81,28 +81,25 @@ unsigned char* sha256(const unsigned char* input_bytes, size_t input_len) {
     // append K '0' bits is not needed as we are using calloc();
 
     // append L as a 64-bit big-endian integer, making the total post-processed length a multiple of 512 bits
-    padded_bytes[padded_len - 4] = (unsigned char)(input_len >> 24);
-    padded_bytes[padded_len - 3] = (unsigned char)(input_len >> 16);
-    padded_bytes[padded_len - 2] = (unsigned char)(input_len >>  8);
-    padded_bytes[padded_len - 1] = (unsigned char)(input_len >>  0);
-    
-    for (int i = 0; i < padded_len; ++i) {
-        printf("%02x", padded_bytes[i]);
-    }
-    printf("\n");
+    padded_bytes[padded_len - 4] = (unsigned char)(input_len * CHAR_BIT >> 24);
+    padded_bytes[padded_len - 3] = (unsigned char)(input_len * CHAR_BIT >> 16);
+    padded_bytes[padded_len - 2] = (unsigned char)(input_len * CHAR_BIT >>  8);
+    padded_bytes[padded_len - 1] = (unsigned char)(input_len * CHAR_BIT >>  0);
 
     const int chunk_count = padded_len / CHUNK_SIZE;
-    
+    printf("chunk_count=%d\n", chunk_count);
     for (int i = 0; i < chunk_count; ++i) {
-        uint32_t w[64];                                                          // create a 64-entry message schedule array w[0..63] of 32-bit words. The initial values in w[0..63] don't matter.
-        memcpy(w, padded_bytes + i * CHUNK_SIZE, CHUNK_SIZE);                            // copy chunk into first 16 words w[0..15] of the message schedule array
-
+        uint32_t w[CHUNK_SIZE];                                                          // create a 64-entry message schedule array w[0..63] of 32-bit words. The initial values in w[0..63] don't matter.                       
+        unsigned char* p = padded_bytes + i * CHUNK_SIZE;
+        for (int j = 0; j < 16; ++j) { // copy chunk into first 16 words w[0..15] of the message schedule array (to handle endianess properly, we cant simply use memcpy()
+			w[j] = (uint32_t)(*(p++)) << 24 | (uint32_t)(*(p++)) << 16 | (uint32_t)(*(p++)) << 8 | (uint32_t)(*(p++));
+        }
         // Extend the first 16 words into the remaining 48 words w[16..63] of the message schedule array:
         for (int j = 16; j < 64; j++) {
-            const uint32_t s0 = right_rot(w[j-15], 7) ^ right_rot(w[j-15], 18) ^ (w[j-15] >> 3);
-            printf("w[j-15]=%d, ", w[j-15]);
+            const uint32_t s0 = right_rot(w[j-15], 7) ^ right_rot(w[j-15], 18) ^ (w[j-15] >> 3);            
 			const uint32_t s1 = right_rot(w[j-2], 17) ^ right_rot(w[j-2],  19) ^ (w[j-2] >> 10);
             w[j] = w[j-16] + s0 + w[j-7] + s1;
+            printf("w[j]=%d (%d,%d,%d,%d), ", w[j], w[j-16], s0, w[j-7], s1);
         }
         // Initialize working variables to current hash value:
         uint32_t a = h0;
@@ -165,7 +162,7 @@ unsigned char* sha256(const unsigned char* input_bytes, size_t input_len) {
     memcpy(hash + 6 * sizeof(uint32_t), &h6r, sizeof(uint32_t));
     memcpy(hash + 7 * sizeof(uint32_t), &h7r, sizeof(uint32_t));
 
-    for (int i = 0; i < HASH_SIZE; ++i) {
+    for (int i = 0; i < HASH_SIZE / 2; ++i) {
         printf("%02x", hash[i]);
     }
     printf("\n");

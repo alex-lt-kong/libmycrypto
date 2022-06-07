@@ -59,17 +59,20 @@ static inline void consume_chunk(uint32_t *h, const unsigned char *p) {
 			if (i == 0) {
 				w[j] =
 				    (uint32_t)p[0] << 24 | (uint32_t)p[1] << 16 | (uint32_t)p[2] << 8 | (uint32_t)p[3];
-				p += 4;
+				p += 4;				
 			} else {
 				/* Extend the first 16 words into the remaining 48 words w[16..63] of the
 				 * message schedule array: */
+				
 				const uint32_t s0 = right_rot(w[(j + 1) & 0xf], 7) ^ right_rot(w[(j + 1) & 0xf], 18) ^
 						    (w[(j + 1) & 0xf] >> 3);
-				printf("w[j-15]=%d, ", w[(j + 1) & 0xf]);
+				
 				const uint32_t s1 = right_rot(w[(j + 14) & 0xf], 17) ^
 						    right_rot(w[(j + 14) & 0xf], 19) ^ (w[(j + 14) & 0xf] >> 10);
 				w[j] = w[j] + s0 + w[(j + 9) & 0xf] + s1;
+				
 			}
+			
 			const uint32_t s1 = right_rot(ah[4], 6) ^ right_rot(ah[4], 11) ^ right_rot(ah[4], 25);
 			const uint32_t ch = (ah[4] & ah[5]) ^ (~ah[4] & ah[6]);
 
@@ -104,6 +107,7 @@ static inline void consume_chunk(uint32_t *h, const unsigned char *p) {
 			ah[0] = temp1 + temp2;
 			
 		}
+
 	}
 
 	/* Add the compressed chunk to the current hash value: */
@@ -210,7 +214,6 @@ void sha256_final(sha256_ctx *ctx) {
 		hash[j++] = (unsigned char)(h[i] >> 8);
 		hash[j++] = (unsigned char)h[i];
 	}
-	printf("h7=%d", h[7]);
 }
 
 void cal_sha256_hash(const unsigned char* input_bytes, const size_t input_len, unsigned char hash[SHA256_HASH_SIZE])
