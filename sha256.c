@@ -65,6 +65,7 @@ static inline void consume_chunk(uint32_t *h, const unsigned char *p) {
 				 * message schedule array: */
 				const uint32_t s0 = right_rot(w[(j + 1) & 0xf], 7) ^ right_rot(w[(j + 1) & 0xf], 18) ^
 						    (w[(j + 1) & 0xf] >> 3);
+				printf("w[j-15]=%d, ", w[(j + 1) & 0xf]);
 				const uint32_t s1 = right_rot(w[(j + 14) & 0xf], 17) ^
 						    right_rot(w[(j + 14) & 0xf], 19) ^ (w[(j + 14) & 0xf] >> 10);
 				w[j] = w[j] + s0 + w[(j + 9) & 0xf] + s1;
@@ -101,6 +102,7 @@ static inline void consume_chunk(uint32_t *h, const unsigned char *p) {
 			ah[2] = ah[1];
 			ah[1] = ah[0];
 			ah[0] = temp1 + temp2;
+			
 		}
 	}
 
@@ -208,6 +210,7 @@ void sha256_final(sha256_ctx *ctx) {
 		hash[j++] = (unsigned char)(h[i] >> 8);
 		hash[j++] = (unsigned char)h[i];
 	}
+	printf("h7=%d", h[7]);
 }
 
 void cal_sha256_hash(const unsigned char* input_bytes, const size_t input_len, unsigned char hash[SHA256_HASH_SIZE])
