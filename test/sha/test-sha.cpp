@@ -22,7 +22,9 @@ bool test_rsp_file(
   ifstream infile (rsp_file_dir, ifstream::in);
   string line;
   unsigned char sha_hash[hash_size];
+  unsigned char* msg_bytes;
   size_t msg_len = -1;
+  size_t msg_bytes_len = -1;
   string msg;
   char* md_char;
   while (getline(infile, line)) {
@@ -37,8 +39,8 @@ bool test_rsp_file(
       string official_md = line.substr(5, line.length() - 5 - 1);
       
       cout << "Original Message: " << msg.substr(0, 128) << (msg.length() > 128 ? "...[Truncated]" : "" ) << "\n";
-      unsigned char msg_bytes[msg_len / CHAR_BIT];            
-      hex_string_to_bytes(msg.c_str(), msg_bytes, strlen(msg.c_str()));
+      
+      msg_bytes = hex_string_to_bytes(msg.c_str(), &msg_bytes_len);
       hash_func(msg_bytes, msg_len / CHAR_BIT, sha_hash);
       md_char = bytes_to_hex_string(sha_hash, hash_size, false);
       printf("Function result:  %s\n", md_char);
@@ -50,6 +52,7 @@ bool test_rsp_file(
         all_passed = false;
       }
       free(md_char);
+      free(msg_bytes);
     }
   }
   infile.close();
