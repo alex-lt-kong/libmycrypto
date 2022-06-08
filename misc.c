@@ -36,20 +36,20 @@ int hex_string_to_bytes(const char* s, unsigned char * buff, int length)
 }
 
 char* bytes_to_hex_string(const unsigned char* input_bytes, const size_t input_len, bool upper) {  
-    char binHex[] = "0123456789abcdef";
+    char hex_table[] = "0123456789abcdef";
     if (upper) {
-        for (int i = 10; i < 16; ++i) {  binHex[i] -= 32; }
+        for (int i = 10; i < 16; ++i) {  hex_table[i] -= 32; }
     }
     char* output_chars = (char*)calloc(input_len * 2 + 1, sizeof(char));
     int out_idx = 0;
 
+    unsigned char in_idx;
     for (int i = 0; i < input_len; ++i) {
-        unsigned char byte = *input_bytes++;
+        in_idx = *(input_bytes++);
 
-        output_chars[out_idx++] = binHex[(byte >> 4) & 0x0F];
-        output_chars[out_idx++] = binHex[byte & 0x0F];
+        output_chars[out_idx++] = hex_table[(in_idx >> 4) & 0x0F];
+        output_chars[out_idx++] = hex_table[in_idx & 0x0F];
     }
-    output_chars[out_idx++] = '\0';
     return output_chars;
 }
 

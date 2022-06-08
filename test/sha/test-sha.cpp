@@ -60,11 +60,16 @@ bool test_rsp_file(
 int main() {
   bool all_passed = true;
   cout << "========== Testing SHA256 ==========" << endl;
-  all_passed &= test_rsp_file("../../test-vectors/SHA256ShortMsg.rsp", &cal_sha256_hash, 32);
-  all_passed &= test_rsp_file("../../test-vectors/SHA256LongMsg.rsp", &cal_sha256_hash, 32);
+  all_passed &= test_rsp_file("../../test-vectors/SHA256ShortMsg.rsp", &cal_sha256_hash, SHA256_HASH_SIZE);
+  all_passed &= test_rsp_file("../../test-vectors/SHA256LongMsg.rsp", &cal_sha256_hash, SHA256_HASH_SIZE);
   cout << "\n\n========== Testing SHA1 ==========" << endl;
-  all_passed &= test_rsp_file("../../test-vectors/SHA1ShortMsg.rsp", &cal_sha1_hash, 20);
-  all_passed &= test_rsp_file("../../test-vectors/SHA1LongMsg.rsp", &cal_sha1_hash, 20);
-  cout << "\n\n========== ALL tests passed ==========" << endl;
+  all_passed &= test_rsp_file("../../test-vectors/SHA1ShortMsg.rsp", &cal_sha1_hash, SHA1_HASH_SIZE);
+  all_passed &= test_rsp_file("../../test-vectors/SHA1LongMsg.rsp", &cal_sha1_hash, SHA1_HASH_SIZE);
+  if (all_passed) {
+    cout << "\n\n========== ALL tests passed ==========" << endl; 
+  } else {
+    cout << "\n\n========== FAILED to pass some tests ==========" << endl; 
+  }
+
   return 0;
 }
