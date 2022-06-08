@@ -15,8 +15,6 @@
 #include "sha256.h"
 #include "misc.h"
 
-#define CHUNK_SIZE 64
-
 /**
  * @brief Rotate a 32-bit value by a number of bits to the right.
  * @param value The value to be rotated.
@@ -79,11 +77,11 @@ void cal_sha256_hash(const unsigned char* input_bytes, const size_t input_len, u
     padded_bytes[padded_len - 1] = (unsigned char)(input_len * CHAR_BIT >>  0);
     // such that the bits in the message are: <original message of length L> 1 <K zeros> <L as 64 bit integer> , (the number of bits will be a multiple of 512)
 
-    const int chunk_count = padded_len / CHUNK_SIZE;
+    const int chunk_count = padded_len / SHA256_CHUNK_SIZE;
     // Process the message in successive 512-bit chunks:
     for (int i = 0; i < chunk_count; ++i) {
-        uint32_t w[CHUNK_SIZE];                                                              // create a 64-entry message schedule array w[0..63] of 32-bit words. The initial values in w[0..63] don't matter.                       
-        unsigned char* chunk_pos = padded_bytes + i * CHUNK_SIZE;
+        uint32_t w[SHA256_CHUNK_SIZE];                                                              // create a 64-entry message schedule array w[0..63] of 32-bit words. The initial values in w[0..63] don't matter.                       
+        unsigned char* chunk_pos = padded_bytes + i * SHA256_CHUNK_SIZE;
         for (int j = 0; j < 16; ++j) {                                                       // copy chunk into first 16 words w[0..15] of the message schedule array (to handle endianness properly, we cant simply use memcpy()
 			w[j] = (uint32_t)(*(chunk_pos++)) << 24 | (uint32_t)(*(chunk_pos++)) << 16 | (uint32_t)(*(chunk_pos++)) << 8 | (uint32_t)(*(chunk_pos++));
         }

@@ -68,5 +68,5 @@ void hmac_sha256(
   const unsigned char* key, const size_t key_len,
   const unsigned char* msg, const size_t msg_len,
   unsigned char* out) {
-  hmac(SHA256_BLOCK_SIZE, SHA256_HASH_SIZE, cal_sha256_hash, key, key_len, msg, msg_len, out);
+  hmac(SHA256_CHUNK_SIZE, SHA256_HASH_SIZE, cal_sha256_hash, key, key_len, msg, msg_len, out);
 }

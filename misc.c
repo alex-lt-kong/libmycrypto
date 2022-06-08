@@ -16,23 +16,23 @@ unsigned char HexChar (char c)
     return 0xFF;
 }
 
-int hex_string_to_bytes(const char* s, unsigned char * buff, int length)
-{
-    int result;
-    if (!s || !buff || length <= 0) return -1;
+unsigned char* hex_string_to_bytes(const char* input_chars, size_t* output_len) {
+    if (strlen(input_chars) % 2 != 0) { return NULL; }
 
-    for (result = 0; *s; ++result)
-    {
-        unsigned char msn = HexChar(*s++);
-        if (msn == 0xFF) return -1;
-        unsigned char lsn = HexChar(*s++);
-        if (lsn == 0xFF) return -1;
-        unsigned char bin = (msn << 4) + lsn;
+    *output_len = strlen(input_chars) / 2;
+    unsigned char* output_bytes = (unsigned char*)calloc(*output_len, sizeof(unsigned char));
+    unsigned char msn, lsn, byte;
+    int out_idx = 0;
+    while (*input_chars) {
+        msn = HexChar(*input_chars++);
+        if (msn == 0xFF) { return NULL; }
+        lsn = HexChar(*input_chars++);
+        if (lsn == 0xFF) { return NULL; }
+        byte = (msn << 4) + lsn;
 
-        if (length-- <= 0) return -1;
-        *buff++ = bin;
+        *(output_bytes + out_idx++) = byte;
     }
-    return result;
+    return output_bytes;
 }
 
 char* bytes_to_hex_string(const unsigned char* input_bytes, const size_t input_len, bool upper) {  

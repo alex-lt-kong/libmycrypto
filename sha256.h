@@ -9,6 +9,7 @@ extern "C" {
 #endif
 
 #define SHA256_HASH_SIZE 32
+#define SHA256_CHUNK_SIZE 64
 
 /**
  * @brief The simple SHA-256 calculation function. 
