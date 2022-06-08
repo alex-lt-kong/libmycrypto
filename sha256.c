@@ -1,225 +1,154 @@
-
-
-#include <stdio.h>
-#include "sha256.h"
-
-#define TOTAL_LEN_LEN 8
-
-/*
- * Comments from pseudo-code at https://en.wikipedia.org/wiki/SHA-2 are reproduced here.
- * When useful for clarification, portions of the pseudo-code are reproduced here too.
+/**
+ * @file sha256.c
+ * @author Alex Kong
+ * @brief A very straightforward and no-frills C implementaion of SHA256 based on the pseudocode at
+ * https://en.wikipedia.org/wiki/SHA-2
  */
 
-/*
+#include <limits.h>
+#include <math.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <stdint.h>
+#include <string.h>
+
+#include "sha256.h"
+#include "misc.h"
+
+#define CHUNK_SIZE 64
+
+/**
  * @brief Rotate a 32-bit value by a number of bits to the right.
  * @param value The value to be rotated.
  * @param count The number of bits to rotate by.
- * @return The rotated value.
+ * @returns The rotated value.
  */
 static inline uint32_t right_rot(uint32_t value, unsigned int count) {
-	/*
-	 * Defined behaviour in standard C for all count where 0 < count < 32, which is what we need here.
-	 */
 	return value >> count | value << (32 - count);
 }
 
-/*
- * @brief Update a hash value under calculation with a new chunk of data.
- * @param h Pointer to the first hash item, of a total of eight.
- * @param p Pointer to the chunk data, which has a standard length.
- *
- * @note This is the SHA-256 work horse.
- */
-static inline void consume_chunk(uint32_t *h, const unsigned char *p) {
-	unsigned i, j;
-	uint32_t ah[8];
+void cal_sha256_hash(const unsigned char* input_bytes, const size_t input_len, unsigned char* hash) {
+    if (input_len > 2147483647) {
+        return; // we support up to this length only
+    }
+    
+    uint32_t h0 = 0x6a09e667;
+    uint32_t h1 = 0xbb67ae85;
+    uint32_t h2 = 0x3c6ef372;
+    uint32_t h3 = 0xa54ff53a;
+    uint32_t h4 = 0x510e527f;
+    uint32_t h5 = 0x9b05688c;
+    uint32_t h6 = 0x1f83d9ab;
+    uint32_t h7 = 0x5be0cd19;
+    
+    uint32_t k[64] ={
+        0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5,
+        0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3, 0x72be5d74, 0x80deb1fe, 0x9bdc06a7, 0xc19bf174,
+        0xe49b69c1, 0xefbe4786, 0x0fc19dc6, 0x240ca1cc, 0x2de92c6f, 0x4a7484aa, 0x5cb0a9dc, 0x76f988da,
+        0x983e5152, 0xa831c66d, 0xb00327c8, 0xbf597fc7, 0xc6e00bf3, 0xd5a79147, 0x06ca6351, 0x14292967,
+        0x27b70a85, 0x2e1b2138, 0x4d2c6dfc, 0x53380d13, 0x650a7354, 0x766a0abb, 0x81c2c92e, 0x92722c85,
+        0xa2bfe8a1, 0xa81a664b, 0xc24b8b70, 0xc76c51a3, 0xd192e819, 0xd6990624, 0xf40e3585, 0x106aa070,
+        0x19a4c116, 0x1e376c08, 0x2748774c, 0x34b0bcb5, 0x391c0cb3, 0x4ed8aa4a, 0x5b9cca4f, 0x682e6ff3,
+        0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208, 0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2
+    };
 
-	/* Initialize working variables to current hash value: */
-	for (i = 0; i < 8; i++)
-		ah[i] = h[i];
+    /**
+     * Pre-processing (Padding):
+     * begin with the original message of length L bits
+     * append a single '1' bit
+     * append K '0' bits, where K is the minimum number >= 0 such that (L + 1 + K + 64) is a multiple of 512
+     * append L as a 64-bit big-endian integer, making the total post-processed length a multiple of 512 bits
+     * such that the bits in the message are: <original message of length L> 1 <K zeros> <L as 64 bit integer> , (the number of bits will be a multiple of 512)
+     * 
+     */
+    size_t padded_len = input_len + (512 - input_len * CHAR_BIT % 512) / CHAR_BIT;
+    if (padded_len - input_len < 9) {
+        padded_len += 64;
+    }
 
-	/*
-	 * The w-array is really w[64], but since we only need 16 of them at a time, we save stack by
-	 * calculating 16 at a time.
-	 *
-	 * This optimization was not there initially and the rest of the comments about w[64] are kept in their
-	 * initial state.
-	 */
+    unsigned char* padded_bytes = (unsigned char*)calloc(padded_len, sizeof(unsigned char));
+    memcpy(padded_bytes, input_bytes, input_len);                                           // begin with the original message of length L bits    
+    padded_bytes[input_len] = 0b10000000;                                                   // append a single '1' bit
+    
+    // append K '0' bits is not needed as we are using calloc();
 
-	/*
-	 * create a 64-entry message schedule array w[0..63] of 32-bit words (The initial values in w[0..63]
-	 * don't matter, so many implementations zero them here) copy chunk into first 16 words w[0..15] of the
-	 * message schedule array
-	 */
-	uint32_t w[16];
+    // append L as a 64-bit big-endian integer, making the total post-processed length a multiple of 512 bits
+    padded_bytes[padded_len - 4] = (unsigned char)(input_len * CHAR_BIT >> 24);
+    padded_bytes[padded_len - 3] = (unsigned char)(input_len * CHAR_BIT >> 16);
+    padded_bytes[padded_len - 2] = (unsigned char)(input_len * CHAR_BIT >>  8);
+    padded_bytes[padded_len - 1] = (unsigned char)(input_len * CHAR_BIT >>  0);
+    // such that the bits in the message are: <original message of length L> 1 <K zeros> <L as 64 bit integer> , (the number of bits will be a multiple of 512)
 
-	/* Compression function main loop: */
-	for (i = 0; i < 4; i++) {
-		for (j = 0; j < 16; j++) {
-			if (i == 0) {
-				w[j] =
-				    (uint32_t)p[0] << 24 | (uint32_t)p[1] << 16 | (uint32_t)p[2] << 8 | (uint32_t)p[3];
-				p += 4;				
-			} else {
-				/* Extend the first 16 words into the remaining 48 words w[16..63] of the
-				 * message schedule array: */
-				
-				const uint32_t s0 = right_rot(w[(j + 1) & 0xf], 7) ^ right_rot(w[(j + 1) & 0xf], 18) ^
-						    (w[(j + 1) & 0xf] >> 3);
-				
-				const uint32_t s1 = right_rot(w[(j + 14) & 0xf], 17) ^
-						    right_rot(w[(j + 14) & 0xf], 19) ^ (w[(j + 14) & 0xf] >> 10);
-				w[j] = w[j] + s0 + w[(j + 9) & 0xf] + s1;
-				
-			}
-			
-			const uint32_t s1 = right_rot(ah[4], 6) ^ right_rot(ah[4], 11) ^ right_rot(ah[4], 25);
-			const uint32_t ch = (ah[4] & ah[5]) ^ (~ah[4] & ah[6]);
+    const int chunk_count = padded_len / CHUNK_SIZE;
+    // Process the message in successive 512-bit chunks:
+    for (int i = 0; i < chunk_count; ++i) {
+        uint32_t w[CHUNK_SIZE];                                                              // create a 64-entry message schedule array w[0..63] of 32-bit words. The initial values in w[0..63] don't matter.                       
+        unsigned char* chunk_pos = padded_bytes + i * CHUNK_SIZE;
+        for (int j = 0; j < 16; ++j) {                                                       // copy chunk into first 16 words w[0..15] of the message schedule array (to handle endianness properly, we cant simply use memcpy()
+			w[j] = (uint32_t)(*(chunk_pos++)) << 24 | (uint32_t)(*(chunk_pos++)) << 16 | (uint32_t)(*(chunk_pos++)) << 8 | (uint32_t)(*(chunk_pos++));
+        }
+        // Extend the first 16 words into the remaining 48 words w[16..63] of the message schedule array:
+        for (int j = 16; j < 64; j++) {
+            const uint32_t s0 = right_rot(w[j-15], 7) ^ right_rot(w[j-15], 18) ^ (w[j-15] >> 3);            
+			const uint32_t s1 = right_rot(w[j-2], 17) ^ right_rot(w[j-2],  19) ^ (w[j-2] >> 10);
+            w[j] = w[j-16] + s0 + w[j-7] + s1;
+        }
+        // Initialize working variables to current hash value:
+        uint32_t a = h0;
+        uint32_t b = h1;
+        uint32_t c = h2;
+        uint32_t d = h3;
+        uint32_t e = h4;
+        uint32_t f = h5;
+        uint32_t g = h6;
+        uint32_t h = h7;
 
-			/*
-			 * Initialize array of round constants:
-			 * (first 32 bits of the fractional parts of the cube roots of the first 64 primes 2..311):
-			 */
-			static const uint32_t k[] = {
-			    0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b, 0x59f111f1, 0x923f82a4,
-			    0xab1c5ed5, 0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3, 0x72be5d74, 0x80deb1fe,
-			    0x9bdc06a7, 0xc19bf174, 0xe49b69c1, 0xefbe4786, 0x0fc19dc6, 0x240ca1cc, 0x2de92c6f,
-			    0x4a7484aa, 0x5cb0a9dc, 0x76f988da, 0x983e5152, 0xa831c66d, 0xb00327c8, 0xbf597fc7,
-			    0xc6e00bf3, 0xd5a79147, 0x06ca6351, 0x14292967, 0x27b70a85, 0x2e1b2138, 0x4d2c6dfc,
-			    0x53380d13, 0x650a7354, 0x766a0abb, 0x81c2c92e, 0x92722c85, 0xa2bfe8a1, 0xa81a664b,
-			    0xc24b8b70, 0xc76c51a3, 0xd192e819, 0xd6990624, 0xf40e3585, 0x106aa070, 0x19a4c116,
-			    0x1e376c08, 0x2748774c, 0x34b0bcb5, 0x391c0cb3, 0x4ed8aa4a, 0x5b9cca4f, 0x682e6ff3,
-			    0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208, 0x90befffa, 0xa4506ceb, 0xbef9a3f7,
-			    0xc67178f2};
-
-			const uint32_t temp1 = ah[7] + s1 + ch + k[i << 4 | j] + w[j];
-			const uint32_t s0 = right_rot(ah[0], 2) ^ right_rot(ah[0], 13) ^ right_rot(ah[0], 22);
-			const uint32_t maj = (ah[0] & ah[1]) ^ (ah[0] & ah[2]) ^ (ah[1] & ah[2]);
-			const uint32_t temp2 = s0 + maj;
-
-			ah[7] = ah[6];
-			ah[6] = ah[5];
-			ah[5] = ah[4];
-			ah[4] = ah[3] + temp1;
-			ah[3] = ah[2];
-			ah[2] = ah[1];
-			ah[1] = ah[0];
-			ah[0] = temp1 + temp2;
-			
-		}
-
-	}
-
-	/* Add the compressed chunk to the current hash value: */
-	for (i = 0; i < 8; i++)
-		h[i] += ah[i];
-}
-
-/*
- * Public functions. See header file for documentation.
- */
-
-void sha256_init(sha256_ctx* ctx, unsigned char hash[SHA256_HASH_SIZE]) {
-	ctx->hash = hash;
-	ctx->chunk_pos = ctx->chunk;
-	ctx->space_left = SHA256_CHUNK_SIZE;
-	ctx->total_len = 0;
-	/*
-	 * Initialize hash values (first 32 bits of the fractional parts of the square roots of the first 8 primes
-	 * 2..19):
-	 */
-	ctx->h[0] = 0x6a09e667;
-	ctx->h[1] = 0xbb67ae85;
-	ctx->h[2] = 0x3c6ef372;
-	ctx->h[3] = 0xa54ff53a;
-	ctx->h[4] = 0x510e527f;
-	ctx->h[5] = 0x9b05688c;
-	ctx->h[6] = 0x1f83d9ab;
-	ctx->h[7] = 0x5be0cd19;
-}
-
-void sha256_update(sha256_ctx* ctx, const unsigned char *data, size_t len) {
-	ctx->total_len += len;
-
-	const unsigned char *p = (unsigned char*)data;
-
-	while (len > 0) {
-		/*
-		 * If the input chunks have sizes that are multiples of the calculation chunk size, no copies are
-		 * necessary. We operate directly on the input data instead.
-		 */
-		if (ctx->space_left == SHA256_CHUNK_SIZE && len >= SHA256_CHUNK_SIZE) {
-			consume_chunk(ctx->h, p);
-			len -= SHA256_CHUNK_SIZE;
-			p += SHA256_CHUNK_SIZE;
-			continue;
-		}
-		/* General case, no particular optimization. */
-		const size_t consumed_len = len < ctx->space_left ? len : ctx->space_left;
-		memcpy(ctx->chunk_pos, p, consumed_len);
-		ctx->space_left -= consumed_len;
-		len -= consumed_len;
-		p += consumed_len;
-		if (ctx->space_left == 0) {
-			consume_chunk(ctx->h, ctx->chunk);
-			ctx->chunk_pos = ctx->chunk;
-			ctx->space_left = SHA256_CHUNK_SIZE;
-		} else {
-			ctx->chunk_pos += consumed_len;
-		}
-	}
-}
-
-void sha256_final(sha256_ctx *ctx) {
-	unsigned char *pos = ctx->chunk_pos;
-	size_t space_left = ctx->space_left;
-	uint32_t *const h = ctx->h;
-
-	/*
-	 * The current chunk cannot be full. Otherwise, it would already have be consumed. I.e. there is space left for
-	 * at least one byte. The next step in the calculation is to add a single one-bit to the data.
-	 */
-	*pos++ = 0x80;
-	--space_left;
-
-	/*
-	 * Now, the last step is to add the total data length at the end of the last chunk, and zero padding before
-	 * that. But we do not necessarily have enough space left. If not, we pad the current chunk with zeroes, and add
-	 * an extra chunk at the end.
-	 */
-	if (space_left < TOTAL_LEN_LEN) {
-		memset(pos, 0x00, space_left);
-		consume_chunk(h, ctx->chunk);
-		pos = ctx->chunk;
-		space_left = SHA256_CHUNK_SIZE;
-	}
-	const size_t left = space_left - TOTAL_LEN_LEN;
-	memset(pos, 0x00, left);
-	pos += left;
-	size_t len = ctx->total_len;
-	pos[7] = (unsigned char)(len << 3);
-	len >>= 5;
-	int i;
-	for (i = 6; i >= 0; --i) {
-		pos[i] = (unsigned char)len;
-		len >>= 8;
-	}
-	consume_chunk(h, ctx->chunk);
-	/* Produce the final hash value (big-endian): */
-	int j;
-	unsigned char *const hash = ctx->hash;
-	for (i = 0, j = 0; i < 8; i++) {
-		hash[j++] = (unsigned char)(h[i] >> 24);
-		hash[j++] = (unsigned char)(h[i] >> 16);
-		hash[j++] = (unsigned char)(h[i] >> 8);
-		hash[j++] = (unsigned char)h[i];
-	}
-}
-
-void cal_sha256_hash(const unsigned char* input_bytes, const size_t input_len, unsigned char hash[SHA256_HASH_SIZE])
-{
-	sha256_ctx ctx;
-	sha256_init(&ctx, hash);
-	sha256_update(&ctx, input_bytes, input_len);
-	sha256_final(&ctx);
+        // Compression function main loop:
+        for (int j = 0; j < 64; ++j) {
+            const uint32_t S1 = right_rot(e, 6) ^ right_rot(e, 11) ^ right_rot(e, 25);
+            const uint32_t ch = (e & f) ^ ((~e) & g);
+            const uint32_t temp1 = h + S1 + ch + k[j] + w[j];
+            const uint32_t S0 = right_rot(a, 2) ^ right_rot(a, 13) ^ right_rot(a, 22);
+            const uint32_t maj = (a & b) ^ (a & c) ^ (b & c);
+            const uint32_t temp2 = S0 + maj;
+    
+            h = g;
+            g = f;
+            f = e;
+            e = d + temp1;
+            d = c;
+            c = b;
+            b = a;
+            a = temp1 + temp2;
+        }
+        // Add the compressed chunk to the current hash value:
+        h0 += a;
+        h1 += b;
+        h2 += c;
+        h3 += d;
+        h4 += e;
+        h5 += f;
+        h6 += g;
+        h7 += h;
+        
+    }
+    free(padded_bytes);
+    if (is_big_endian() == false) {
+        switch_endianness(&h0);
+        switch_endianness(&h1);
+        switch_endianness(&h2);
+        switch_endianness(&h3);
+        switch_endianness(&h4);
+        switch_endianness(&h5);
+        switch_endianness(&h6);
+        switch_endianness(&h7);
+    }
+    memcpy(hash + 0 * sizeof(uint32_t), &h0, sizeof(uint32_t));
+    memcpy(hash + 1 * sizeof(uint32_t), &h1, sizeof(uint32_t));
+    memcpy(hash + 2 * sizeof(uint32_t), &h2, sizeof(uint32_t));
+    memcpy(hash + 3 * sizeof(uint32_t), &h3, sizeof(uint32_t));
+    memcpy(hash + 4 * sizeof(uint32_t), &h4, sizeof(uint32_t));
+    memcpy(hash + 5 * sizeof(uint32_t), &h5, sizeof(uint32_t));
+    memcpy(hash + 6 * sizeof(uint32_t), &h6, sizeof(uint32_t));
+    memcpy(hash + 7 * sizeof(uint32_t), &h7, sizeof(uint32_t));
 }
