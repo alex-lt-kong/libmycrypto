@@ -1,7 +1,8 @@
-# Base32 and Base64
-
 ```
-    ===== Testing Base32 ENcoding =====
+Tests start at 2022-06-09T09:41:23Z
+
+
+===== Testing Base32 ENcoding =====
 Function result: []
 Expected result: []
 Passed
@@ -124,4 +125,6 @@ Expected result: [foobar]
 Passed
 
 
+
+========== ALL tests passed ==========
 ```
