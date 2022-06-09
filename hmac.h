@@ -1,10 +1,5 @@
-/*
-    hmac_sha256.h
-    Originally written by https://github.com/h5p9sl
-*/
-
-#ifndef _HMAC_SHA1_H_
-#define _HMAC_SHA1_H_
+#ifndef HMAC_SHA_H
+#define HMAC_SHA_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -15,7 +10,7 @@ extern "C" {
 #include <limits.h>
 #include <stdint.h>
 
-/*
+/**
  * @brief The simple HMAC-SHA1 calculation function.
  * @param key key used to generate HMAC-SHA256 checksum
  * @param key_len the length of the key. Should be at least 32 bytes long for optimal security.
@@ -29,7 +24,7 @@ void hmac_sha1(
     unsigned char* out
 );
 
-/*
+/**
  * @brief The simple HMAC-SHA256 calculation function.
  * @param key key used to generate HMAC-SHA256 checksum
  * @param key_len the length of the key. Should be at least 32 bytes long for optimal security.
@@ -47,4 +42,4 @@ void hmac_sha256(
 }
 #endif  // __cplusplus
 
-#endif  // _HMAC_SHA256_H_
+#endif  // HMAC_SHA_H

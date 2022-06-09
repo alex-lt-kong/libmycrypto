@@ -12,13 +12,10 @@ extern "C" {
 #define SHA256_CHUNK_SIZE 64
 
 /**
- * @brief The simple SHA-256 calculation function. 
+ * @brief Calculate the 256SHA hash value from a given byte array
  * @param input_bytes Pointer to the data the hash shall be calculated on.
  * @param input_len Length of the input_bytes data, in byte.
- * @param hash Preallocated byte array, where the result is delivered.
- *
- * @note If all of the data you are calculating the hash value on is available in a contiguous buffer in memory, this is
- * the function you should use.
+ * @param hash Preallocated 32-byte long array, where the result is delivered.
  */
 void cal_sha256_hash(const unsigned char* input_bytes, const size_t input_len, unsigned char* hash);
 

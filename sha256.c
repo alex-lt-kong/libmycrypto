@@ -1,7 +1,5 @@
 /**
- * @file sha256.c
- * @author Alex Kong
- * @brief A very straightforward and no-frills C implementaion of SHA256 based on the pseudocode at
+ * A very straightforward and no-frills C implementaion of SHA256 based on the pseudocode at
  * https://en.wikipedia.org/wiki/SHA-2
  */
 
