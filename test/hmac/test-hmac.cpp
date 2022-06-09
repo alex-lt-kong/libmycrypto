@@ -82,7 +82,7 @@ const char tv_sha256_hash[TEST_COUNT][TEST_SIZE] = {
   "9b09ffa71b942fcb27635fbcd5b0e944bfdc63644f0713938a7f51535c3a35e2"
 };
 
-void test_hmac(
+bool test_hmac(
   void (*hash_function)(const unsigned char*, size_t, const unsigned char*, size_t, unsigned char*),
   const size_t hash_size,
   const char tv_keys[TEST_COUNT][TEST_SIZE],
@@ -93,6 +93,7 @@ void test_hmac(
   unsigned char* data_bytes = nullptr;
   unsigned char hash[hash_size];
   char* hash_hex = nullptr;
+  bool all_passed = true;
   size_t key_len, data_len;
   for (int i = 0; i < TEST_COUNT; ++i) {    
     key_bytes = hex_string_to_bytes(tv_keys[i], &key_len);
@@ -110,17 +111,24 @@ void test_hmac(
     if (strlen(tv_hash[i]) < strlen(hash_hex)) { // i.e., test vector truncates the result
       hash_hex[strlen(tv_hash[i])] = '\0';
     } 
-    cout << "Hash:   " << hash_hex << "\nExpect: " << tv_hash[i] << "\nResult: "
-         <<(strcmp(hash_hex, tv_hash[i]) == 0 ? "Passed" : "!!!FAILED!!!") << "\n"  << endl;
+    cout << "Hash:   " << hash_hex << "\nExpect: " << tv_hash[i];
+    if (strcmp(hash_hex, tv_hash[i]) == 0) {
+      cout << "\nResult: Passed\n" << endl;
+    } else {
+      all_passed = false;
+      cout << "\nResult: !!!FAILED!!!\n" << endl;
+    }
     free(hash_hex);
     free(key_bytes);
     free(data_bytes);
   }
+  return all_passed;
 }
 
 
 int main() {
-  freopen("README.md", "w", stdout);
+
+  freopen("README.md", "w", stdout); // seems we don't need to close() an freopen()'ed file.
   cout << "```\n";
   time_t now;
   time(&now);
@@ -128,11 +136,18 @@ int main() {
   strftime(utc_time_str, sizeof(utc_time_str), "%Y-%m-%dT%H:%M:%SZ", gmtime(&now));
   cout << "Tests start at " << utc_time_str << "\n\n" << endl;
 
+  bool all_passed = true;
   cout << "========== Testing HMAC-SHA256 ==========" << endl;
-  test_hmac(&hmac_sha256, SHA256_HASH_SIZE, tv_sha256_keys, tv_sha256_data, tv_sha256_hash);
+  all_passed &= test_hmac(&hmac_sha256, SHA256_HASH_SIZE, tv_sha256_keys, tv_sha256_data, tv_sha256_hash);
   
   cout << "\n\n========== Testing HMAC-SHA1 ==========" << endl;
-  test_hmac(&hmac_sha1, SHA1_HASH_SIZE, tv_sha1_keys, tv_sha1_data, tv_sha1_hash);
+  all_passed &= test_hmac(&hmac_sha1, SHA1_HASH_SIZE, tv_sha1_keys, tv_sha1_data, tv_sha1_hash);
+
+  if (all_passed) {
+    cout << "\n\n========== ALL tests passed ==========" << endl; 
+  } else {
+    cout << "\n\n========== FAILED to pass some tests ==========" << endl; 
+  }
   cout << "```\n";
   return 0;
 }

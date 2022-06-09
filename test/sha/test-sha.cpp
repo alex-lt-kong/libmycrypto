@@ -61,13 +61,22 @@ bool test_rsp_file(
 
 
 int main() {
+  
+  freopen("README.md", "w", stdout); // seems we don't need to close() an freopen()'ed file.
+  cout << "```\n";
+  time_t now;
+  time(&now);
+  char utc_time_str[sizeof "2011-10-08T07:07:09Z"];
+  strftime(utc_time_str, sizeof(utc_time_str), "%Y-%m-%dT%H:%M:%SZ", gmtime(&now));
+  cout << "Tests start at " << utc_time_str << "\n\n" << endl;
+
   bool all_passed = true;
   cout << "========== Testing SHA256 ==========" << endl;
-  all_passed &= test_rsp_file("../../test-vectors/SHA256ShortMsg.rsp", &cal_sha256_hash, SHA256_HASH_SIZE);
-  all_passed &= test_rsp_file("../../test-vectors/SHA256LongMsg.rsp", &cal_sha256_hash, SHA256_HASH_SIZE);
+  all_passed &= test_rsp_file("SHA256ShortMsg.rsp", &cal_sha256_hash, SHA256_HASH_SIZE);
+  all_passed &= test_rsp_file("SHA256LongMsg.rsp", &cal_sha256_hash, SHA256_HASH_SIZE);
   cout << "\n\n========== Testing SHA1 ==========" << endl;
-  all_passed &= test_rsp_file("../../test-vectors/SHA1ShortMsg.rsp", &cal_sha1_hash, SHA1_HASH_SIZE);
-  all_passed &= test_rsp_file("../../test-vectors/SHA1LongMsg.rsp", &cal_sha1_hash, SHA1_HASH_SIZE);
+  all_passed &= test_rsp_file("SHA1ShortMsg.rsp", &cal_sha1_hash, SHA1_HASH_SIZE);
+  all_passed &= test_rsp_file("SHA1LongMsg.rsp", &cal_sha1_hash, SHA1_HASH_SIZE);
   if (all_passed) {
     cout << "\n\n========== ALL tests passed ==========" << endl; 
   } else {
