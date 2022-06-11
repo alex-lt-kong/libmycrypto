@@ -254,7 +254,7 @@ void compress(uint32_t *MDbuf, uint32_t *X)
 
 /********************************************************************/
 
-void MDfinish(uint32_t *MDbuf, unsigned char *strptr, uint32_t lswlen, uint32_t mswlen)
+void MDfinish(uint32_t *MDbuf, const unsigned char *strptr, uint32_t lswlen, uint32_t mswlen)
 {
    unsigned int i;                                 /* counter       */
    uint32_t        X[16];                             /* message words */
@@ -284,7 +284,7 @@ void MDfinish(uint32_t *MDbuf, unsigned char *strptr, uint32_t lswlen, uint32_t 
    return;
 }
 
-unsigned char* cal_rpiemd160_hash(unsigned char *message, uint32_t length) {
+unsigned char* cal_rpiemd160_hash(const unsigned char *input_bytes, const size_t length) {
    uint32_t         MDbuf[RIPEMD160_HASH_SIZE / 4];   /* contains (A, B, C, D(, E))   */
    static unsigned char   hashcode[RIPEMD160_HASH_SIZE]; /* for final hash-value         */
    uint32_t         X[16];               /* current 16-word chunk        */
@@ -298,14 +298,14 @@ unsigned char* cal_rpiemd160_hash(unsigned char *message, uint32_t length) {
    /* process message in 16-word chunks */
    for (nbytes=length; nbytes > 63; nbytes-=64) {
       for (i=0; i<16; i++) {
-         X[i] = BYTES_TO_DWORD(message);
-         message += 4;
+         X[i] = BYTES_TO_DWORD(input_bytes);
+         input_bytes += 4;
       }
       compress(MDbuf, X);
    }                                    /* length mod 64 unsigned chars left */
 
    /* finish: */
-   MDfinish(MDbuf, message, length, 0);
+   MDfinish(MDbuf, input_bytes, length, 0);
 
    for (i=0; i<RIPEMD160_HASH_SIZE; i+=4) {
       hashcode[i]   =  MDbuf[i>>2];         /* implicit cast to unsigned char  */

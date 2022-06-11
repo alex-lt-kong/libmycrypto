@@ -132,7 +132,7 @@ void compress(uint32_t *MDbuf, uint32_t *X);
  *  transforms MDbuf using message unsigned chars X[0] through X[15]
  */
 
-void MDfinish(uint32_t *MDbuf, unsigned char *strptr, uint32_t lswlen, uint32_t mswlen);
+void MDfinish(uint32_t *MDbuf, const unsigned char *strptr, uint32_t lswlen, uint32_t mswlen);
 /*
  *  puts unsigned chars from strptr into X and pad out; appends length 
  *  and finally, compresses the last block(s)
@@ -141,7 +141,7 @@ void MDfinish(uint32_t *MDbuf, unsigned char *strptr, uint32_t lswlen, uint32_t 
  */
 
 
-unsigned char* cal_rpiemd160_hash(unsigned char *message, uint32_t length);
+unsigned char* cal_rpiemd160_hash(const unsigned char *input_bytes, const size_t length);
 #ifdef __cplusplus
 }
 #endif
