@@ -41,7 +41,7 @@
 
 /********************************************************************/
 
-void MDinit(dword *MDbuf)
+void MDinit(uint32_t *MDbuf)
 {
    MDbuf[0] = 0x67452301UL;
    MDbuf[1] = 0xefcdab89UL;
@@ -54,11 +54,11 @@ void MDinit(dword *MDbuf)
 
 /********************************************************************/
 
-void compress(dword *MDbuf, dword *X)
+void compress(uint32_t *MDbuf, uint32_t *X)
 {
-   dword aa = MDbuf[0],  bb = MDbuf[1],  cc = MDbuf[2],
+   uint32_t aa = MDbuf[0],  bb = MDbuf[1],  cc = MDbuf[2],
          dd = MDbuf[3],  ee = MDbuf[4];
-   dword aaa = MDbuf[0], bbb = MDbuf[1], ccc = MDbuf[2],
+   uint32_t aaa = MDbuf[0], bbb = MDbuf[1], ccc = MDbuf[2],
          ddd = MDbuf[3], eee = MDbuf[4];
 
    /* round 1 */
@@ -254,26 +254,26 @@ void compress(dword *MDbuf, dword *X)
 
 /********************************************************************/
 
-void MDfinish(dword *MDbuf, byte *strptr, dword lswlen, dword mswlen)
+void MDfinish(uint32_t *MDbuf, unsigned char *strptr, uint32_t lswlen, uint32_t mswlen)
 {
    unsigned int i;                                 /* counter       */
-   dword        X[16];                             /* message words */
+   uint32_t        X[16];                             /* message words */
 
-   memset(X, 0, 16*sizeof(dword));
+   memset(X, 0, 16*sizeof(uint32_t));
 
-   /* put bytes from strptr into X */
+   /* put unsigned chars from strptr into X */
    for (i=0; i<(lswlen&63); i++) {
-      /* byte i goes into word X[i div 4] at pos.  8*(i mod 4)  */
-      X[i>>2] ^= (dword) *strptr++ << (8 * (i&3));
+      /* unsigned char i goes into word X[i div 4] at pos.  8*(i mod 4)  */
+      X[i>>2] ^= (uint32_t) *strptr++ << (8 * (i&3));
    }
 
    /* append the bit m_n == 1 */
-   X[(lswlen>>2)&15] ^= (dword)1 << (8*(lswlen&3) + 7);
+   X[(lswlen>>2)&15] ^= (uint32_t)1 << (8*(lswlen&3) + 7);
 
    if ((lswlen & 63) > 55) {
       /* length goes to next block */
       compress(MDbuf, X);
-      memset(X, 0, 16*sizeof(dword));
+      memset(X, 0, 16*sizeof(uint32_t));
    }
 
    /* append length in bits*/
@@ -284,13 +284,13 @@ void MDfinish(dword *MDbuf, byte *strptr, dword lswlen, dword mswlen)
    return;
 }
 
-byte* cal_rpiemd160_hash(byte *message, dword length) {
-   dword         MDbuf[RIPEMD160_HASH_SIZE / 4];   /* contains (A, B, C, D(, E))   */
-   static byte   hashcode[RIPEMD160_HASH_SIZE]; /* for final hash-value         */
-   dword         X[16];               /* current 16-word chunk        */
+unsigned char* cal_rpiemd160_hash(unsigned char *message, uint32_t length) {
+   uint32_t         MDbuf[RIPEMD160_HASH_SIZE / 4];   /* contains (A, B, C, D(, E))   */
+   static unsigned char   hashcode[RIPEMD160_HASH_SIZE]; /* for final hash-value         */
+   uint32_t         X[16];               /* current 16-word chunk        */
    unsigned int  i;                   /* counter                      */
-   //dword         length;              /* length in bytes of message   */
-   dword         nbytes;              /* # of bytes not yet processed */
+   //uint32_t         length;              /* length in unsigned chars of message   */
+   uint32_t         nbytes;              /* # of unsigned chars not yet processed */
 
    /* initialize */
    MDinit(MDbuf);
@@ -302,18 +302,18 @@ byte* cal_rpiemd160_hash(byte *message, dword length) {
          message += 4;
       }
       compress(MDbuf, X);
-   }                                    /* length mod 64 bytes left */
+   }                                    /* length mod 64 unsigned chars left */
 
    /* finish: */
    MDfinish(MDbuf, message, length, 0);
 
    for (i=0; i<RIPEMD160_HASH_SIZE; i+=4) {
-      hashcode[i]   =  MDbuf[i>>2];         /* implicit cast to byte  */
+      hashcode[i]   =  MDbuf[i>>2];         /* implicit cast to unsigned char  */
       hashcode[i+1] = (MDbuf[i>>2] >>  8);  /*  extracts the 8 least  */
       hashcode[i+2] = (MDbuf[i>>2] >> 16);  /*  significant bits.     */
       hashcode[i+3] = (MDbuf[i>>2] >> 24);
    }
 
-   return (byte *)hashcode;
+   return (unsigned char *)hashcode;
 }
 

@@ -45,26 +45,14 @@ extern "C" {
 #define RIPEMD160_HASH_SIZE 20
 /********************************************************************/
 
-/* typedef 8 and 32 bit types, resp.  */
-/* adapt these, if necessary, 
-   for your operating system and compiler */
-typedef    unsigned char        byte;
-typedef    uint32_t        dword;
-
-/* if this line causes a compiler error, 
-   adapt the defintion of dword above */
-typedef int the_correct_size_was_chosen [sizeof (dword) == 4? 1: -1];
-
-/********************************************************************/
-
 /* macro definitions */
 
-/* collect four bytes into one word: */
+/* collect four unsigned chars into one word: */
 #define BYTES_TO_DWORD(strptr)                    \
-            (((dword) *((strptr)+3) << 24) | \
-             ((dword) *((strptr)+2) << 16) | \
-             ((dword) *((strptr)+1) <<  8) | \
-             ((dword) *(strptr)))
+            (((uint32_t) *((strptr)+3) << 24) | \
+             ((uint32_t) *((strptr)+2) << 16) | \
+             ((uint32_t) *((strptr)+1) <<  8) | \
+             ((uint32_t) *(strptr)))
 
 /* ROL(x, n) cyclically rotates x over n bits to the left */
 /* x must be of an unsigned 32 bits type and 0 <= n < 32. */
@@ -133,27 +121,27 @@ typedef int the_correct_size_was_chosen [sizeof (dword) == 4? 1: -1];
 
 /* function prototypes */
 
-void MDinit(dword *MDbuf);
+void MDinit(uint32_t *MDbuf);
 /*
  *  initializes MDbuffer to "magic constants"
  */
 
-void compress(dword *MDbuf, dword *X);
+void compress(uint32_t *MDbuf, uint32_t *X);
 /*
  *  the compression function.
- *  transforms MDbuf using message bytes X[0] through X[15]
+ *  transforms MDbuf using message unsigned chars X[0] through X[15]
  */
 
-void MDfinish(dword *MDbuf, byte *strptr, dword lswlen, dword mswlen);
+void MDfinish(uint32_t *MDbuf, unsigned char *strptr, uint32_t lswlen, uint32_t mswlen);
 /*
- *  puts bytes from strptr into X and pad out; appends length 
+ *  puts unsigned chars from strptr into X and pad out; appends length 
  *  and finally, compresses the last block(s)
  *  note: length in bits == 8 * (lswlen + 2^32 mswlen).
- *  note: there are (lswlen mod 64) bytes left in strptr.
+ *  note: there are (lswlen mod 64) unsigned chars left in strptr.
  */
 
 
-byte* cal_rpiemd160_hash(byte *message, dword length);
+unsigned char* cal_rpiemd160_hash(unsigned char *message, uint32_t length);
 #ifdef __cplusplus
 }
 #endif
