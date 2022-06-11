@@ -10,7 +10,7 @@
 #define TEST_COUNT 8
 #define TEST_SIZE 128
 
-byte message[TEST_COUNT][TEST_SIZE]={
+unsigned char message[TEST_COUNT][TEST_SIZE]={
   "",
   "a",
   "abc",
@@ -38,7 +38,7 @@ bool test_ripemd160() {
   char* output;
   for (int i = 0; i < TEST_COUNT; ++i) {
     printf("Original message: %s\n", message[i]);
-    output = bytes_to_hex_string(cal_rpiemd160_hash(message[i], (dword)strlen((char*)message[i])), RIPEMD160_HASH_SIZE, false);
+    output = bytes_to_hex_string(cal_rpiemd160_hash(message[i], strlen((char*)message[i])), RIPEMD160_HASH_SIZE, false);
     printf("Function result:  %s\n", output);
     printf("Expected result:  %s\n", expected_hash[i]);
     if (strcmp(output, expected_hash[i]) == 0) {
