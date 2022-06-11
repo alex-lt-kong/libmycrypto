@@ -284,9 +284,8 @@ void MDfinish(uint32_t *MDbuf, const unsigned char *strptr, uint32_t lswlen, uin
    return;
 }
 
-unsigned char* cal_rpiemd160_hash(const unsigned char *input_bytes, const size_t length) {
+void cal_rpiemd160_hash(const unsigned char *input_bytes, const size_t length, unsigned char* hash) {
    uint32_t         MDbuf[RIPEMD160_HASH_SIZE / 4];   /* contains (A, B, C, D(, E))   */
-   static unsigned char   hashcode[RIPEMD160_HASH_SIZE]; /* for final hash-value         */
    uint32_t         X[16];               /* current 16-word chunk        */
    unsigned int  i;                   /* counter                      */
    //uint32_t         length;              /* length in unsigned chars of message   */
@@ -308,12 +307,10 @@ unsigned char* cal_rpiemd160_hash(const unsigned char *input_bytes, const size_t
    MDfinish(MDbuf, input_bytes, length, 0);
 
    for (i=0; i<RIPEMD160_HASH_SIZE; i+=4) {
-      hashcode[i]   =  MDbuf[i>>2];         /* implicit cast to unsigned char  */
-      hashcode[i+1] = (MDbuf[i>>2] >>  8);  /*  extracts the 8 least  */
-      hashcode[i+2] = (MDbuf[i>>2] >> 16);  /*  significant bits.     */
-      hashcode[i+3] = (MDbuf[i>>2] >> 24);
+      hash[i]   =  MDbuf[i>>2];         /* implicit cast to unsigned char  */
+      hash[i+1] = (MDbuf[i>>2] >>  8);  /*  extracts the 8 least  */
+      hash[i+2] = (MDbuf[i>>2] >> 16);  /*  significant bits.     */
+      hash[i+3] = (MDbuf[i>>2] >> 24);
    }
-
-   return (unsigned char *)hashcode;
 }
 

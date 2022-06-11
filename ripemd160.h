@@ -140,8 +140,13 @@ void MDfinish(uint32_t *MDbuf, const unsigned char *strptr, uint32_t lswlen, uin
  *  note: there are (lswlen mod 64) unsigned chars left in strptr.
  */
 
-
-unsigned char* cal_rpiemd160_hash(const unsigned char *input_bytes, const size_t length);
+/**
+ * @brief Calculate the RIPEMD160 hash value from a given byte array
+ * @param input_bytes Pointer to the data the hash shall be calculated on.
+ * @param input_len Length of the input_bytes data, in byte.
+ * @param hash Preallocated 20-byte long array, where the result is delivered.
+*/
+void cal_rpiemd160_hash(const unsigned char *input_bytes, const size_t input_len, unsigned char* hash);
 #ifdef __cplusplus
 }
 #endif
