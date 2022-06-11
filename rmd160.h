@@ -35,8 +35,14 @@
 
 #ifndef  RMD160H           /* make sure this file is read only once */
 #define  RMD160H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdint.h>
 
+#define RMDsize 160
 /********************************************************************/
 
 /* typedef 8 and 32 bit types, resp.  */
@@ -146,6 +152,11 @@ void MDfinish(dword *MDbuf, byte *strptr, dword lswlen, dword mswlen);
  *  note: there are (lswlen mod 64) bytes left in strptr.
  */
 
+
+byte* cal_rpiemd160_hash(byte *message, dword length);
+#ifdef __cplusplus
+}
+#endif
 #endif  /* RMD160H */
 
 /*********************** end of file rmd160.h ***********************/
