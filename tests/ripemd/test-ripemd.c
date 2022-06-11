@@ -35,10 +35,12 @@ const char expected_hash[TEST_COUNT][TEST_SIZE] = {
 
 bool test_ripemd160() {
   bool all_passed = true;
+  unsigned char output_bytes[RIPEMD160_HASH_SIZE];
   char* output;
   for (int i = 0; i < TEST_COUNT; ++i) {
     printf("Original message: %s\n", message[i]);
-    output = bytes_to_hex_string(cal_rpiemd160_hash(message[i], strlen((char*)message[i])), RIPEMD160_HASH_SIZE, false);
+    cal_rpiemd160_hash(message[i], strlen((char*)message[i]), output_bytes);
+    output = bytes_to_hex_string(output_bytes , RIPEMD160_HASH_SIZE, false);
     printf("Function result:  %s\n", output);
     printf("Expected result:  %s\n", expected_hash[i]);
     if (strcmp(output, expected_hash[i]) == 0) {
