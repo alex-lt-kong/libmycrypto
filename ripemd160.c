@@ -37,7 +37,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "rmd160.h"      
+#include "ripemd160.h"      
 
 /********************************************************************/
 
@@ -285,8 +285,8 @@ void MDfinish(dword *MDbuf, byte *strptr, dword lswlen, dword mswlen)
 }
 
 byte* cal_rpiemd160_hash(byte *message, dword length) {
-   dword         MDbuf[RMDsize/32];   /* contains (A, B, C, D(, E))   */
-   static byte   hashcode[RMDsize/8]; /* for final hash-value         */
+   dword         MDbuf[RIPEMD160_HASH_SIZE / 4];   /* contains (A, B, C, D(, E))   */
+   static byte   hashcode[RIPEMD160_HASH_SIZE]; /* for final hash-value         */
    dword         X[16];               /* current 16-word chunk        */
    unsigned int  i;                   /* counter                      */
    //dword         length;              /* length in bytes of message   */
@@ -307,7 +307,7 @@ byte* cal_rpiemd160_hash(byte *message, dword length) {
    /* finish: */
    MDfinish(MDbuf, message, length, 0);
 
-   for (i=0; i<RMDsize/8; i+=4) {
+   for (i=0; i<RIPEMD160_HASH_SIZE; i+=4) {
       hashcode[i]   =  MDbuf[i>>2];         /* implicit cast to byte  */
       hashcode[i+1] = (MDbuf[i>>2] >>  8);  /*  extracts the 8 least  */
       hashcode[i+2] = (MDbuf[i>>2] >> 16);  /*  significant bits.     */

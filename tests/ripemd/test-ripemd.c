@@ -1,9 +1,11 @@
+#include <stdbool.h>
+#include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
 #include <time.h>
-#include <stdbool.h>
-#include <stdio.h>
 
-#include "../../rmd160.h"
+#include "../../ripemd160.h"
+#include "../../misc.h"
 
 #define TEST_COUNT 8
 #define TEST_SIZE 128
@@ -32,33 +34,33 @@ const char expected_hash[TEST_COUNT][TEST_SIZE] = {
 
 
 bool test_ripemd160() {
-  bool passed = false;
   bool all_passed = true;
-  byte* output;
+  char* output;
   for (int i = 0; i < TEST_COUNT; ++i) {
-
-    output = cal_rpiemd160_hash(message[i], (dword)strlen((char*)message[i]));
-    printf("Function result: [");
-    for (int j=0; j<RMDsize/8; ++j) { printf("%02x", output[j]); }
-    printf("]\n");
-
-    passed = (strlen((char*)output) == strlen(expected_hash[i]));
-    all_passed &= passed;
-    printf("Expected result: [%s]\n", expected_hash[i]);
+    printf("Original message: %s\n", message[i]);
+    output = bytes_to_hex_string(cal_rpiemd160_hash(message[i], (dword)strlen((char*)message[i])), RIPEMD160_HASH_SIZE, false);
+    printf("Function result:  %s\n", output);
+    printf("Expected result:  %s\n", expected_hash[i]);
+    if (strcmp(output, expected_hash[i]) == 0) {
+      printf("Result:  Passed\n");
+    } else {
+      all_passed = false;
+      printf("Result:  !!!FAILED!!!\n");
+    }
+    free(output);
   }
   return all_passed;
 }
 
 int main() {
-  //freopen("README.md", "w", stdout); // seems we don't need to close() an freopen()'ed file.
+  freopen("README.md", "w", stdout); // seems we don't need to close() an freopen()'ed file.
   printf("```\n");
   time_t now;
   time(&now);
   char utc_time_str[sizeof "1970-01-01T00:00:00Z"];
   strftime(utc_time_str, sizeof(utc_time_str), "%Y-%m-%dT%H:%M:%SZ", gmtime(&now));
   printf("Tests start at %s\n\n", utc_time_str);
-  bool all_passed;
-  all_passed &= test_ripemd160();
+  bool all_passed = test_ripemd160();
   if (all_passed) {
     printf("\n\n========== ALL tests passed ==========\n"); 
   } else {

@@ -42,7 +42,7 @@ extern "C" {
 
 #include <stdint.h>
 
-#define RMDsize 160
+#define RIPEMD160_HASH_SIZE 20
 /********************************************************************/
 
 /* typedef 8 and 32 bit types, resp.  */
