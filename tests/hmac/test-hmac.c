@@ -1,20 +1,12 @@
 #include <assert.h>
-#include <fstream>
-#include <limits>
-#include <iomanip>
-#include <iostream>
-#include <sstream>
-#include <string>
-#include <vector>
+#include <stdlib.h>
+#include <stdio.h>
+#include <time.h>
 
 #include "../../hmac.h"
 #include "../../sha1.h"
 #include "../../sha256.h"
 #include "../../misc.h"
-
-using namespace std;
-
-static_assert (CHAR_BIT == 8);
 
 #define TEST_COUNT 7
 #define TEST_SIZE 512
@@ -89,10 +81,10 @@ bool test_hmac(
   const char tv_data[TEST_COUNT][TEST_SIZE],
   const char tv_hash[TEST_COUNT][TEST_SIZE]
 ) {
-  unsigned char* key_bytes = nullptr;
-  unsigned char* data_bytes = nullptr;
+  unsigned char* key_bytes = NULL;
+  unsigned char* data_bytes = NULL;
   unsigned char hash[hash_size];
-  char* hash_hex = nullptr;
+  char* hash_hex = NULL;
   bool all_passed = true;
   size_t key_len, data_len;
   for (int i = 0; i < TEST_COUNT; ++i) {    
@@ -110,13 +102,13 @@ bool test_hmac(
     hash_hex = bytes_to_hex_string(hash, hash_size, false);
     if (strlen(tv_hash[i]) < strlen(hash_hex)) { // i.e., test vector truncates the result
       hash_hex[strlen(tv_hash[i])] = '\0';
-    } 
-    cout << "Hash:   " << hash_hex << "\nExpect: " << tv_hash[i];
+    }
+    printf("Hash:   %s\nExpect: %s", hash_hex, tv_hash[i]);    
     if (strcmp(hash_hex, tv_hash[i]) == 0) {
-      cout << "\nResult: Passed\n" << endl;
+      printf("\nResult: Passed\n\n");
     } else {
       all_passed = false;
-      cout << "\nResult: !!!FAILED!!!\n" << endl;
+      printf("\nResult: !!!FAILED!!!\n\n");
     }
     free(hash_hex);
     free(key_bytes);
@@ -129,25 +121,25 @@ bool test_hmac(
 int main() {
 
   freopen("README.md", "w", stdout); // seems we don't need to close() an freopen()'ed file.
-  cout << "```\n";
+  printf("```\n");
   time_t now;
   time(&now);
-  char utc_time_str[sizeof "2011-10-08T07:07:09Z"];
+  char utc_time_str[sizeof "1970-01-01T01:01:01Z"];
   strftime(utc_time_str, sizeof(utc_time_str), "%Y-%m-%dT%H:%M:%SZ", gmtime(&now));
-  cout << "Tests start at " << utc_time_str << "\n\n" << endl;
+  printf("Tests start at %s\n\n", utc_time_str);
 
   bool all_passed = true;
-  cout << "========== Testing HMAC-SHA256 ==========" << endl;
+  printf("========== Testing HMAC-SHA256 ==========\n");
   all_passed &= test_hmac(&hmac_sha256, SHA256_HASH_SIZE, tv_sha256_keys, tv_sha256_data, tv_sha256_hash);
   
-  cout << "\n\n========== Testing HMAC-SHA1 ==========" << endl;
+  printf("\n\n========== Testing HMAC-SHA1 ==========\n");
   all_passed &= test_hmac(&hmac_sha1, SHA1_HASH_SIZE, tv_sha1_keys, tv_sha1_data, tv_sha1_hash);
 
   if (all_passed) {
-    cout << "\n\n========== ALL tests passed ==========" << endl; 
+    printf("\n\n========== ALL tests passed ==========\n");
   } else {
-    cout << "\n\n========== FAILED to pass some tests ==========" << endl; 
+    printf("\n\n========== FAILED to pass some tests ==========\n");
   }
-  cout << "```\n";
+  printf("```\n");
   return 0;
 }
