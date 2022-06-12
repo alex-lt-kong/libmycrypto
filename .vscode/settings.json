@@ -8,6 +8,11 @@
     "sha256.h": "c",
     "stdlib.h": "c",
     "string.h": "c",
-    "*.bak": "c"
+    "*.bak": "c",
+    "*.tcc": "cpp",
+    "sstream": "cpp",
+    "string": "cpp",
+    "string_view": "cpp",
+    "time.h": "c"
   }
 }
