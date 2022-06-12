@@ -21,7 +21,6 @@ bool test_rsp_file(
     return false;
   }
   char line[65536] = {0};
-  char substr[16] = {0};
   unsigned char sha_hash[hash_size];
   unsigned char* msg_bytes;
   size_t msg_len = -1;
@@ -32,14 +31,12 @@ bool test_rsp_file(
   int count = 0;
   while (fgets(line, 65536, fp) != NULL) {
 
-    if (strlen(line) >= 3 && line[0] == 'L' && line[1] == 'e' && line[2] == 'n') {
-      memcpy(substr, line + 6, strlen(line) - 6 - 2);
-      // rsp file's lines end with LFCR so it is two-byte long...
-      msg_len = atoi(substr);
-      memset(substr, 0, sizeof(substr));
-    } else if (strlen(line) >= 3 && line[0] == 'M' && line[1] == 's' && line[2] == 'g') {
+    if (strlen(line) >= 3 && strncmp(line, "Len", 3) == 0) {
+      msg_len = strtol(line + 6, NULL, 10);
+    } else if (strlen(line) >= 3 && strncmp(line, "Msg", 3) == 0) {
       memcpy(msg, line + 6, strlen(line) - 6 - 2);
-    } else if (strlen(line) >= 2 && line[0] == 'M' && line[1] == 'D') {      
+      // rsp file's lines end with LFCR so it is two-byte long...
+    } else if (strlen(line) >= 2 && strncmp(line, "MD", 2) == 0) {      
       memcpy(official_md, line + 5, strlen(line) - 5 - 2);
       
       printf("Original Message: [");
@@ -58,9 +55,9 @@ bool test_rsp_file(
       printf("Function result:  [%s]\n", md_char);
       printf("Expected result:  [%s] ", official_md);
       if (strcmp(md_char, official_md) == 0) {
-        printf("Passed\n");
+        printf("Passed\n\n");
       } else {
-        printf("!!!FAILED!!!\n");
+        printf("!!!FAILED!!!\n\n");
         all_passed = false;
       }
       free(md_char);
