@@ -2,13 +2,6 @@
 #include <stdlib.h>
 #include "misc.h"
 
-/**
- * @brief Rotate a 32-bit value by a number of bits to the right.
- * @param value The value to be rotated.
- * @param bits The number of bits to rotate by.
- * @param is_left Should the ratote be to left or to right
- * @returns The rotated value.
- */
 uint32_t rotate(const uint32_t value, const unsigned int bits, const bool is_left) {
     if (is_left) { return value << bits | value >> (32 - bits);  }
     else { return value >> bits | value << (32 - bits); }
@@ -19,8 +12,7 @@ bool is_big_endian() {
     return (*((uint8_t*)(&i))) != 0x67;
 }
 
-unsigned char HexChar (char c)
-{
+unsigned char char_to_hex (const char c) {
     if ('0' <= c && c <= '9') return (unsigned char)(c - '0');
     if ('A' <= c && c <= 'F') return (unsigned char)(c - 'A' + 10);
     if ('a' <= c && c <= 'f') return (unsigned char)(c - 'a' + 10);
@@ -35,9 +27,9 @@ unsigned char* hex_string_to_bytes(const char* input_chars, size_t* output_len) 
     unsigned char msn, lsn, byte;
     int out_idx = 0;
     while (*input_chars) {
-        msn = HexChar(*input_chars++);
+        msn = char_to_hex(*input_chars++);
         if (msn == 0xFF) { return NULL; }
-        lsn = HexChar(*input_chars++);
+        lsn = char_to_hex(*input_chars++);
         if (lsn == 0xFF) { return NULL; }
         byte = (msn << 4) + lsn;
 
@@ -46,7 +38,7 @@ unsigned char* hex_string_to_bytes(const char* input_chars, size_t* output_len) 
     return output_bytes;
 }
 
-char* bytes_to_hex_string(const unsigned char* input_bytes, const size_t input_len, bool upper) {  
+char* bytes_to_hex_string(const unsigned char* input_bytes, const size_t input_len, const bool upper) {  
     char hex_table[] = "0123456789abcdef";
     if (upper) {
         for (int i = 10; i < 16; ++i) {  hex_table[i] -= 32; }

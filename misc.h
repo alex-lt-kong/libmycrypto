@@ -49,7 +49,7 @@ unsigned char* hex_string_to_bytes(const char* input_chars, size_t* output_len);
  * @param upper Hexadecimal digits should be in uppercase
  * @returns Pointer to the null-terminated hexadecimal string. Users are reminded to free() the pointer after use.
  */
-char* bytes_to_hex_string(const unsigned char* input_bytes, const size_t input_len, bool upper);
+char* bytes_to_hex_string(const unsigned char* input_bytes, const size_t input_len, const bool upper);
 
 #ifdef __cplusplus
 }
