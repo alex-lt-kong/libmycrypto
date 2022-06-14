@@ -14,6 +14,15 @@ extern "C" {
 #endif
 
 /**
+ * @brief Rotate a 32-bit value by a number of bits.
+ * @param value The value to be rotated.
+ * @param bits The number of bits to rotate by.
+ * @param is_left Should the ratotation be to left or to right
+ * @returns The rotated value.
+ */
+uint32_t rotate(const uint32_t value, const unsigned int bits, const bool is_left);
+
+/**
  * @brief Check if the current system is in big or little endian
  * @returns If the system is in big endian
  */

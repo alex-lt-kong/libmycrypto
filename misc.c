@@ -2,6 +2,17 @@
 #include <stdlib.h>
 #include "misc.h"
 
+/**
+ * @brief Rotate a 32-bit value by a number of bits to the right.
+ * @param value The value to be rotated.
+ * @param bits The number of bits to rotate by.
+ * @param is_left Should the ratote be to left or to right
+ * @returns The rotated value.
+ */
+uint32_t rotate(const uint32_t value, const unsigned int bits, const bool is_left) {
+    if (is_left) { return value << bits | value >> (32 - bits);  }
+    else { return value >> bits | value << (32 - bits); }
+}
 
 bool is_big_endian() {
     volatile uint32_t i=0x01234567;    

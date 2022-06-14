@@ -74,7 +74,7 @@ bool test_rsp_file(
 
 int main() {
   
-  freopen("README.md", "w", stdout); // seems we don't need to close() an freopen()'ed file.
+ // freopen("README.md", "w", stdout); // seems we don't need to close() an freopen()'ed file.
   printf("```\n");
   time_t now;
   time(&now);

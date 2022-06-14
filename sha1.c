@@ -1,235 +1,129 @@
-#define SHA1HANDSOFF
+/**
+ * A very straightforward and no-frills C implementaion of SHA1 based on the pseudocode at
+ * https://en.wikipedia.org/wiki/SHA-1
+ */
 
+#include <limits.h>
+#include <math.h>
+#include <stdlib.h>
 #include <stdio.h>
+#include <stdint.h>
+#include <string.h>
+
 #include "sha1.h"
+#include "misc.h"
 
 
-#define rol(value, bits) (((value) << (bits)) | ((value) >> (32 - (bits))))
-
-/* blk0() and blk() perform the initial expand. */
-/* I got the idea of expanding during the round function from SSLeay */
-#if BYTE_ORDER == LITTLE_ENDIAN
-#define blk0(i) (block->l[i] = (rol(block->l[i],24)&0xFF00FF00) \
-    |(rol(block->l[i],8)&0x00FF00FF))
-#elif BYTE_ORDER == BIG_ENDIAN
-#define blk0(i) block->l[i]
-#else
-#error "Endianness not defined!"
-#endif
-#define blk(i) (block->l[i&15] = rol(block->l[(i+13)&15]^block->l[(i+8)&15] \
-    ^block->l[(i+2)&15]^block->l[i&15],1))
-
-/* (R0+R1), R2, R3, R4 are the different operations used in SHA1 */
-#define R0(v,w,x,y,z,i) z+=((w&(x^y))^y)+blk0(i)+0x5A827999+rol(v,5);w=rol(w,30);
-#define R1(v,w,x,y,z,i) z+=((w&(x^y))^y)+blk(i)+0x5A827999+rol(v,5);w=rol(w,30);
-#define R2(v,w,x,y,z,i) z+=(w^x^y)+blk(i)+0x6ED9EBA1+rol(v,5);w=rol(w,30);
-#define R3(v,w,x,y,z,i) z+=(((w|x)&y)|(w&x))+blk(i)+0x8F1BBCDC+rol(v,5);w=rol(w,30);
-#define R4(v,w,x,y,z,i) z+=(w^x^y)+blk(i)+0xCA62C1D6+rol(v,5);w=rol(w,30);
-
-
-/* Hash a single 512-bit block. This is the core of the algorithm. */
-
-void sha1_transform(
-    uint32_t state[5],
-    const unsigned char buffer[64]
-)
-{
-    uint32_t a, b, c, d, e;
-
-    typedef union
-    {
-        unsigned char c[64];
-        uint32_t l[16];
-    } CHAR64LONG16;
-
-#ifdef SHA1HANDSOFF
-    CHAR64LONG16 block[1];      /* use array to appear as a pointer */
-
-    memcpy(block, buffer, 64);
-#else
-    /* The following had better never be used because it causes the
-     * pointer-to-const buffer to be cast into a pointer to non-const.
-     * And the result is written through.  I threw a "const" in, hoping
-     * this will cause a diagnostic.
+void cal_sha1_hash(const unsigned char* input_bytes, const size_t input_len, unsigned char* hash) {
+    if (input_len > 2147483647) {
+        return; // we support up to this length only
+    }
+    
+    uint32_t h0 = 0x67452301;
+    uint32_t h1 = 0xEFCDAB89;
+    uint32_t h2 = 0x98BADCFE;
+    uint32_t h3 = 0x10325476;
+    uint32_t h4 = 0xC3D2E1F0;
+    
+    /**
+     * Pre-processing (Padding):
+     * ml = message length in bits (always a multiple of the number of bits in a character).
+     * begin with the original message of length L bits
+     * append the bit '1' to the message e.g. by adding 0x80 if message length is a multiple of 8 bits.
+     * append 0 ≤ k < 512 bits '0', such that the resulting message length in bits is congruent to −64 ≡ 448 (mod 512)
+     * append ml, the original message length in bits, as a 64-bit big-endian integer.
+     * Thus, the total length is a multiple of 512 bits.
+     * 
+     * The padding scheme is the same as that of SHA256.
      */
-    CHAR64LONG16 *block = (const CHAR64LONG16 *) buffer;
-#endif
-    /* Copy context->state[] to working vars */
-    a = state[0];
-    b = state[1];
-    c = state[2];
-    d = state[3];
-    e = state[4];
-    /* 4 rounds of 20 operations each. Loop unrolled. */
-    R0(a, b, c, d, e, 0);
-    R0(e, a, b, c, d, 1);
-    R0(d, e, a, b, c, 2);
-    R0(c, d, e, a, b, 3);
-    R0(b, c, d, e, a, 4);
-    R0(a, b, c, d, e, 5);
-    R0(e, a, b, c, d, 6);
-    R0(d, e, a, b, c, 7);
-    R0(c, d, e, a, b, 8);
-    R0(b, c, d, e, a, 9);
-    R0(a, b, c, d, e, 10);
-    R0(e, a, b, c, d, 11);
-    R0(d, e, a, b, c, 12);
-    R0(c, d, e, a, b, 13);
-    R0(b, c, d, e, a, 14);
-    R0(a, b, c, d, e, 15);
-    R1(e, a, b, c, d, 16);
-    R1(d, e, a, b, c, 17);
-    R1(c, d, e, a, b, 18);
-    R1(b, c, d, e, a, 19);
-    R2(a, b, c, d, e, 20);
-    R2(e, a, b, c, d, 21);
-    R2(d, e, a, b, c, 22);
-    R2(c, d, e, a, b, 23);
-    R2(b, c, d, e, a, 24);
-    R2(a, b, c, d, e, 25);
-    R2(e, a, b, c, d, 26);
-    R2(d, e, a, b, c, 27);
-    R2(c, d, e, a, b, 28);
-    R2(b, c, d, e, a, 29);
-    R2(a, b, c, d, e, 30);
-    R2(e, a, b, c, d, 31);
-    R2(d, e, a, b, c, 32);
-    R2(c, d, e, a, b, 33);
-    R2(b, c, d, e, a, 34);
-    R2(a, b, c, d, e, 35);
-    R2(e, a, b, c, d, 36);
-    R2(d, e, a, b, c, 37);
-    R2(c, d, e, a, b, 38);
-    R2(b, c, d, e, a, 39);
-    R3(a, b, c, d, e, 40);
-    R3(e, a, b, c, d, 41);
-    R3(d, e, a, b, c, 42);
-    R3(c, d, e, a, b, 43);
-    R3(b, c, d, e, a, 44);
-    R3(a, b, c, d, e, 45);
-    R3(e, a, b, c, d, 46);
-    R3(d, e, a, b, c, 47);
-    R3(c, d, e, a, b, 48);
-    R3(b, c, d, e, a, 49);
-    R3(a, b, c, d, e, 50);
-    R3(e, a, b, c, d, 51);
-    R3(d, e, a, b, c, 52);
-    R3(c, d, e, a, b, 53);
-    R3(b, c, d, e, a, 54);
-    R3(a, b, c, d, e, 55);
-    R3(e, a, b, c, d, 56);
-    R3(d, e, a, b, c, 57);
-    R3(c, d, e, a, b, 58);
-    R3(b, c, d, e, a, 59);
-    R4(a, b, c, d, e, 60);
-    R4(e, a, b, c, d, 61);
-    R4(d, e, a, b, c, 62);
-    R4(c, d, e, a, b, 63);
-    R4(b, c, d, e, a, 64);
-    R4(a, b, c, d, e, 65);
-    R4(e, a, b, c, d, 66);
-    R4(d, e, a, b, c, 67);
-    R4(c, d, e, a, b, 68);
-    R4(b, c, d, e, a, 69);
-    R4(a, b, c, d, e, 70);
-    R4(e, a, b, c, d, 71);
-    R4(d, e, a, b, c, 72);
-    R4(c, d, e, a, b, 73);
-    R4(b, c, d, e, a, 74);
-    R4(a, b, c, d, e, 75);
-    R4(e, a, b, c, d, 76);
-    R4(d, e, a, b, c, 77);
-    R4(c, d, e, a, b, 78);
-    R4(b, c, d, e, a, 79);
-    /* Add the working vars back into context.state[] */
-    state[0] += a;
-    state[1] += b;
-    state[2] += c;
-    state[3] += d;
-    state[4] += e;
-    /* Wipe variables */
-    a = b = c = d = e = 0;
-#ifdef SHA1HANDSOFF
-    memset(block, '\0', sizeof(block));
-#endif
-}
+    size_t padded_len = input_len + (SHA1_CHUNK_SIZE_BIT - input_len * CHAR_BIT % SHA1_CHUNK_SIZE_BIT) / CHAR_BIT;
+    if (padded_len - input_len < 9) {
+        padded_len += 64;
+    }
 
+    unsigned char* padded_bytes = (unsigned char*)calloc(padded_len, sizeof(unsigned char));
+    memcpy(padded_bytes, input_bytes, input_len);                                           // begin with the original message of length L bits    
+    padded_bytes[input_len] = 0b10000000;                                                   // append a single '1' bit
+    
+    // append k '0' bits is not needed as we are using calloc();
 
-void sha1_init(sha1_ctx * ctx) {
-    ctx->state[0] = 0x67452301;
-    ctx->state[1] = 0xEFCDAB89;
-    ctx->state[2] = 0x98BADCFE;
-    ctx->state[3] = 0x10325476;
-    ctx->state[4] = 0xC3D2E1F0;
-    ctx->count[0] = ctx->count[1] = 0;
-}
+    // append ml, the original message length in bits, as a 64-bit big-endian integer. Thus, the total length is a multiple of 512 bits.
+    padded_bytes[padded_len - 4] = (unsigned char)(input_len * CHAR_BIT >> 24);
+    padded_bytes[padded_len - 3] = (unsigned char)(input_len * CHAR_BIT >> 16);
+    padded_bytes[padded_len - 2] = (unsigned char)(input_len * CHAR_BIT >>  8);
+    padded_bytes[padded_len - 1] = (unsigned char)(input_len * CHAR_BIT >>  0);
+    // such that the bits in the message are: <original message of length L> 1 <K zeros> <L as 64 bit integer> , (the number of bits will be a multiple of 512)
 
+    const int chunk_count = padded_len / SHA1_CHUNK_SIZE;
 
-/* Run your data through this. */
-
-void sha1_update(sha1_ctx * ctx, const unsigned char *data, size_t len) {
-    uint32_t i;
-
-    uint32_t j;
-
-    j = ctx->count[0];
-    if ((ctx->count[0] += len << 3) < j)
-        ctx->count[1]++;
-    ctx->count[1] += (len >> 29);
-    j = (j >> 3) & 63;
-    if ((j + len) > 63)
-    {
-        memcpy(&ctx->buffer[j], data, (i = 64 - j));
-        sha1_transform(ctx->state, ctx->buffer);
-        for (; i + 63 < len; i += 64)
-        {
-            sha1_transform(ctx->state, &data[i]);
+    // Process the message in successive 512-bit chunks:
+    for (int i = 0; i < chunk_count; ++i) {
+        uint32_t w[16 + SHA1_CHUNK_SIZE];                                                    // break chunk into sixteen 32-bit big-endian words w[i], 0 ≤ i ≤ 15
+        unsigned char* chunk_pos = padded_bytes + i * SHA1_CHUNK_SIZE;
+        for (int j = 0; j < 16; ++j) {                                                       // (to handle endianness properly, we cant simply use memcpy()
+			w[j] = (uint32_t)(*(chunk_pos++)) << 24 | (uint32_t)(*(chunk_pos++)) << 16 | (uint32_t)(*(chunk_pos++)) << 8 | (uint32_t)(*(chunk_pos++));
         }
-        j = 0;
+        //  Message schedule: extend the sixteen 32-bit words into eighty 32-bit words:
+        for (int j = 16; j < 16 + SHA1_CHUNK_SIZE; j++) {            
+            w[j] = rotate(w[j-3] ^ w[j-8] ^ w[j-14] ^ w[j-16], 1, true);
+        }
+        // Initialize hash value for this chunk:
+        uint32_t a = h0;
+        uint32_t b = h1;
+        uint32_t c = h2;
+        uint32_t d = h3;
+        uint32_t e = h4;
+
+        uint32_t f;
+        uint32_t k;
+        
+        // Compression function main loop:
+        for (int j = 0; j < 16 + SHA1_CHUNK_SIZE; ++j) {
+            if (j >= 0 && j <= 19) {
+                f = (b & c) | ((~b) & d);
+                k = 0x5A827999;
+            } else if (j >= 20 && j <= 39) {
+                f = b ^ c ^ d;
+                k = 0x6ED9EBA1;
+            } else if (j >= 40 && j <= 59) {
+                f = (b & c) | (b & d) | (c & d) ;
+                k = 0x8F1BBCDC;
+            } else if (j >= 60 && j <= 79) {
+                f = b ^ c ^ d;
+                k = 0xCA62C1D6;
+            }
+            // Add the compressed chunk to the current hash value:
+            const uint32_t temp =  rotate(a, 5, true) + f + e + k + w[j];
+            e = d;
+            d = c;
+            c = rotate(b, 30, true);
+            b = a;
+            a = temp;
+            
+        }
+        // Add this chunk's hash to result so far:
+        h0 = h0 + a;
+        h1 = h1 + b;
+        h2 = h2 + c;
+        h3 = h3 + d;
+        h4 = h4 + e;
     }
-    else
-        i = 0;
-    memcpy(&ctx->buffer[j], &data[i], len - i);
+    h0 = rotate(h0, 128, true);
+    h1 = rotate(h1,  96, true);
+    h2 = rotate(h2,  64, true);
+    h3 = rotate(h3,  32, true);
+    h4 = rotate(h4,   0, true);
+    free(padded_bytes);
+    if (is_big_endian() == false) {
+        switch_endianness(&h0);
+        switch_endianness(&h1);
+        switch_endianness(&h2);
+        switch_endianness(&h3);
+        switch_endianness(&h4);
+    }
+    memcpy(hash + 0 * sizeof(uint32_t), &h0, sizeof(uint32_t));
+    memcpy(hash + 1 * sizeof(uint32_t), &h1, sizeof(uint32_t));
+    memcpy(hash + 2 * sizeof(uint32_t), &h2, sizeof(uint32_t));
+    memcpy(hash + 3 * sizeof(uint32_t), &h3, sizeof(uint32_t));
+    memcpy(hash + 4 * sizeof(uint32_t), &h4, sizeof(uint32_t));
 }
-
-
-/* Add padding and return the message digest. */
-
-void sha1_final(unsigned char digest[20], sha1_ctx * ctx) {
-    unsigned i;
-
-    unsigned char finalcount[8];
-
-    unsigned char c;
-
-    for (i = 0; i < 8; i++) {
-        finalcount[i] = (unsigned char) ((ctx->count[(i >= 4 ? 0 : 1)] >> ((3 - (i & 3)) * 8)) & 255);      /* Endian independent */
-    }
-
-    c = 0200;
-    sha1_update(ctx, &c, 1);
-    while ((ctx->count[0] & 504) != 448)
-    {
-        c = 0000;
-        sha1_update(ctx, &c, 1);
-    }
-    sha1_update(ctx, finalcount, 8); /* Should cause a SHA1Transform() */
-    for (i = 0; i < 20; i++)
-    {
-        digest[i] = (unsigned char)
-            ((ctx->state[i >> 2] >> ((3 - (i & 3)) * 8)) & 255);
-    }
-    /* Wipe variables */
-    memset(ctx, '\0', sizeof(*ctx));
-    memset(&finalcount, '\0', sizeof(finalcount));
-}
-
-void cal_sha1_hash(const unsigned char* input_bytes, const size_t input_len, unsigned char hash[SHA1_HASH_SIZE])
-{
-    sha1_ctx ctx;
-    sha1_init(&ctx);
-    for (int i = 0; i < input_len; ++i)
-        sha1_update(&ctx, input_bytes + i, 1);
-    sha1_final((unsigned char *)hash, &ctx);
-}
-
