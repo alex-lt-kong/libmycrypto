@@ -61,7 +61,7 @@ void hmac_sha1(
   const unsigned char* key, const size_t key_len,
   const unsigned char* msg, const size_t msg_len,
   unsigned char* out) {
-  hmac(SHA1_BLOCK_SIZE, SHA1_HASH_SIZE, cal_sha1_hash, key, key_len, msg, msg_len, out);
+  hmac(SHA1_CHUNK_SIZE, SHA1_HASH_SIZE, cal_sha1_hash, key, key_len, msg, msg_len, out);
 }
 
 void hmac_sha256(
