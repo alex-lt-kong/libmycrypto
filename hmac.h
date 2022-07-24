@@ -19,9 +19,9 @@ extern "C" {
  * @param out Hash array, where the result is delivered.
  */
 void hmac_sha1(
-    const unsigned char* key, const size_t key_len,
-    const unsigned char* data, const size_t data_len,
-    unsigned char* out
+    const uint8_t* key, const size_t key_len,
+    const uint8_t* data, const size_t data_len,
+    uint8_t* out
 );
 
 /**
@@ -33,9 +33,9 @@ void hmac_sha1(
  * @param out Hash array, where the result is delivered.
  */
 void hmac_sha256(
-    const unsigned char* key, const size_t key_len,
-    const unsigned char* data, const size_t data_len,
-    unsigned char* out
+    const uint8_t* key, const size_t key_len,
+    const uint8_t* data, const size_t data_len,
+    uint8_t* out
 );
 
 #ifdef __cplusplus

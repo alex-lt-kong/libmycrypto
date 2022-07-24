@@ -6,9 +6,9 @@
 using namespace std;
 
 int main() {
-  unsigned char input[] = {0x48, 0x65, 0x6C, 0x6C, 0x6F, 0x20, 0x57, 0x6F, 0x72, 0x6C, 0x64, 0x21};
+  uint8_t input[] = {0x48, 0x65, 0x6C, 0x6C, 0x6F, 0x20, 0x57, 0x6F, 0x72, 0x6C, 0x64, 0x21};
   // Hello World!
-  //unsigned char input[] = "The quick brown fox jumps over the lazy dog.";
+  //uint8_t input[] = "The quick brown fox jumps over the lazy dog.";
   // Answer: USm3fpXnKG5EUBx2ndxBDMPVciP5hGey2Jh4NDv6gmeo1LkMeiKrLJUUBk6Z
   char* output = (char*)calloc(1024, 1);
   size_t output_len = 512;
@@ -20,7 +20,7 @@ int main() {
   //delete output_len;
   cout << endl;
   
-  /*unsigned char* new_output;
+  /*uint8_t* new_output;
   size_t* new_output_len = (size_t*)malloc(sizeof(size_t));
 
   new_output = decode_base64_string_to_bytes(output, *output_len, new_output_len);

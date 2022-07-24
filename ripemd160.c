@@ -254,16 +254,16 @@ void compress(uint32_t *MDbuf, uint32_t *X)
 
 /********************************************************************/
 
-void MDfinish(uint32_t *MDbuf, const unsigned char *strptr, uint32_t lswlen, uint32_t mswlen)
+void MDfinish(uint32_t *MDbuf, const uint8_t *strptr, uint32_t lswlen, uint32_t mswlen)
 {
    unsigned int i;                                 /* counter       */
    uint32_t        X[16];                             /* message words */
 
    memset(X, 0, 16*sizeof(uint32_t));
 
-   /* put unsigned chars from strptr into X */
+   /* put uint8_ts from strptr into X */
    for (i=0; i<(lswlen&63); i++) {
-      /* unsigned char i goes into word X[i div 4] at pos.  8*(i mod 4)  */
+      /* uint8_t i goes into word X[i div 4] at pos.  8*(i mod 4)  */
       X[i>>2] ^= (uint32_t) *strptr++ << (8 * (i&3));
    }
 
@@ -284,12 +284,12 @@ void MDfinish(uint32_t *MDbuf, const unsigned char *strptr, uint32_t lswlen, uin
    return;
 }
 
-void cal_rpiemd160_hash(const unsigned char *input_bytes, const size_t length, unsigned char* hash) {
+void cal_rpiemd160_hash(const uint8_t *input_bytes, const size_t length, uint8_t* hash) {
    uint32_t         MDbuf[RIPEMD160_HASH_SIZE / 4];   /* contains (A, B, C, D(, E))   */
    uint32_t         X[16];               /* current 16-word chunk        */
    unsigned int  i;                   /* counter                      */
-   //uint32_t         length;              /* length in unsigned chars of message   */
-   uint32_t         nbytes;              /* # of unsigned chars not yet processed */
+   //uint32_t         length;              /* length in uint8_ts of message   */
+   uint32_t         nbytes;              /* # of uint8_ts not yet processed */
 
    /* initialize */
    MDinit(MDbuf);
@@ -301,13 +301,13 @@ void cal_rpiemd160_hash(const unsigned char *input_bytes, const size_t length, u
          input_bytes += 4;
       }
       compress(MDbuf, X);
-   }                                    /* length mod 64 unsigned chars left */
+   }                                    /* length mod 64 uint8_ts left */
 
    /* finish: */
    MDfinish(MDbuf, input_bytes, length, 0);
 
    for (i=0; i<RIPEMD160_HASH_SIZE; i+=4) {
-      hash[i]   =  MDbuf[i>>2];         /* implicit cast to unsigned char  */
+      hash[i]   =  MDbuf[i>>2];         /* implicit cast to uint8_t  */
       hash[i+1] = (MDbuf[i>>2] >>  8);  /*  extracts the 8 least  */
       hash[i+2] = (MDbuf[i>>2] >> 16);  /*  significant bits.     */
       hash[i+3] = (MDbuf[i>>2] >> 24);

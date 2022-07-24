@@ -47,7 +47,7 @@ extern "C" {
 
 /* macro definitions */
 
-/* collect four unsigned chars into one word: */
+/* collect four uint8_ts into one word: */
 #define BYTES_TO_DWORD(strptr)                    \
             (((uint32_t) *((strptr)+3) << 24) | \
              ((uint32_t) *((strptr)+2) << 16) | \
@@ -129,15 +129,15 @@ void MDinit(uint32_t *MDbuf);
 void compress(uint32_t *MDbuf, uint32_t *X);
 /*
  *  the compression function.
- *  transforms MDbuf using message unsigned chars X[0] through X[15]
+ *  transforms MDbuf using message uint8_ts X[0] through X[15]
  */
 
-void MDfinish(uint32_t *MDbuf, const unsigned char *strptr, uint32_t lswlen, uint32_t mswlen);
+void MDfinish(uint32_t *MDbuf, const uint8_t *strptr, uint32_t lswlen, uint32_t mswlen);
 /*
- *  puts unsigned chars from strptr into X and pad out; appends length 
+ *  puts uint8_ts from strptr into X and pad out; appends length 
  *  and finally, compresses the last block(s)
  *  note: length in bits == 8 * (lswlen + 2^32 mswlen).
- *  note: there are (lswlen mod 64) unsigned chars left in strptr.
+ *  note: there are (lswlen mod 64) uint8_ts left in strptr.
  */
 
 /**
@@ -146,7 +146,7 @@ void MDfinish(uint32_t *MDbuf, const unsigned char *strptr, uint32_t lswlen, uin
  * @param input_len Length of the input_bytes data, in byte.
  * @param hash Preallocated 20-byte long array, where the result is delivered.
 */
-void cal_rpiemd160_hash(const unsigned char *input_bytes, const size_t input_len, unsigned char* hash);
+void cal_rpiemd160_hash(const uint8_t *input_bytes, const size_t input_len, uint8_t* hash);
 #ifdef __cplusplus
 }
 #endif

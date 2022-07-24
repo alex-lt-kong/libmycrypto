@@ -1,7 +1,7 @@
-#include <stdio.h>
-#include <stdlib.h>
 #include <ctype.h>
 #include <math.h>
+#include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
 #include "base32.h"
 
@@ -15,7 +15,7 @@ static const char b32_table[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
  * @param in a 5-byte long input block
  * @param out an array of 8 bytes of base32 character
  */
-void encode_block(unsigned char* in, char* out) {
+void encode_block(uint8_t* in, char* out) {
     out[0] =  (in[0] & 0b11111000) >> 3;
     out[1] = ((in[0] & 0b00000111) << 2) | ((in[1] & 0b11000000) >> 6);
     out[2] =  (in[1] & 0b00111110) >> 1;
@@ -31,7 +31,7 @@ void encode_block(unsigned char* in, char* out) {
  * @param in an 8-byte long input char array
  * @param out an a 5-byte long output bytes array
  */
-void decode_group(char* in, unsigned char* out) {
+void decode_group(char* in, uint8_t* out) {
     out[0] = ( in[0] << 0b00000011) +       ((in[1] & 0b00011100) >> 2);
     out[1] = ((in[1]  & 0b00000011) << 6) +  (in[2] << 1) + ((in[3] & 0x00000010) >> 4);
     out[2] = ((in[3]  & 0b00001111) << 4) + ((in[4] & 0b00011110) >> 1);
@@ -39,7 +39,7 @@ void decode_group(char* in, unsigned char* out) {
     out[4] = ((in[6]  & 0b00000111) << 5) +   in[7];
 }
 
-char* encode_bytes_to_base32_string(const unsigned char *input_bytes, size_t input_len) {
+char* encode_bytes_to_base32_string(const uint8_t *input_bytes, size_t input_len) {
   int blk_idx = 0;
   int grp_idx = 0;
   char* output = NULL;
@@ -47,7 +47,7 @@ char* encode_bytes_to_base32_string(const unsigned char *input_bytes, size_t inp
   int out_pos = 0;
   size_t output_len = ceil((float)input_len / BLOCK_SIZE) * GROUP_SIZE; /* 5-byte block into 8 groups of 5 bits */  
   char buf[GROUP_SIZE];
-  unsigned char tmp[BLOCK_SIZE];
+  uint8_t tmp[BLOCK_SIZE];
 
   output = (char *)calloc(output_len, sizeof(char));
   if (output == NULL) { return NULL; }
@@ -83,17 +83,17 @@ char* encode_bytes_to_base32_string(const unsigned char *input_bytes, size_t inp
 }
 
 
-unsigned char* decode_base32_string_to_bytes(const char *input_chars, size_t *output_len) {
+uint8_t* decode_base32_string_to_bytes(const char *input_chars, size_t *output_len) {
   
   int out_pos = 0;
   *output_len = strlen(input_chars) * BLOCK_SIZE / GROUP_SIZE;
   // We pre-allocate this number of bytes, but some of them may not be used due to the existence of padding ='s
   // *output_len will be shrunk a bit at the end.
-  unsigned char *output_bytes = NULL;
-  unsigned char buf[BLOCK_SIZE];
+  uint8_t *output_bytes = NULL;
+  uint8_t buf[BLOCK_SIZE];
   char tmp[GROUP_SIZE];
 
-  output_bytes = (unsigned char *)calloc(*output_len, sizeof(unsigned char));
+  output_bytes = (uint8_t *)calloc(*output_len, sizeof(uint8_t));
   if (NULL == output_bytes) { return NULL; }
 
   int in_pos = 0;

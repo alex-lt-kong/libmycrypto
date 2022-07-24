@@ -3,11 +3,13 @@
 #include <string.h>
 #include <stdio.h>
 
+#include "base58.h"
+
 // From: https://github.com/bitcoin/libbase58/blob/master/base58.c
 
 static const char b58_table[] = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
 
-bool b58enc(const unsigned char *input_bytes, const size_t input_len, char *output_chars, size_t *output_len)
+bool b58enc(const uint8_t *input_bytes, const size_t input_len, char *output_chars, size_t *output_len)
 {
 	
 	size_t zeros = 0;
@@ -25,7 +27,7 @@ bool b58enc(const unsigned char *input_bytes, const size_t input_len, char *outp
 	while (zeros < input_len && input_bytes[zeros] == 0)
 		++zeros;
 
-	unsigned char buf[size];
+	uint8_t buf[size];
 	memset(buf, 0, size);
 	
 	int buf_idx;

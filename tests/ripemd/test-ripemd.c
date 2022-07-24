@@ -10,7 +10,7 @@
 #define TEST_COUNT 8
 #define TEST_SIZE 128
 
-unsigned char message[TEST_COUNT][TEST_SIZE]={
+uint8_t message[TEST_COUNT][TEST_SIZE]={
   "",
   "a",
   "abc",
@@ -35,7 +35,7 @@ const char expected_hash[TEST_COUNT][TEST_SIZE] = {
 
 bool test_ripemd160() {
   bool all_passed = true;
-  unsigned char output_bytes[RIPEMD160_HASH_SIZE];
+  uint8_t output_bytes[RIPEMD160_HASH_SIZE];
   char* output;
   for (int i = 0; i < TEST_COUNT; ++i) {
     printf("Original message: %s\n", message[i]);

@@ -75,15 +75,15 @@ const char tv_sha256_hash[TEST_COUNT][TEST_SIZE] = {
 };
 
 bool test_hmac(
-  void (*hash_function)(const unsigned char*, size_t, const unsigned char*, size_t, unsigned char*),
+  void (*hash_function)(const uint8_t*, size_t, const uint8_t*, size_t, uint8_t*),
   const size_t hash_size,
   const char tv_keys[TEST_COUNT][TEST_SIZE],
   const char tv_data[TEST_COUNT][TEST_SIZE],
   const char tv_hash[TEST_COUNT][TEST_SIZE]
 ) {
-  unsigned char* key_bytes = NULL;
-  unsigned char* data_bytes = NULL;
-  unsigned char hash[hash_size];
+  uint8_t* key_bytes = NULL;
+  uint8_t* data_bytes = NULL;
+  uint8_t hash[hash_size];
   char* hash_hex = NULL;
   bool all_passed = true;
   size_t key_len, data_len;

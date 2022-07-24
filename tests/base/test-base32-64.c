@@ -42,14 +42,14 @@ const char test_vectors_base32_encoded[TEST_COUNT][TEST_SIZE] = {
 
 
 bool test_base_encode(
-  char* (*encode_function)(const unsigned char* , size_t), const char test_vectors_encoded[TEST_COUNT][TEST_SIZE]
+  char* (*encode_function)(const uint8_t* , size_t), const char test_vectors_encoded[TEST_COUNT][TEST_SIZE]
 ) {
   bool passed = false;
   bool all_passed = true;
   char* output;
   for (int i = 0; i < TEST_COUNT; ++i) {
 
-    output = (*encode_function)((unsigned char*)test_vectors_decoded[i], strlen(test_vectors_decoded[i]));
+    output = (*encode_function)((uint8_t*)test_vectors_decoded[i], strlen(test_vectors_decoded[i]));
     printf("Function result: [%s]\n", output);
 
     passed = (strlen(output) == strlen(test_vectors_encoded[i]));
@@ -63,11 +63,11 @@ bool test_base_encode(
 }
 
 bool test_base_decode(
-  unsigned char* (*decode_function)(const char*, size_t*), const char test_vectors_encoded[TEST_COUNT][TEST_SIZE]
+  uint8_t* (*decode_function)(const char*, size_t*), const char test_vectors_encoded[TEST_COUNT][TEST_SIZE]
 ) {
   bool passed = false;
   bool all_passed = true;
-  unsigned char* output;
+  uint8_t* output;
   size_t output_len = -1;
   for (int i = 0; i < TEST_COUNT; ++i) {
 

@@ -10,7 +10,7 @@
 #include "../../misc.h"
 
 bool test_rsp_file(
-  char* rsp_file_dir, void (*hash_func)(const unsigned char*, size_t input_len, unsigned char*), const size_t hash_size
+  char* rsp_file_dir, void (*hash_func)(const uint8_t*, size_t input_len, uint8_t*), const size_t hash_size
   ) {
   bool all_passed = true;
 
@@ -21,8 +21,8 @@ bool test_rsp_file(
     return false;
   }
   char line[65536] = {0};
-  unsigned char sha_hash[hash_size];
-  unsigned char* msg_bytes;
+  uint8_t sha_hash[hash_size];
+  uint8_t* msg_bytes;
   size_t msg_len = -1;
   size_t msg_bytes_len = -1;
   char msg[65536] = {0};

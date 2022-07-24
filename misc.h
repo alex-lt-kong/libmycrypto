@@ -4,10 +4,8 @@
 #include <assert.h>
 #include <limits.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include <string.h>
-
-
-static_assert (CHAR_BIT == 8);
 
 #ifdef __cplusplus
 extern "C" {
@@ -40,7 +38,7 @@ void switch_endianness(uint32_t* val);
  * @param output_len: Pointer to integer where the length of the output_chars will saved to
  * @returns Pointer a byte array converted from input_chars. Users are reminded to free() the pointer after use.
  */
-unsigned char* hex_string_to_bytes(const char* input_chars, size_t* output_len);
+uint8_t* hex_string_to_bytes(const char* input_chars, size_t* output_len);
 
 /**
  * @brief Convert a byte array to a null-terminated hexadecimal string.
@@ -49,7 +47,7 @@ unsigned char* hex_string_to_bytes(const char* input_chars, size_t* output_len);
  * @param upper Hexadecimal digits should be in uppercase
  * @returns Pointer to the null-terminated hexadecimal string. Users are reminded to free() the pointer after use.
  */
-char* bytes_to_hex_string(const unsigned char* input_bytes, const size_t input_len, const bool upper);
+char* bytes_to_hex_string(const uint8_t* input_bytes, const size_t input_len, const bool upper);
 
 #ifdef __cplusplus
 }
