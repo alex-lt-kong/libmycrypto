@@ -4,8 +4,8 @@
 #include <string.h>
 #include <time.h>
 
-#include "../../base64.h"
-#include "../../base32.h"
+#include "../../src/base64.h"
+#include "../../src/base32.h"
 
 #define TEST_COUNT 7
 #define TEST_SIZE 32

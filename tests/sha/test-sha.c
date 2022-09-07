@@ -5,9 +5,9 @@
 #include <string.h>
 #include <time.h>
 
-#include "../../sha256.h"
-#include "../../sha1.h"
-#include "../../misc.h"
+#include "../../src/sha256.h"
+#include "../../src/sha1.h"
+#include "../../src/misc.h"
 
 bool test_rsp_file(
   char* rsp_file_dir, void (*hash_func)(const uint8_t*, size_t input_len, uint8_t*), const size_t hash_size

@@ -1,7 +1,7 @@
 #include <iostream>
 #include <string.h>
 
-#include "../../base58.h"
+#include "../../src/base58.h"
 
 using namespace std;
 
