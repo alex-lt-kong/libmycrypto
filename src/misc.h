@@ -35,7 +35,7 @@ void switch_endianness(uint32_t* val);
 /**
  * @brief Convert null-terminated hexadecimal string to a byte array
  * @param input_chars Pointer to a null-terminated hexadecimal string
- * @param output_len: Pointer to integer where the length of the output_chars will saved to
+ * @param output_len: Pointer to integer where the length of the output_chars will be saved to
  * @returns Pointer a byte array converted from input_chars. Users are reminded to free() the pointer after use.
  */
 uint8_t* hex_string_to_bytes(const char* input_chars, size_t* output_len);
