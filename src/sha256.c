@@ -73,8 +73,12 @@ void cal_sha256_hash(const uint8_t* input_bytes, const size_t input_len, uint8_t
     for (int i = 0; i < chunk_count; ++i) {
         uint32_t w[SHA256_CHUNK_SIZE];                                                              // create a 64-entry message schedule array w[0..63] of 32-bit words. The initial values in w[0..63] don't matter.                       
         uint8_t* chunk_pos = padded_bytes + i * SHA256_CHUNK_SIZE;
-        for (int j = 0; j < 16; ++j) {                                                       // copy chunk into first 16 words w[0..15] of the message schedule array (to handle endianness properly, we cant simply use memcpy()
-			w[j] = (uint32_t)(*(chunk_pos++)) << 24 | (uint32_t)(*(chunk_pos++)) << 16 | (uint32_t)(*(chunk_pos++)) << 8 | (uint32_t)(*(chunk_pos++));
+        for (int j = 0; j < 16; ++j) {
+            // copy chunk into first 16 words w[0..15] of the message schedule array (to handle endianness properly, we cant simply use memcpy()
+			w[j]  = (uint32_t)(*(chunk_pos++)) << 24;
+            w[j] |= (uint32_t)(*(chunk_pos++)) << 16;
+            w[j] |= (uint32_t)(*(chunk_pos++)) << 8;
+            w[j] |= (uint32_t)(*(chunk_pos++));
         }
         // Extend the first 16 words into the remaining 48 words w[16..63] of the message schedule array:
         for (int j = 16; j < 64; j++) {
