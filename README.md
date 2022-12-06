@@ -1,10 +1,10 @@
 # cryptographic-algorithms
 
-* CUnit is used for unit test: `apt install libcunit1 libcunit1-doc libcunit1-dev`
-
-* A few cryptographic algorithms for study and general usage with a focus on cryptocurrency applications.
+* A few cryptographic algorithms for study and general usage with a focus on cryptocurrency applications such as (bitcoin-internals)[https://github.com/alex-lt-kong/bitcoin-internals].
 
 * Available algorithms are: Base32, Base58, Base64, HMAC-SHA1, HMAC-SHA256, RIPEMD160, SHA1, SHA256.
+
+* CUnit is used for unit test: `apt install libcunit1 libcunit1-doc libcunit1-dev`
 
 * Test results
 
