@@ -15,6 +15,6 @@
 | HMAC-SHA1     | 2022-07-24      | [./tests/hmac/README.md](./tests/hmac/README.md)     | [RFC 2202](https://datatracker.ietf.org/doc/html/rfc2202)|
 | HMAC-SHA256   | 2022-07-24      | [./tests/hmac/README.md](./tests/hmac/README.md)     | [RFC 4231](https://datatracker.ietf.org/doc/html/rfc4231)|
 | RIPEMD160     | 2022-07-24      | [./tests/ripemd/README.md](./tests/ripemd/README.md) | [The RIPEMD-160 homepage](https://homes.esat.kuleuven.be/~bosselae/ripemd160.html)|
-| SHA1          | 2022-12-06      | [./tests/sha/test.output](./tests/sha/test.output)     | [NIST](https://csrc.nist.gov/Projects/Cryptographic-Algorithm-Validation-Program/Secure-Hashing)|
-| SHA256        | 2022-12-06      | [./tests/sha/test.output](./tests/sha/test.output)     | [NIST](https://csrc.nist.gov/Projects/Cryptographic-Algorithm-Validation-Program/Secure-Hashing)|
+| SHA1          | 2022-12-06      | [./tests/sha/test.output](./tests/sha/test.output)   | [NIST](https://csrc.nist.gov/Projects/Cryptographic-Algorithm-Validation-Program/Secure-Hashing)|
+| SHA256        | 2022-12-06      | [./tests/sha/test.output](./tests/sha/test.output)   | [NIST](https://csrc.nist.gov/Projects/Cryptographic-Algorithm-Validation-Program/Secure-Hashing)|
 
