@@ -45,7 +45,8 @@ uint8_t* hex_string_to_bytes(const char* input_chars, size_t* output_len);
  * @param input_bytes Pointer to an array of bytes
  * @param input_len Length of input_bytes
  * @param upper Hexadecimal digits should be in uppercase
- * @returns Pointer to the null-terminated hexadecimal string. Users are reminded to free() the pointer after use.
+ * @returns Pointer to the null-terminated hexadecimal string or NULL on error.
+ * Users are reminded to free() the pointer after use.
  */
 char* bytes_to_hex_string(const uint8_t* input_bytes, const size_t input_len, const bool upper);
 

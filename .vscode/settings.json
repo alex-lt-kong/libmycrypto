@@ -13,6 +13,7 @@
     "sstream": "cpp",
     "string": "cpp",
     "string_view": "cpp",
-    "time.h": "c"
+    "time.h": "c",
+    "basic.h": "c"
   }
 }

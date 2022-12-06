@@ -44,6 +44,9 @@ char* bytes_to_hex_string(const uint8_t* input_bytes, const size_t input_len, co
         for (int i = 10; i < 16; ++i) {  hex_table[i] -= 32; }
     }
     char* output_chars = (char*)calloc(input_len * 2 + 1, sizeof(char));
+    if (output_chars == NULL) {
+        return NULL;
+    }
     int out_idx = 0;
 
     uint8_t in_idx;
