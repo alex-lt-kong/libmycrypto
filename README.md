@@ -4,7 +4,7 @@
 
 * Available algorithms are: Base32, Base58, Base64, HMAC-SHA1, HMAC-SHA256, RIPEMD160, SHA1, SHA256.
 
-* CUnit is used for unit test: `apt install libcunit1 libcunit1-doc libcunit1-dev`
+* Criterion is used for unit test: `apt install libcriterion-dev libcriterion3`
 
 * Test results
 

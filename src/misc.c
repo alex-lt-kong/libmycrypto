@@ -24,6 +24,7 @@ uint8_t* hex_string_to_bytes(const char* input_chars, size_t* output_len) {
 
     *output_len = strlen(input_chars) / 2;
     uint8_t* output_bytes = (uint8_t*)calloc(*output_len, sizeof(uint8_t));
+    if (output_bytes == NULL) { return NULL; }
     uint8_t msn, lsn, byte;
     int out_idx = 0;
     while (*input_chars) {
