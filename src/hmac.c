@@ -36,7 +36,6 @@ void hmac(
   uint8_t opad[BLOCK_SIZE]; // opad is the block-sized outer padding, consisting of repeated bytes valued 0x5c
   uint8_t ihash[HASH_SIZE];
   uint8_t ohash[HASH_SIZE];
-  int i;
 
   memset(k_prime, 0, sizeof(k_prime));
   memset(ipad, 0x36, BLOCK_SIZE);

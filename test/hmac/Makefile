@@ -1,17 +1,19 @@
+OPT = -O3 -Wall
+
 hmac-sha1.out: test-hmac.c misc.o hmac.o sha256.o sha1.o
-	gcc test-hmac.c misc.o hmac.o sha256.o sha1.o -o hmac-test.out
+	gcc test-hmac.c misc.o hmac.o sha256.o sha1.o -o hmac-test.out $(OPT)
 
-hmac.o: ../../hmac.c ../../hmac.h
-	gcc -c ../../hmac.c
+hmac.o: ../../src/hmac.c ../../src/hmac.h
+	gcc -c ../../src/hmac.c $(OPT)
 
-sha256.o: ../../sha256.c ../../sha256.h
-	gcc -c ../../sha256.c
+sha256.o: ../../src/sha256.c ../../src/sha256.h
+	gcc -c ../../src/sha256.c $(OPT)
 
-sha1.o: ../../sha1.c ../../sha1.h
-	gcc -c ../../sha1.c
+sha1.o: ../../src/sha1.c ../../src/sha1.h
+	gcc -c ../../src/sha1.c $(OPT)
 
-misc.o: ../../misc.c ../../misc.h
-	gcc -c ../../misc.c
+misc.o: ../../src/misc.c ../../src/misc.h
+	gcc -c ../../src/misc.c $(OPT)
 
 clean:
 	rm *.o *.out

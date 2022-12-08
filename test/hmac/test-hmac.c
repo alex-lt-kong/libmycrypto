@@ -3,10 +3,10 @@
 #include <stdio.h>
 #include <time.h>
 
-#include "../../hmac.h"
-#include "../../sha1.h"
-#include "../../sha256.h"
-#include "../../misc.h"
+#include "../../src/hmac.h"
+#include "../../src/sha1.h"
+#include "../../src/sha256.h"
+#include "../../src/misc.h"
 
 #define TEST_COUNT 7
 #define TEST_SIZE 512
