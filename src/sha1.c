@@ -61,7 +61,10 @@ void cal_sha1_hash(const uint8_t* input_bytes, const size_t input_len, uint8_t* 
         uint32_t w[16 + SHA1_CHUNK_SIZE];                                                    // break chunk into sixteen 32-bit big-endian words w[i], 0 ≤ i ≤ 15
         uint8_t* chunk_pos = padded_bytes + i * SHA1_CHUNK_SIZE;
         for (int j = 0; j < 16; ++j) {                                                       // (to handle endianness properly, we cant simply use memcpy()
-			w[j] = (uint32_t)(*(chunk_pos++)) << 24 | (uint32_t)(*(chunk_pos++)) << 16 | (uint32_t)(*(chunk_pos++)) << 8 | (uint32_t)(*(chunk_pos++));
+			w[j]  = (uint32_t)(*(chunk_pos++)) << 24;
+            w[j] |= (uint32_t)(*(chunk_pos++)) << 16;
+            w[j] |= (uint32_t)(*(chunk_pos++)) << 8;
+            w[j] |= (uint32_t)(*(chunk_pos++));
         }
         //  Message schedule: extend the sixteen 32-bit words into eighty 32-bit words:
         for (int j = 16; j < 16 + SHA1_CHUNK_SIZE; j++) {            

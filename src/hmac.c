@@ -11,7 +11,7 @@
 #include <string.h>
 
 
-static uint8_t* H(
+static void H(
   void (*hash_func)(const uint8_t*, size_t, uint8_t*),
   const uint8_t* x, const size_t xlen, const uint8_t* y, const size_t ylen, uint8_t* out
 ) {

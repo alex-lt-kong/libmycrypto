@@ -1,5 +1,6 @@
 #include <stdint.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include "misc.h"
 
 uint32_t rotate(const uint32_t value, const unsigned int bits, const bool is_left) {

@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <time.h>
+#include <criterion/criterion.h>
+#include <criterion/new/assert.h>
 
 #include "../../src/hmac.h"
 #include "../../src/sha1.h"
@@ -90,56 +92,25 @@ bool test_hmac(
   for (int i = 0; i < TEST_COUNT; ++i) {    
     key_bytes = hex_string_to_bytes(tv_keys[i], &key_len);
     data_bytes = hex_string_to_bytes(tv_data[i], &data_len);
-
-    printf("Key:    ");
-    for (int j = 0; j < MAX_PRINT_LEN && j < strlen(tv_keys[i]); ++j) { printf("%c", tv_keys[i][j]); }    
-    strlen(tv_keys[i]) > MAX_PRINT_LEN ? printf("...[Truncated]\n") : printf("\n");
-    printf("Data:   ");
-    for (int j = 0; j < MAX_PRINT_LEN && j < strlen(tv_data[i]); ++j) { printf("%c", tv_data[i][j]); }
-    strlen(tv_data[i]) > MAX_PRINT_LEN ? printf("...[Truncated]\n") : printf("\n");
-
     hash_function(key_bytes, key_len, data_bytes, data_len, hash);
     hash_hex = bytes_to_hex_string(hash, hash_size, false);
     if (strlen(tv_hash[i]) < strlen(hash_hex)) { // i.e., test vector truncates the result
       hash_hex[strlen(tv_hash[i])] = '\0';
     }
-    printf("Hash:   %s\nExpect: %s", hash_hex, tv_hash[i]);    
-    if (strcmp(hash_hex, tv_hash[i]) == 0) {
-      printf("\nResult: Passed\n\n");
-    } else {
-      all_passed = false;
-      printf("\nResult: !!!FAILED!!!\n\n");
-    }
+    cr_expect(eq(str, hash_hex, (char*)tv_hash[i]));
+
     free(hash_hex);
     free(key_bytes);
     free(data_bytes);
   }
   return all_passed;
+  //
 }
 
+Test(hmac_test_suite, test_hmac_sha256) {
+  test_hmac(&hmac_sha256, SHA256_HASH_SIZE, tv_sha256_keys, tv_sha256_data, tv_sha256_hash);
+}
 
-int main() {
-
-  freopen("README.md", "w", stdout); // seems we don't need to close() an freopen()'ed file.
-  printf("```\n");
-  time_t now;
-  time(&now);
-  char utc_time_str[sizeof "1970-01-01T01:01:01Z"];
-  strftime(utc_time_str, sizeof(utc_time_str), "%Y-%m-%dT%H:%M:%SZ", gmtime(&now));
-  printf("Tests start at %s\n\n", utc_time_str);
-
-  bool all_passed = true;
-  printf("========== Testing HMAC-SHA256 ==========\n");
-  all_passed &= test_hmac(&hmac_sha256, SHA256_HASH_SIZE, tv_sha256_keys, tv_sha256_data, tv_sha256_hash);
-  
-  printf("\n\n========== Testing HMAC-SHA1 ==========\n");
-  all_passed &= test_hmac(&hmac_sha1, SHA1_HASH_SIZE, tv_sha1_keys, tv_sha1_data, tv_sha1_hash);
-
-  if (all_passed) {
-    printf("\n\n========== ALL tests passed ==========\n");
-  } else {
-    printf("\n\n========== FAILED to pass some tests ==========\n");
-  }
-  printf("```\n");
-  return 0;
+Test(hmac_test_suite, test_hmac_sha1) {
+  test_hmac(&hmac_sha1, SHA1_HASH_SIZE, tv_sha1_keys, tv_sha1_data, tv_sha1_hash);
 }
