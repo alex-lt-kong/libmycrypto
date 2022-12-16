@@ -46,6 +46,7 @@ char* bytes_to_hex_string(const uint8_t* input_bytes, const size_t input_len, co
     }
     char* output_chars = (char*)calloc(input_len * 2 + 1, sizeof(char));
     if (output_chars == NULL) {
+        fprintf(stderr, "calloc() failed\n");
         return NULL;
     }
     int out_idx = 0;
