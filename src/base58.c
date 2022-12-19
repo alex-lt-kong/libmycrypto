@@ -52,7 +52,7 @@ bool b58enc(const uint8_t *input_bytes, const size_t input_len, char *output_cha
 	
 	if (*output_len <= zeros + size - k)	{
 		*output_len = zeros + size - k + 1;
-    printf("False!");
+    	fprintf(stderr, "Something wrong with Base58");	
 		return false;
 	}
 	
