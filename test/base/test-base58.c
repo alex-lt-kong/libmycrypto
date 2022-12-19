@@ -7,17 +7,16 @@
 #include "../../src/base58.h"
 #include "../../src/misc.h"
 
-#define OFFICIAL_TEST_COUNT 8
 #define OFFICIAL_TEST_SIZE 1024
 #define BTC_TEST_SIZE 1024
 
-const size_t official_test_vectors_decoded_len[OFFICIAL_TEST_COUNT]={12, 44, 6};
-const uint8_t official_test_vectors_decoded[OFFICIAL_TEST_COUNT][OFFICIAL_TEST_SIZE]={
+const size_t official_test_vectors_decoded_len[]={12, 44, 6};
+const uint8_t official_test_vectors_decoded[][OFFICIAL_TEST_SIZE]={
   "Hello World!",
   "The quick brown fox jumps over the lazy dog.",
   {0x00, 0x00, 0x28, 0x7f, 0xb4, 0xcd},
 };
-const char test_vectors_encoded[OFFICIAL_TEST_COUNT][OFFICIAL_TEST_SIZE] = {  
+const char test_vectors_encoded[][OFFICIAL_TEST_SIZE] = {  
   "2NEpo7TZRRrLZSi2U",
   "USm3fpXnKG5EUBx2ndxBDMPVciP5hGey2Jh4NDv6gmeo1LkMeiKrLJUUBk6Z",
   "11233QC4"
@@ -60,7 +59,7 @@ const uint8_t btc_test_vectors_encoded[][BTC_TEST_SIZE]={
 
 Test(test_base_suite, test_base58_official) {
  char output[1024] = {0};
-  for (int i = 0; i < OFFICIAL_TEST_COUNT; ++i) {    
+  for (int i = 0; i < sizeof(test_vectors_encoded)/sizeof(test_vectors_encoded[0]); ++i) {    
     size_t output_len = 512;
     bool res = b58enc(official_test_vectors_decoded[i], official_test_vectors_decoded_len[i], output, &output_len);   
     cr_assert(res);
