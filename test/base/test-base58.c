@@ -77,6 +77,7 @@ Test(test_base_suite, test_base58_btc) {
     cr_assert(input_bytes != NULL);
     bool res = b58enc(input_bytes, input_len, output, &output_len);   
     cr_assert(res);
-    cr_expect(eq(str, output, (char*)btc_test_vectors_encoded[i]));  
+    cr_expect(eq(str, output, (char*)btc_test_vectors_encoded[i])); 
+    free(input_bytes);
   }
 }
