@@ -1,1 +1,0 @@
-/usr/bin/cc CMakeFiles/test-ripemd.dir/test/ripemd/test-ripemd.c.o -o test-ripemd  src/libmisc.a -lcriterion src/libripemd160.a 

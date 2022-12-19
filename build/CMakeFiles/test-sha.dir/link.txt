@@ -1,1 +1,0 @@
-/usr/bin/cc CMakeFiles/test-sha.dir/test/sha/test-sha.c.o -o test-sha  src/libmisc.a -lcriterion src/libsha1.a src/libsha256.a 
