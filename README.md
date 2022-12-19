@@ -7,5 +7,5 @@
 
 * Criterion is used for unit test: `apt install libcriterion-dev libcriterion3`
 
-* To run tests: `cd ./build && cmake ../ && make`
+* To run tests: `mkdir -p ./build && cd ./build`, `cmake ../ && make`
 
