@@ -58,13 +58,13 @@ void test_rsp_file(
   fclose(fp);
 }
 
-Test(asserts, string) {
+Test(test_sha_suite, test_sha256) {
   test_rsp_file("SHA256ShortMsg.rsp", &cal_sha256_hash, SHA256_HASH_SIZE);
   test_rsp_file("SHA256LongMsg.rsp", &cal_sha256_hash, SHA256_HASH_SIZE);
 }
 
 
-Test(asserts1, string) {
+Test(test_sha_suite, test_sha1) {
   test_rsp_file("SHA1ShortMsg.rsp", &cal_sha1_hash, SHA1_HASH_SIZE);
   test_rsp_file("SHA1LongMsg.rsp", &cal_sha1_hash, SHA1_HASH_SIZE);
 }
