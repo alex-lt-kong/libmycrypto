@@ -1,0 +1,30 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/akong_yin/my-repos/cryptographic-algorithms/src/misc.c
+stdint.h
+-
+stdlib.h
+-
+stdio.h
+-
+misc.h
+/home/akong_yin/my-repos/cryptographic-algorithms/src/misc.h
+
+/home/akong_yin/my-repos/cryptographic-algorithms/src/misc.h
+assert.h
+-
+limits.h
+-
+stdbool.h
+-
+stdint.h
+-
+string.h
+-
+

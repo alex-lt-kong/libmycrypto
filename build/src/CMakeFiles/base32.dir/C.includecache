@@ -1,0 +1,26 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/akong_yin/my-repos/cryptographic-algorithms/src/base32.c
+ctype.h
+-
+math.h
+-
+stdlib.h
+-
+stdio.h
+-
+string.h
+-
+base32.h
+/home/akong_yin/my-repos/cryptographic-algorithms/src/base32.h
+
+/home/akong_yin/my-repos/cryptographic-algorithms/src/base32.h
+stdint.h
+-
+

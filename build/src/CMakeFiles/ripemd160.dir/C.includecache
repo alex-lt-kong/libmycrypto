@@ -1,0 +1,22 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/akong_yin/my-repos/cryptographic-algorithms/src/ripemd160.c
+stdio.h
+-
+stdlib.h
+-
+string.h
+-
+ripemd160.h
+/home/akong_yin/my-repos/cryptographic-algorithms/src/ripemd160.h
+
+/home/akong_yin/my-repos/cryptographic-algorithms/src/ripemd160.h
+stdint.h
+-
+

@@ -1,0 +1,36 @@
+cmake_minimum_required(VERSION 3.18.4)
+
+project(CA)
+
+add_executable(test-sha ./test/sha/test-sha.c)
+add_executable(test-ripemd ./test/ripemd/test-ripemd.c)
+add_executable(test-hmac ./test/hmac/test-hmac.c)
+
+add_subdirectory(src)
+
+target_link_libraries(test-sha    misc criterion sha1 sha256)
+target_link_libraries(test-ripemd misc criterion ripemd160)
+target_link_libraries(test-hmac   misc criterion hmac)
+
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/test/sha/SHA256LongMsg.rsp DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/)
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/test/sha/SHA256ShortMsg.rsp DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/)
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/test/sha/SHA1LongMsg.rsp DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/)
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/test/sha/SHA1ShortMsg.rsp DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/)
+
+add_custom_command(TARGET test-sha POST_BUILD
+    COMMAND ${CMAKE_CURRENT_BINARY_DIR}/test-sha --verbose
+    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+    COMMENT "Running SHA test..."
+)
+
+add_custom_command(TARGET test-hmac POST_BUILD
+    COMMAND ${CMAKE_CURRENT_BINARY_DIR}/test-hmac --verbose
+    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+    COMMENT "Running HMAC test..."
+)
+
+add_custom_command(TARGET test-ripemd POST_BUILD
+    COMMAND ${CMAKE_CURRENT_BINARY_DIR}/test-ripemd --verbose
+    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+    COMMENT "Running RIPEMD test..."
+)

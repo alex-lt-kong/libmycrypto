@@ -1,0 +1,1 @@
+/usr/bin/cc CMakeFiles/test-hmac.dir/test/hmac/test-hmac.c.o -o test-hmac  src/libmisc.a -lcriterion src/libhmac.a src/libsha1.a src/libsha256.a 

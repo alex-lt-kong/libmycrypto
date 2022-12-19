@@ -1,0 +1,8 @@
+add_library(sha256 sha256.c)
+add_library(sha1 sha1.c)
+add_library(hmac hmac.c)
+target_link_libraries(hmac sha1 sha256)
+add_library(base32 base32.c)
+add_library(base64 base64.c)
+add_library(ripemd160 ripemd160.c)
+add_library(misc misc.c)

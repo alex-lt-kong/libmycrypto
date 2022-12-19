@@ -1,0 +1,2 @@
+/usr/bin/ar qc libbase32.a CMakeFiles/base32.dir/base32.c.o
+/usr/bin/ranlib libbase32.a
