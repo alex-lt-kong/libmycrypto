@@ -53,7 +53,7 @@ char* bytes_to_hex_string(const uint8_t* input_bytes, const size_t input_len, co
     int out_idx = 0;
 
     uint8_t in_idx;
-    for (int i = 0; i < input_len; ++i) {
+    for (size_t i = 0; i < input_len; ++i) {
         in_idx = *(input_bytes++);
 
         output_chars[out_idx++] = hex_table[(in_idx >> 4) & 0x0F];

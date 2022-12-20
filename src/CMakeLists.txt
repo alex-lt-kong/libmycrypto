@@ -1,3 +1,5 @@
+add_compile_options(-Wall -Wextra -pedantic)
+
 add_library(sha256 sha256.c)
 add_library(sha1 sha1.c)
 add_library(hmac hmac.c)

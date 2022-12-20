@@ -44,7 +44,7 @@ void hmac(
   if (key_len > BLOCK_SIZE) { (*hash_func)(key, key_len, k_prime); }
   else { memcpy(k_prime, key, key_len); }
 
-  for (int i = 0; i < BLOCK_SIZE; i++) {
+  for (size_t i = 0; i < BLOCK_SIZE; i++) {
     ipad[i] ^= k_prime[i]; // ^: bitwise XOR
     opad[i] ^= k_prime[i];
   }

@@ -27,7 +27,7 @@ char* encode_bytes_to_base64_string(const uint8_t* input_bytes, const size_t inp
 	const uint8_t* input_start = input_bytes;
 	const uint8_t* input_end = input_start + input_len;
 	size_t olen;
-	int line_len;
+	size_t line_len;
 
 	olen = input_len * 4 / 3 + 4; /* 3-byte blocks to 4-byte */
 	olen += olen / CHARS_PER_LINE; /* line feeds */
@@ -101,7 +101,7 @@ uint8_t * decode_base64_string_to_bytes(const char *input_chars, size_t *output_
   
 	count = 0;
 	for (i = 0; i < strlen(input_chars); i++) {
-		if (dtable[input_chars[i]] != 0x80)
+		if (dtable[(int8_t)input_chars[i]] != 0x80)
 			count++;
 	}
   
@@ -114,7 +114,7 @@ uint8_t * decode_base64_string_to_bytes(const char *input_chars, size_t *output_
   
 	count = 0;
 	for (i = 0; i < strlen(input_chars); i++) {
-		tmp = dtable[input_chars[i]];
+		tmp = dtable[(int8_t)input_chars[i]];
 		if (tmp == 0x80)
 			continue;
 

@@ -30,8 +30,8 @@ bool b58enc(const uint8_t *input_bytes, const size_t input_len, char *output_cha
 	uint8_t buf[size];
 	memset(buf, 0, size);
 	
-	int buf_idx;
-	for (int i = zeros; i < input_len; ++i) {
+	size_t buf_idx;
+	for (size_t i = zeros; i < input_len; ++i) {
 		buf_idx = size - 1;
 		int carry = input_bytes[i];
 		while ((buf_idx > high) || carry) {
@@ -47,7 +47,7 @@ bool b58enc(const uint8_t *input_bytes, const size_t input_len, char *output_cha
 		high = buf_idx;
 	}	
 	
-	int k = 0;
+	size_t k = 0;
 	while (k < size && !buf[k]) { ++k; }
 	
 	if (*output_len <= zeros + size - k)	{

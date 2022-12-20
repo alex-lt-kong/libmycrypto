@@ -43,7 +43,7 @@ void cal_sha1_hash(const uint8_t* input_bytes, const size_t input_len, uint8_t* 
 
     uint8_t* padded_bytes = (uint8_t*)calloc(padded_len, sizeof(uint8_t));
     memcpy(padded_bytes, input_bytes, input_len);                                           // begin with the original message of length L bits    
-    padded_bytes[input_len] = 0b10000000;                                                   // append a single '1' bit
+    padded_bytes[input_len] = 0x80;                                                         // append a single '1' bit
     
     // append k '0' bits is not needed as we are using calloc();
 

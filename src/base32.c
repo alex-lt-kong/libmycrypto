@@ -16,14 +16,14 @@ static const char b32_table[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
  * @param out an array of 8 bytes of base32 character
  */
 void encode_block(uint8_t* in, char* out) {
-    out[0] =  (in[0] & 0b11111000) >> 3;
-    out[1] = ((in[0] & 0b00000111) << 2) | ((in[1] & 0b11000000) >> 6);
-    out[2] =  (in[1] & 0b00111110) >> 1;
-    out[3] = ((in[1] & 0b00000001) << 4) | ((in[2] & 0b11110000) >> 4);
-    out[4] = ((in[2] & 0b00001111) << 1) | ((in[3] & 0b10000000) >> 7);
-    out[5] =  (in[3] & 0b01111100) >> 2;
-    out[6] = ((in[3] & 0b00000011) << 3) | ((in[4] & 0b11100000) >> 5);
-    out[7] =   in[4] & 0b00011111;
+    out[0] =  (in[0] & 0xf8) >> 3;
+    out[1] = ((in[0] & 0x07) << 2) | ((in[1] & 0xc0) >> 6);
+    out[2] =  (in[1] & 0x3e) >> 1;
+    out[3] = ((in[1] & 0x01) << 4) | ((in[2] & 0xf0) >> 4);
+    out[4] = ((in[2] & 0x0f) << 1) | ((in[3] & 0x80) >> 7);
+    out[5] =  (in[3] & 0x7c) >> 2;
+    out[6] = ((in[3] & 0x03) << 3) | ((in[4] & 0xe0) >> 5);
+    out[7] =   in[4] & 0x1f;
 }
 
 /*
@@ -32,11 +32,11 @@ void encode_block(uint8_t* in, char* out) {
  * @param out an a 5-byte long output bytes array
  */
 void decode_group(char* in, uint8_t* out) {
-    out[0] = ( in[0] << 0b00000011) +       ((in[1] & 0b00011100) >> 2);
-    out[1] = ((in[1]  & 0b00000011) << 6) +  (in[2] << 1) + ((in[3] & 0x00000010) >> 4);
-    out[2] = ((in[3]  & 0b00001111) << 4) + ((in[4] & 0b00011110) >> 1);
-    out[3] = ((in[4]  & 0b00000001) << 7) +  (in[5] << 2) + ((in[6] & 0b00011000) >> 3);
-    out[4] = ((in[6]  & 0b00000111) << 5) +   in[7];
+    out[0] = ( in[0] << 0x03) +       ((in[1] & 0x1c) >> 2);
+    out[1] = ((in[1]  & 0x03) << 6) +  (in[2] << 1) + ((in[3] & 0x10) >> 4);
+    out[2] = ((in[3]  & 0x0f) << 4) + ((in[4] & 0x1e) >> 1);
+    out[3] = ((in[4]  & 0x01) << 7) +  (in[5] << 2) + ((in[6] & 0x18) >> 3);
+    out[4] = ((in[6]  & 0x07) << 5) +   in[7];
 }
 
 char* encode_bytes_to_base32_string(const uint8_t *input_bytes, size_t input_len) {
@@ -59,7 +59,7 @@ char* encode_bytes_to_base32_string(const uint8_t *input_bytes, size_t input_len
     encode_block(tmp, buf);
     
     for (blk_idx = 0; blk_idx < GROUP_SIZE; blk_idx++) {
-      output[out_pos++] = b32_table[buf[blk_idx]];
+      output[out_pos++] = b32_table[(int8_t)buf[blk_idx]];
     }
     blk_idx = 0;
   }
@@ -71,7 +71,7 @@ char* encode_bytes_to_base32_string(const uint8_t *input_bytes, size_t input_len
     }
     encode_block(tmp, buf);    
     for (grp_idx = 0; (grp_idx < blk_idx * 8 / BLOCK_SIZE + 1); grp_idx++) {
-      output[out_pos++] = b32_table[buf[grp_idx]]; 
+      output[out_pos++] = b32_table[(int8_t)buf[grp_idx]]; 
     }
     
     while (grp_idx++ < GROUP_SIZE) { // while there is still a remainder append `=' to `output'
@@ -98,7 +98,7 @@ uint8_t* decode_base32_string_to_bytes(const char *input_chars, size_t *output_l
 
   int in_pos = 0;
   int grp_idx = 0;
-  for (int i = 0; i < strlen(input_chars); ++i) {
+  for (size_t i = 0; i < strlen(input_chars); ++i) {
     if ('=' == input_chars[in_pos]) { break; } // reaching the end of the input
     // if not base32 char
     if (!((input_chars[in_pos] >= 'A' && input_chars[in_pos] <= 'Z') || 

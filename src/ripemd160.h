@@ -153,4 +153,3 @@ void cal_rpiemd160_hash(const uint8_t *input_bytes, const size_t input_len, uint
 #endif  /* RMD160H */
 
 /*********************** end of file rmd160.h ***********************/
-

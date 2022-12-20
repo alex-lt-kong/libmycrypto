@@ -23,7 +23,7 @@ const char test_vectors_encoded[][OFFICIAL_TEST_SIZE] = {
 };
 
 
-const uint8_t btc_test_vectors_decoded_hex_str[][BTC_TEST_SIZE]={
+const char btc_test_vectors_decoded_hex_str[][BTC_TEST_SIZE]={
   "",
   "61",
   "626262",
@@ -59,7 +59,7 @@ const uint8_t btc_test_vectors_encoded[][BTC_TEST_SIZE]={
 
 Test(test_base_suite, test_base58_official) {
  char output[1024] = {0};
-  for (int i = 0; i < sizeof(test_vectors_encoded)/sizeof(test_vectors_encoded[0]); ++i) {    
+  for (size_t i = 0; i < sizeof(test_vectors_encoded)/sizeof(test_vectors_encoded[0]); ++i) {    
     size_t output_len = 512;
     bool res = b58enc(official_test_vectors_decoded[i], official_test_vectors_decoded_len[i], output, &output_len);   
     cr_assert(res);
@@ -71,7 +71,7 @@ Test(test_base_suite, test_base58_btc) {
  char output[1024] = {0};
  uint8_t* input_bytes;
  size_t input_len;
-  for (int i = 0; i < sizeof(btc_test_vectors_encoded) / sizeof(btc_test_vectors_encoded[0]); ++i) {    
+  for (size_t i = 0; i < sizeof(btc_test_vectors_encoded) / sizeof(btc_test_vectors_encoded[0]); ++i) {    
     size_t output_len = 1024;
     input_bytes = hex_string_to_bytes(btc_test_vectors_decoded_hex_str[i], &input_len);
     cr_assert(input_bytes != NULL);
