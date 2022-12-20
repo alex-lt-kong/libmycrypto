@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.18.4)
 
-project(CA)
+project(LIBMYCRYPTO)
 
-add_compile_options(-Wall -Wextra -pedantic)
+add_compile_options(-Wall -Wextra -pedantic -O3)
 
 add_executable(test-sha ./test/sha/test-sha.c)
 add_executable(test-ripemd ./test/ripemd/test-ripemd.c)
@@ -12,11 +12,11 @@ add_executable(test-base58 ./test/base/test-base58.c)
 
 add_subdirectory(src)
 
-target_link_libraries(test-sha       misc criterion sha1 sha256)
-target_link_libraries(test-ripemd    misc criterion ripemd160)
-target_link_libraries(test-hmac      misc criterion hmac)
-target_link_libraries(test-base32-64 misc criterion base32 base64 m)
-target_link_libraries(test-base58 misc criterion base58)
+target_link_libraries(test-sha       libmycrypto criterion)
+target_link_libraries(test-ripemd    libmycrypto criterion)
+target_link_libraries(test-hmac      libmycrypto criterion)
+target_link_libraries(test-base32-64 libmycrypto criterion m)
+target_link_libraries(test-base58    libmycrypto criterion)
 
 
 

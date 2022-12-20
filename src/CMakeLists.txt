@@ -1,4 +1,4 @@
-add_compile_options(-Wall -Wextra -pedantic)
+add_compile_options(-Wall -Wextra -pedantic -O3)
 
 add_library(sha256 sha256.c)
 add_library(sha1 sha1.c)
@@ -9,4 +9,6 @@ add_library(base58 base58.c)
 add_library(ripemd160 ripemd160.c)
 add_library(misc misc.c)
 
-target_link_libraries(hmac sha1 sha256)
+add_library(mycrypto sha256.c sha1.c hmac.c base32.c base58.c base64.c ripemd160.c misc.c)
+
+install(TARGETS mycrypto DESTINATION lib)

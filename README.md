@@ -13,6 +13,8 @@ on cryptocurrency applications such as [bitcoin-internals](https://github.com/al
 
 * `mkdir -p ./build && cd ./build`, `cmake ../ && make`
 
+* To make it globally available: `sudo make install`
+
 ## Test results
 
 | Algorithm     | Last Tested On  | Test Vectors From|
