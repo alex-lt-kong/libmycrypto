@@ -4,6 +4,11 @@ project(LIBMYCRYPTO)
 
 add_compile_options(-Wall -Wextra -pedantic -O3)
 
+find_library(CRITERION_LIB criterion)
+if(NOT CRITERION_LIB)
+  message(FATAL_ERROR "criterion library not found")
+endif()
+
 add_executable(test-sha ./test/sha/test-sha.c)
 add_executable(test-ripemd ./test/ripemd/test-ripemd.c)
 add_executable(test-hmac ./test/hmac/test-hmac.c)
@@ -17,8 +22,6 @@ target_link_libraries(test-ripemd    mycrypto criterion)
 target_link_libraries(test-hmac      mycrypto criterion)
 target_link_libraries(test-base32-64 mycrypto criterion m)
 target_link_libraries(test-base58    mycrypto criterion)
-
-
 
 
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/test/sha/SHA256LongMsg.rsp DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/)

@@ -9,6 +9,6 @@ add_library(base58 base58.c)
 add_library(ripemd160 ripemd160.c)
 add_library(misc misc.c)
 
-add_library(mycrypto sha256.c sha1.c hmac.c base32.c base58.c base64.c ripemd160.c misc.c)
+add_library(mycrypto sha256 sha1 hmac base32 base58 base64 ripemd160 misc)
 
 install(TARGETS mycrypto DESTINATION lib)
