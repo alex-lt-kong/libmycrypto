@@ -12,11 +12,11 @@ add_executable(test-base58 ./test/base/test-base58.c)
 
 add_subdirectory(src)
 
-target_link_libraries(test-sha       libmycrypto criterion)
-target_link_libraries(test-ripemd    libmycrypto criterion)
-target_link_libraries(test-hmac      libmycrypto criterion)
-target_link_libraries(test-base32-64 libmycrypto criterion m)
-target_link_libraries(test-base58    libmycrypto criterion)
+target_link_libraries(test-sha       mycrypto criterion)
+target_link_libraries(test-ripemd    mycrypto criterion)
+target_link_libraries(test-hmac      mycrypto criterion)
+target_link_libraries(test-base32-64 mycrypto criterion m)
+target_link_libraries(test-base58    mycrypto criterion)
 
 
 
