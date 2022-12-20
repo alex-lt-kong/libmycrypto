@@ -1,7 +1,7 @@
 # libmycrypto
 
-* A few cryptographic algorithms for study and general usage with a focus on cryptocurrency applications such as
-[bitcoin-internals](https://github.com/alex-lt-kong/bitcoin-internals).
+* A few cryptographic algorithms implemented in ISO C for study and general usage with a focus
+on cryptocurrency applications such as [bitcoin-internals](https://github.com/alex-lt-kong/bitcoin-internals).
   * It could be more straightforwardly named just "libcrypto". This name, unfortunately, has been occupied by
     the OpenSSL crypto library. Therefore, here let's use "libmycrypto" instead.
 
