@@ -16,6 +16,7 @@ add_executable(test-base32-64 ./test/base/test-base32-64.c)
 add_executable(test-base58 ./test/base/test-base58.c)
 
 add_subdirectory(src)
+add_subdirectory(tools)
 
 target_link_libraries(test-sha       mycrypto criterion)
 target_link_libraries(test-ripemd    mycrypto criterion)
