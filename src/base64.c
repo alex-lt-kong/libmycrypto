@@ -23,7 +23,7 @@ static const uint8_t base64_table[65] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklm
 char* encode_bytes_to_base64_string(const uint8_t* input_bytes, const size_t input_len)
 {
 	char *output_chars, *pos;
-	const size_t CHARS_PER_LINE = 72;
+	const size_t CHARS_PER_LINE = 76;
 	const uint8_t* input_start = input_bytes;
 	const uint8_t* input_end = input_start + input_len;
 	size_t olen;
@@ -33,7 +33,10 @@ char* encode_bytes_to_base64_string(const uint8_t* input_bytes, const size_t inp
 	olen += olen / CHARS_PER_LINE; /* line feeds */
 	olen++; /* nul termination */
 	output_chars = (char *)calloc(olen, sizeof(char));
-	if (output_chars == NULL) { return NULL; }
+	if (output_chars == NULL) {
+		fprintf(stderr, "calloc() failed\n");
+		return NULL;
+	}
 
 	pos = output_chars;
 	line_len = 0;
@@ -88,7 +91,7 @@ char* encode_bytes_to_base64_string(const uint8_t* input_bytes, const size_t inp
 }
 
 
-uint8_t * decode_base64_string_to_bytes(const char *input_chars, size_t *output_len)
+uint8_t* decode_base64_string_to_bytes(const char *input_chars, size_t *output_len)
 {
 	uint8_t dtable[256], *out, *pos, in[4], block[4], tmp;
 	size_t i, count, olen;
@@ -105,12 +108,17 @@ uint8_t * decode_base64_string_to_bytes(const char *input_chars, size_t *output_
 			count++;
 	}
   
-	if (count % 4)
+	if (count % 4) {
+		fprintf(stderr, "input_chars invalid: not a multiple of 4\n");
 		return NULL;
+	}
 
 	olen = count / 4 * 3;
 	pos = out = (uint8_t*)malloc(olen);
-	if (out == NULL) { return NULL; }
+	if (out == NULL) {
+		fprintf(stderr, "malloc() failed\n");
+		return NULL;
+	}
   
 	count = 0;
 	for (i = 0; i < strlen(input_chars); i++) {

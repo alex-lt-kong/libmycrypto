@@ -1,8 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <locale.h>
 
 #include "../src/base64.h"
 
+#define BUF_SIZE 57 * 100 // it has to be a multiple of 57 to make the program work. This is related to CHARS_PER_LINE
 
 int main (int argc, char *argv[]) {
     if (argc != 2) {
@@ -10,9 +13,10 @@ int main (int argc, char *argv[]) {
         return 1;
     }
     FILE *fp = NULL;
-    uint8_t *buffer;
-    long file_len;
+    uint8_t buffer[BUF_SIZE + 1];
+    size_t file_len;
     size_t retval = 0;
+    size_t bytes_read = 0;
     char* b64_str = NULL;
 
     fp = fopen(argv[1], "rb");
@@ -24,25 +28,36 @@ int main (int argc, char *argv[]) {
     fseek(fp, 0, SEEK_END);          // Jump to the end of the file
     file_len = ftell(fp);             // Get the current byte offset in the file
     rewind(fp); 
-    buffer = malloc(file_len * sizeof(uint8_t));
-    if (buffer == NULL) {
-        fprintf(stderr, "malloc() failed\n");
-        retval = 1;
-        goto finally;
-    }
-    fprintf(stderr, "reading %lu bytes into memory...\n", file_len);
-    fread(buffer, file_len, 1, fp); // Read in the entire file
-    b64_str = encode_bytes_to_base64_string(buffer, file_len);
-    if (b64_str == NULL) {
-        fprintf(stderr, "encode_bytes_to_base64_string() failed, most likely because of malloc() failure\n");        
-        retval = 1;
+    fprintf(stderr, "%lu bytes will be read into memory...\n", file_len);
+
+    while (bytes_read < file_len) {
+        size_t expected_bytes = (file_len - bytes_read) > BUF_SIZE ? BUF_SIZE : (file_len - bytes_read);
         
-    }
-    printf("%s\n", b64_str);
-finally:
-    if (b64_str != NULL) {
+        size_t actual_bytes = fread(buffer, 1, expected_bytes, fp);
+        bytes_read += actual_bytes;
+        if (actual_bytes != expected_bytes) {
+            fprintf(
+                stderr,
+                "fread() failed to read expected number of bytes into memory (%lu vs %lu)\n",
+                actual_bytes, expected_bytes
+            );
+            retval = 1;
+            goto finally;
+        }
+        b64_str = encode_bytes_to_base64_string(buffer, actual_bytes);
+        if (b64_str == NULL) {
+            fprintf(stderr, "encode_bytes_to_base64_string() failed\n");        
+            retval = 1;
+            goto finally;        
+        }
+        if (strlen(b64_str) > 0 && b64_str[strlen(b64_str)-1] == '\n') {
+            b64_str[strlen(b64_str)-1] = '\0';
+        }
+        printf("%s\n", b64_str);
         free(b64_str);
     }
+finally:
+
     if (fp != NULL) {
         fclose(fp);
     }

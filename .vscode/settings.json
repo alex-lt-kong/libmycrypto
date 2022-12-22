@@ -17,6 +17,7 @@
     "basic.h": "c",
     "criterion.h": "c",
     "limits": "c",
-    "streambuf": "c"
+    "streambuf": "c",
+    "base64.h": "c"
   }
 }
