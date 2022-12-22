@@ -5,7 +5,7 @@
 
 #include "../src/base64.h"
 
-#define BUF_SIZE 57 * 100 // it has to be a multiple of 57 to make the program work. This is related to CHARS_PER_LINE
+#define BUF_SIZE 57 // it has to be a multiple of 57 to make the program work. This is related to CHARS_PER_LINE
 
 int main (int argc, char *argv[]) {
     if (argc != 2) {
@@ -44,7 +44,7 @@ int main (int argc, char *argv[]) {
             retval = 1;
             goto finally;
         }
-        b64_str = encode_bytes_to_base64_string(buffer, actual_bytes);
+        b64_str = encode_bytes_to_base64_string(buffer, actual_bytes, false);
         if (b64_str == NULL) {
             fprintf(stderr, "encode_bytes_to_base64_string() failed\n");        
             retval = 1;
@@ -53,7 +53,7 @@ int main (int argc, char *argv[]) {
         if (strlen(b64_str) > 0 && b64_str[strlen(b64_str)-1] == '\n') {
             b64_str[strlen(b64_str)-1] = '\0';
         }
-        printf("%s\n", b64_str);
+        printf("%s", b64_str);
         free(b64_str);
     }
 finally:

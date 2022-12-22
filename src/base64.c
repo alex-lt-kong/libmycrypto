@@ -20,7 +20,7 @@
 static const uint8_t base64_table[65] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 // This table is defined in RFC 4648
 
-char* encode_bytes_to_base64_string(const uint8_t* input_bytes, const size_t input_len)
+char* encode_bytes_to_base64_string(const uint8_t* input_bytes, const size_t input_len, const bool add_line_breaks)
 {
 	char *output_chars, *pos;
 	const size_t CHARS_PER_LINE = 76;
@@ -30,7 +30,7 @@ char* encode_bytes_to_base64_string(const uint8_t* input_bytes, const size_t inp
 	size_t line_len;
 
 	olen = input_len * 4 / 3 + 4; /* 3-byte blocks to 4-byte */
-	olen += olen / CHARS_PER_LINE; /* line feeds */
+	olen += add_line_breaks ? (olen / CHARS_PER_LINE) : 0; /* line feeds */
 	olen++; /* nul termination */
 	output_chars = (char *)calloc(olen, sizeof(char));
 	if (output_chars == NULL) {
@@ -57,7 +57,7 @@ char* encode_bytes_to_base64_string(const uint8_t* input_bytes, const size_t inp
 		// 0x3f = 0b00111111, so we extract the last 6 bits from the 3rd byte.
 		input_start += 3;
 		line_len += 4;
-		if (line_len >= CHARS_PER_LINE) {
+		if (line_len >= CHARS_PER_LINE && add_line_breaks) {
 			*pos++ = '\n';
 			line_len = 0;
 		}

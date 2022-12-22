@@ -70,12 +70,26 @@ void test_base_decode(
 
 
 Test(test_base_suite, test_base32) {
-  test_base_encode(&encode_bytes_to_base32_string, test_vectors_base32_encoded);
+  char* output;
+  for (int i = 0; i < TEST_COUNT; ++i) {
+    output = encode_bytes_to_base32_string(
+      (uint8_t*)test_vectors_decoded[i], strlen(test_vectors_decoded[i])
+    );
+    cr_expect(eq(str, output, (char*)test_vectors_base32_encoded[i]));
+    free(output);
+  }
   test_base_decode(&decode_base32_string_to_bytes, test_vectors_base32_encoded);
 }
 
 
 Test(test_base_suite, test_base64) {
-  test_base_encode(&encode_bytes_to_base64_string, test_vectors_base64_encoded);
+  char* output;
+  for (int i = 0; i < TEST_COUNT; ++i) {
+    output = encode_bytes_to_base64_string(
+      (uint8_t*)test_vectors_decoded[i], strlen(test_vectors_decoded[i]), false
+    );
+    cr_expect(eq(str, output, (char*)test_vectors_base64_encoded[i]));
+    free(output);
+  }
   test_base_decode(&decode_base64_string_to_bytes, test_vectors_base64_encoded);
 }
