@@ -32,7 +32,7 @@ int main (int argc, char *argv[]) {
         goto finally;
     }
     fread(buffer, file_len, 1, fp_in);
-    size_t output_len;
+    int64_t output_len;
     
     bytes_out = decode_base64_string_to_bytes((char*)buffer, &output_len);
     if (NULL == bytes_out) {
@@ -49,7 +49,7 @@ int main (int argc, char *argv[]) {
         goto finally;
     }
     size_t bytes_written = fwrite(bytes_out, sizeof(uint8_t), output_len, fp_out);
-    if (bytes_written < output_len) {
+    if (bytes_written < (size_t)output_len) {
         fprintf(stderr, "fwrite() failed, expecting %lu bytes but write %lu bytes only\n", output_len, bytes_written);
         retval = 1;
         goto finally;

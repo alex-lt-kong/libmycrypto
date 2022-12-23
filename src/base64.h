@@ -21,10 +21,12 @@ char* encode_bytes_to_base64_string(const uint8_t* input_bytes, const size_t inp
 /**
  * @brief Decode a null-terminated base64-encoded char array into original bytes
  * @param input_chars Pointer to an array of base64-encoded chars
- * @param output_len Length of the output byte array
+ * @param output_len Pointer to the length of the output byte array. On error:
+ * -1 if input_chars is not a valid base64 string.
+ * -2 if malloc() failed.
  * @returns Pointer to a byte array or NULL (if error occurs), users are reminded to free() the pointer after use.
  */
-uint8_t* decode_base64_string_to_bytes(const char* input_chars, size_t* output_len);
+uint8_t* decode_base64_string_to_bytes(const char* input_chars, int64_t* output_len);
             
 #ifdef __cplusplus
 }

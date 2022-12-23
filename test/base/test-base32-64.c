@@ -12,7 +12,7 @@
 #define TEST_COUNT 7
 #define TEST_SIZE 32
 
-const char test_vectors_decoded[TEST_COUNT][TEST_SIZE]={
+const char official_tvs_decoded[TEST_COUNT][TEST_SIZE]={
   "",
   "f",
   "fo",
@@ -22,7 +22,7 @@ const char test_vectors_decoded[TEST_COUNT][TEST_SIZE]={
   "foobar"
 };
 
-const char test_vectors_base64_encoded[TEST_COUNT][TEST_SIZE] = {
+const char official_tvs_b64_encoded[TEST_COUNT][TEST_SIZE] = {
   "",
   "Zg==",
   "Zm8=",
@@ -32,7 +32,7 @@ const char test_vectors_base64_encoded[TEST_COUNT][TEST_SIZE] = {
   "Zm9vYmFy"
 };
 
-const char test_vectors_base32_encoded[TEST_COUNT][TEST_SIZE] = {
+const char official_tvs_b32_encoded[TEST_COUNT][TEST_SIZE] = {
   "",
   "MY======",
   "MZXQ====",
@@ -43,17 +43,6 @@ const char test_vectors_base32_encoded[TEST_COUNT][TEST_SIZE] = {
 };
 
 
-void test_base_encode(
-  char* (*encode_function)(const uint8_t* , size_t), const char test_vectors_encoded[TEST_COUNT][TEST_SIZE]
-) {
-  char* output;
-  for (int i = 0; i < TEST_COUNT; ++i) {
-    output = (*encode_function)((uint8_t*)test_vectors_decoded[i], strlen(test_vectors_decoded[i]));
-    cr_expect(eq(str, output, (char*)test_vectors_encoded[i]));
-    free(output);
-  }
-}
-
 void test_base_decode(
   uint8_t* (*decode_function)(const char*, size_t*), const char test_vectors_encoded[TEST_COUNT][TEST_SIZE]
 ) {
@@ -62,7 +51,7 @@ void test_base_decode(
   for (int i = 0; i < TEST_COUNT; ++i) {
     output = (*decode_function)(test_vectors_encoded[i], &output_len);
     for (size_t j = 0; j < output_len; ++j) {
-      cr_expect(eq(u8, test_vectors_decoded[i][j], output[j]));
+      cr_expect(eq(u8, official_tvs_decoded[i][j], output[j]));
     }
     free(output);
   }
@@ -73,23 +62,87 @@ Test(test_base_suite, test_base32) {
   char* output;
   for (int i = 0; i < TEST_COUNT; ++i) {
     output = encode_bytes_to_base32_string(
-      (uint8_t*)test_vectors_decoded[i], strlen(test_vectors_decoded[i])
+      (uint8_t*)official_tvs_decoded[i], strlen(official_tvs_decoded[i])
     );
-    cr_expect(eq(str, output, (char*)test_vectors_base32_encoded[i]));
+    cr_expect(eq(str, output, (char*)official_tvs_b32_encoded[i]));
     free(output);
   }
-  test_base_decode(&decode_base32_string_to_bytes, test_vectors_base32_encoded);
+  test_base_decode(&decode_base32_string_to_bytes, official_tvs_b32_encoded);
 }
 
 
-Test(test_base_suite, test_base64) {
+Test(test_base_suite, test_base64_encode) {
   char* output;
   for (int i = 0; i < TEST_COUNT; ++i) {
     output = encode_bytes_to_base64_string(
-      (uint8_t*)test_vectors_decoded[i], strlen(test_vectors_decoded[i]), false
+      (uint8_t*)official_tvs_decoded[i], strlen(official_tvs_decoded[i]), false
     );
-    cr_expect(eq(str, output, (char*)test_vectors_base64_encoded[i]));
+    cr_expect(eq(str, output, (char*)official_tvs_b64_encoded[i]));
     free(output);
   }
-  test_base_decode(&decode_base64_string_to_bytes, test_vectors_base64_encoded);
+}
+
+
+Test(test_base_suite, test_base64_decode) {
+  uint8_t* output;
+  int64_t output_len = -1;
+  for (int i = 0; i < TEST_COUNT; ++i) {
+    output = decode_base64_string_to_bytes(official_tvs_b64_encoded[i], &output_len);
+    for (int64_t j = 0; j < output_len; ++j) {
+      cr_expect(eq(u8, official_tvs_decoded[i][j], output[j]));
+    }
+    free(output);
+  }
+
+  // From Google: https://boringssl.googlesource.com/boringssl/+/master/crypto/base64/base64_test.cc
+  char goog_tv_encoded[][128] = {
+    "Zm9vYmFy\n\n",
+    " Zm9vYmFy\n\n",
+    " Z m 9 v Y m F y\n\n",
+    "eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eA==\n",
+    "eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eA\n==\n",
+    "eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eA=\n=\n",
+    "eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4\neHh4eHh4eHh4eHh4\n",
+    "eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4\neHh4eHh4eHh4eHh4eHh4eA==\n",
+    "eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh\n4eHh4eHh4eHh4eHh4eHh4eA==\n",
+    "eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eA==\n"
+  };
+  char goog_decoded[][128] = {
+    "foobar",
+    "foobar",
+    "foobar",
+    "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+    "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+    "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+    "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+    "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+    "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+    "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+  };
+  for (size_t i = 0; i < sizeof(goog_tv_encoded)/sizeof(goog_tv_encoded[0]); ++i) {
+    output = decode_base64_string_to_bytes(goog_tv_encoded[i], &output_len);
+    cr_expect(eq(str, (char*)output, goog_decoded[i]));
+    free(output);
+  }
+
+  char goog_tv_encoded_invalid[][128] = {
+    "Zm9vYmFy=\n",
+    "Zm9vYmFy==\n",
+    "Z",
+    "Z\n",
+    "ab!c",
+    "ab=c",
+    "abc",
+    "eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eA==\neHh4eHh4eHh4eHh4eHh4eHh4\n",
+    "ZW5jb2RlIG1lCg==================================================================\n", // CVE-2015-0292
+    "ZW5jb2RlIG1lCg===================================================================\n",
+    "ZW5jb2RlIG1lCgCC====\n"
+  };
+  printf("===== Testing invalid input, some error messages are expected =====\n");
+  for (size_t i = 0; i < sizeof(goog_tv_encoded_invalid)/sizeof(goog_tv_encoded_invalid[0]); ++i) {
+    output = decode_base64_string_to_bytes(goog_tv_encoded_invalid[i], &output_len);
+    cr_expect(output == NULL && output_len == -1);
+  }
+  printf("===== Invalid input tests end =====\n");
+      
 }
