@@ -111,7 +111,10 @@ uint8_t* decode_base64_string_to_bytes(const char *input_chars, int64_t *output_
     }
 
     olen = valid_char_cnt / 4 * 3;
-    pos = out = (uint8_t*)malloc(olen);
+    pos = out = (uint8_t*)malloc(olen * sizeof(uint8_t));
+
+    
+
     if (out == NULL) {
         fprintf(stderr, "malloc() failed\n");
         *output_len = -2;

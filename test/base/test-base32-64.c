@@ -88,9 +88,9 @@ Test(test_base_suite, test_base64_decode) {
   int64_t output_len = -1;
   for (int i = 0; i < TEST_COUNT; ++i) {
     output = decode_base64_string_to_bytes(official_tvs_b64_encoded[i], &output_len);
-    for (int64_t j = 0; j < output_len; ++j) {
-      cr_expect(eq(u8, official_tvs_decoded[i][j], output[j]));
-    }
+    cr_expect(output != NULL && output_len >= 0);
+    cr_expect(eq(u32, output_len, strlen(official_tvs_decoded[i])));
+    cr_expect(strncmp((char*)output, official_tvs_decoded[i], output_len) == 0);
     free(output);
   }
 
@@ -121,7 +121,9 @@ Test(test_base_suite, test_base64_decode) {
   };
   for (size_t i = 0; i < sizeof(goog_tv_encoded)/sizeof(goog_tv_encoded[0]); ++i) {
     output = decode_base64_string_to_bytes(goog_tv_encoded[i], &output_len);
-    cr_expect(eq(str, (char*)output, goog_decoded[i]));
+    cr_expect(output != NULL && output_len > 0);
+    cr_expect(eq(u32, output_len, strlen(goog_decoded[i])));
+    cr_expect(strncmp((char*)output, goog_decoded[i], output_len) == 0);
     free(output);
   }
 
