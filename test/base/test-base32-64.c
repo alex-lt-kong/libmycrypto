@@ -71,19 +71,37 @@ Test(test_base_suite, test_base32) {
 }
 
 
-Test(test_base_suite, test_base64_encode) {
+Test(test_base_suite, test_base64_encode_official) {
   char* output;
   for (int i = 0; i < TEST_COUNT; ++i) {
     output = encode_bytes_to_base64_string(
-      (uint8_t*)official_tvs_decoded[i], strlen(official_tvs_decoded[i]), false
+      (uint8_t*)official_tvs_decoded[i], strlen(official_tvs_decoded[i]), 0
     );
     cr_expect(eq(str, output, (char*)official_tvs_b64_encoded[i]));
     free(output);
   }
 }
 
+Test(test_base_suite, test_base64_encode_official_wrapped) {
+  const char official_tvs_b64_encoded_wrapped[][TEST_SIZE] = {
+    "",
+    "Zg==",
+    "Zm8=",
+    "Zm9v\n",
+    "Zm9v\nYg==",
+    "Zm9v\nYmE=",
+    "Zm9v\nYmFy\n"
+  };
+  char* output;
+  for (size_t i = 0; i < sizeof(official_tvs_b64_encoded_wrapped)/sizeof(official_tvs_b64_encoded_wrapped[0]); ++i) {
+    output = encode_bytes_to_base64_string((uint8_t*)official_tvs_decoded[i], strlen(official_tvs_decoded[i]), 4);
+    cr_expect(eq(str, output, (char*)official_tvs_b64_encoded_wrapped[i]));
+    free(output);
+  }
+}
 
-Test(test_base_suite, test_base64_decode) {
+
+Test(test_base_suite, test_base64_decode_official) {
   uint8_t* output;
   int64_t output_len = -1;
   for (int i = 0; i < TEST_COUNT; ++i) {
@@ -93,7 +111,11 @@ Test(test_base_suite, test_base64_decode) {
     cr_expect(strncmp((char*)output, official_tvs_decoded[i], output_len) == 0);
     free(output);
   }
+}
 
+Test(test_base_suite, test_base64_google) {
+  uint8_t* output;
+  int64_t output_len = -1;
   // From Google: https://boringssl.googlesource.com/boringssl/+/master/crypto/base64/base64_test.cc
   char goog_tv_encoded[][128] = {
     "Zm9vYmFy\n\n",

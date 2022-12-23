@@ -12,11 +12,12 @@ extern "C" {
  * @brief Encode a byte array into a printable and null-terminated base32 char array
  * @param input_bytes Pointer to an array of bytes
  * @param input_len Length of input_bytes
- * @param add_line_breaks If true, add line breaks every 76 characters as specified by RFC 4648
+ * @param chars_per_line wrap encoded lines. Use 0 to disable line wrapping. To be RFC 4648-compliant, pass 76
+ * Given how this function is designed, it has to be a multiple of 4
  * @returns Pointer to a null-terminated char array or NULL if fails to allocate enough memory,
  * users are reminded to free() the pointer after use.
  */
-char* encode_bytes_to_base64_string(const uint8_t* input_bytes, const size_t input_len, const bool add_line_breaks);
+char* encode_bytes_to_base64_string(const uint8_t* input_bytes, const size_t input_len, const size_t chars_per_line);
 
 /**
  * @brief Decode a null-terminated base64-encoded char array into original bytes

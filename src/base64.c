@@ -8,17 +8,19 @@
 static const uint8_t base64_table[65] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 // This table is defined in RFC 4648
 
-char* encode_bytes_to_base64_string(const uint8_t* input_bytes, const size_t input_len, const bool add_line_breaks)
+char* encode_bytes_to_base64_string(const uint8_t* input_bytes, const size_t input_len, const size_t chars_per_line)
 {
     char *output_chars, *pos;
-    const size_t CHARS_PER_LINE = 76;
     const uint8_t* input_start = input_bytes;
     const uint8_t* input_end = input_start + input_len;
     size_t olen;
     size_t line_len;
-
+    if (chars_per_line % 4 != 0) {
+        fprintf(stderr, "chars_per_line must be a multiple of 4\n");
+        return NULL;
+    }
     olen = input_len * 4 / 3 + 4; /* 3-byte blocks to 4-byte */
-    olen += add_line_breaks ? (olen / CHARS_PER_LINE) : 0; /* line feeds */
+    olen += (chars_per_line == 0 ? 0 : olen / chars_per_line);
     olen++; /* nul termination */
     output_chars = (char *)calloc(olen, sizeof(char));
     if (output_chars == NULL) {
@@ -45,7 +47,7 @@ char* encode_bytes_to_base64_string(const uint8_t* input_bytes, const size_t inp
         // 0x3f = 0b00111111, so we extract the last 6 bits from the 3rd byte.
         input_start += 3;
         line_len += 4;
-        if (line_len >= CHARS_PER_LINE && add_line_breaks) {
+        if (line_len >= chars_per_line && chars_per_line > 0) {
             *pos++ = '\n';
             line_len = 0;
         }
@@ -78,7 +80,7 @@ char* encode_bytes_to_base64_string(const uint8_t* input_bytes, const size_t inp
     return output_chars;
 }
 
-
+// This function is pathetically slow, but let's leave the efficieny issue to the next iteraiton...
 uint8_t* decode_base64_string_to_bytes(const char *input_chars, int64_t *output_len) {
     uint8_t dtable[256], *out, *pos, in[4], block[4], tmp;
     size_t valid_char_cnt, olen;
@@ -109,7 +111,6 @@ uint8_t* decode_base64_string_to_bytes(const char *input_chars, int64_t *output_
         *output_len = -1;
         return NULL;
     }
-
     olen = valid_char_cnt / 4 * 3;
     pos = out = (uint8_t*)malloc(olen * sizeof(uint8_t));
 

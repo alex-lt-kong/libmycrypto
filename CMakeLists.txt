@@ -33,8 +33,8 @@ file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/test/sha/SHA1ShortMsg.rsp DESTINATION ${CM
 
 
 add_custom_target(test ALL)
-add_custom_command(TARGET test COMMAND test-ripemd COMMENT "Running ripemd test...")
-add_custom_command(TARGET test COMMAND test-sha COMMENT "Running SHA test...")
-add_custom_command(TARGET test COMMAND test-base58  COMMENT "Running Base58 test...")
-add_custom_command(TARGET test COMMAND test-base32-64  COMMENT "Running Base32/64 test...")
-add_custom_command(TARGET test COMMAND test-hmac  COMMENT "Running HMAC test...")
+add_custom_command(TARGET test COMMAND test-ripemd --verbose COMMENT "Running ripemd test...")
+add_custom_command(TARGET test COMMAND test-sha --verbose COMMENT "Running SHA test...")
+add_custom_command(TARGET test COMMAND test-base58 --verbose  COMMENT "Running Base58 test...")
+add_custom_command(TARGET test COMMAND test-base32-64 --verbose  COMMENT "Running Base32/64 test...")
+add_custom_command(TARGET test COMMAND test-hmac --verbose COMMENT "Running HMAC test...")
