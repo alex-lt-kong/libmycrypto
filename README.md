@@ -6,18 +6,19 @@ on cryptocurrency applications such as [bitcoin-internals](https://github.com/al
     the OpenSSL crypto library. Therefore, here let's use "libmycrypto" instead.
 
 * Available algorithms are: Base32, Base58, Base64, HMAC-SHA1, HMAC-SHA256, RIPEMD160, SHA1, SHA256.
-  * All algorithms are tested against either official or well established test vectors.
+  * All algorithms are tested against either official and/or well established test vectors.
 
 
 ## Dependencies
 
-* `cmake` is used to generate `Makefile`.
+* `cmake` is used to generate `Makefile`: `apt install cmake`.
 * `criterion` is used for unit testing: `apt install libcriterion-dev libcriterion3`.
 
 ## Build and install
 
-* `mkdir -p ./build && cd ./build`, `cmake ../ && make`
-* To make it globally available: `sudo make install`
+* Build: `mkdir -p ./build && cd ./build`, `cmake ../ && make`.
+* Make it globally available: `sudo make install`.
+* Run all tests: `make test`.
 
 ## Test results
 
