@@ -1,5 +1,3 @@
-add_compile_options(-Wall -Wextra -pedantic -O3)
-
 add_executable(base64-encode base64-encode.c)
 add_executable(base64-decode base64-decode.c)
 
