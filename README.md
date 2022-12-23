@@ -6,7 +6,7 @@ on cryptocurrency applications such as [bitcoin-internals](https://github.com/al
     the OpenSSL crypto library. Therefore, here let's use "libmycrypto" instead.
 
 * Available algorithms are: Base32, Base58, Base64, HMAC-SHA1, HMAC-SHA256, RIPEMD160, SHA1, SHA256.
-  * All algorithms are tested against either official or very popular test vectors.
+  * All algorithms are tested against either official or well established test vectors.
 
 
 ## Dependencies
@@ -25,7 +25,7 @@ on cryptocurrency applications such as [bitcoin-internals](https://github.com/al
 | ------------- | -------------   | ------------- |
 | Base32        | 2022-12-20      | [RFC 4648](https://datatracker.ietf.org/doc/html/rfc4648#section-10)|
 | Base58        | 2022-12-20      | [draft-msporny-base58-03](https://datatracker.ietf.org/doc/html/draft-msporny-base58-03#section-5)<br />[Bitcoin Core](https://github.com/bitcoin/bitcoin/blob/master/src/test/data/base58_encode_decode.json)|
-| Base64        | 2022-12-20      | [RFC 4648](https://datatracker.ietf.org/doc/html/rfc4648#section-10)|
+| Base64        | 2022-12-20      | [RFC 4648](https://datatracker.ietf.org/doc/html/rfc4648#section-10)|<br />[BoringSSL from Google](https://boringssl.googlesource.com/boringssl/+/master/crypto/base64/base64_test.cc)
 | HMAC-SHA1     | 2022-12-20      | [RFC 2202](https://datatracker.ietf.org/doc/html/rfc2202)|
 | HMAC-SHA256   | 2022-12-20      | [RFC 4231](https://datatracker.ietf.org/doc/html/rfc4231)|
 | RIPEMD160     | 2022-12-20      | [The RIPEMD-160 homepage](https://homes.esat.kuleuven.be/~bosselae/ripemd160.html)|
