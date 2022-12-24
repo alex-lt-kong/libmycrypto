@@ -8,6 +8,7 @@
 #define GROUP_SIZE 8
 #define BLOCK_SIZE 5
 static const char b32_table[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
+// There are a few different encoding schemes. The current one is from RFC 4648/3548
 // If need to change this, also need to change the invalid character check in decode_base32_string_to_bytes()
 
 /*
@@ -83,7 +84,7 @@ char* encode_bytes_to_base32_string(const uint8_t *input_bytes, size_t input_len
 }
 
 
-uint8_t* decode_base32_string_to_bytes(const char *input_chars, size_t *output_len) {
+uint8_t* decode_base32_string_to_bytes(const char *input_chars, int64_t *output_len) {
   
   int out_pos = 0;
   *output_len = strlen(input_chars) * BLOCK_SIZE / GROUP_SIZE;
@@ -93,8 +94,11 @@ uint8_t* decode_base32_string_to_bytes(const char *input_chars, size_t *output_l
   uint8_t buf[BLOCK_SIZE];
   char tmp[GROUP_SIZE];
 
-  output_bytes = (uint8_t *)calloc(*output_len, sizeof(uint8_t));
-  if (NULL == output_bytes) { return NULL; }
+  output_bytes = (uint8_t *)malloc(*output_len * sizeof(uint8_t));
+  if (NULL == output_bytes) {
+    *output_len = -2;
+    return NULL; 
+  }
 
   int in_pos = 0;
   int grp_idx = 0;
@@ -104,6 +108,7 @@ uint8_t* decode_base32_string_to_bytes(const char *input_chars, size_t *output_l
     if (!((input_chars[in_pos] >= 'A' && input_chars[in_pos] <= 'Z') || 
           (input_chars[in_pos] >= '2' && input_chars[in_pos] <= '7'))) {
       free(output_bytes);
+      *output_len = -1;
       return NULL;
     }
     

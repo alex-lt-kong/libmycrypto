@@ -43,22 +43,7 @@ const char official_tvs_b32_encoded[TEST_COUNT][TEST_SIZE] = {
 };
 
 
-void test_base_decode(
-  uint8_t* (*decode_function)(const char*, size_t*), const char test_vectors_encoded[TEST_COUNT][TEST_SIZE]
-) {
-    uint8_t* output;
-  size_t output_len = -1;
-  for (int i = 0; i < TEST_COUNT; ++i) {
-    output = (*decode_function)(test_vectors_encoded[i], &output_len);
-    for (size_t j = 0; j < output_len; ++j) {
-      cr_expect(eq(u8, official_tvs_decoded[i][j], output[j]));
-    }
-    free(output);
-  }
-}
-
-
-Test(test_base_suite, test_base32) {
+Test(test_base_suite, test_base32_encode) {
   char* output;
   for (int i = 0; i < TEST_COUNT; ++i) {
     output = encode_bytes_to_base32_string(
@@ -67,9 +52,19 @@ Test(test_base_suite, test_base32) {
     cr_expect(eq(str, output, (char*)official_tvs_b32_encoded[i]));
     free(output);
   }
-  test_base_decode(&decode_base32_string_to_bytes, official_tvs_b32_encoded);
 }
 
+Test(test_base_suite, test_base32_decode_valid) {
+  uint8_t* output;
+  int64_t output_len = -1;
+  for (int i = 0; i < TEST_COUNT; ++i) {
+    output = decode_base32_string_to_bytes(official_tvs_b32_encoded[i], &output_len);
+    for (int64_t j = 0; j < output_len; ++j) {
+      cr_expect(eq(u8, official_tvs_decoded[i][j], output[j]));
+    }
+    free(output);
+  }
+}
 
 Test(test_base_suite, test_base64_encode_official) {
   char* output;
