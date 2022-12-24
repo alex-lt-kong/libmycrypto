@@ -16,7 +16,13 @@ on cryptocurrency applications such as [bitcoin-internals](https://github.com/al
 
 ## Build and install
 
-* Build: `mkdir -p ./build && cd ./build`, `cmake ../ && make`.
+* Build: 
+  ```
+  mkdir -p ./build
+  cd ./build
+  cmake ../
+  make
+  ```
 * Make it globally available: `sudo make install`.
 * Run all tests: `make test`.
 
