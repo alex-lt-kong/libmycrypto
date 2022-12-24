@@ -10,8 +10,7 @@ add_library(ripemd160 ripemd160.c)
 add_library(misc misc.c)
 
 add_library(mycrypto sha256 sha1 hmac base32 base58 base64 ripemd160 misc)
-
-#install(TARGETS mycrypto DESTINATION lib)
+target_link_libraries(mycrypto m)
 
 set_target_properties(mycrypto PROPERTIES PUBLIC_HEADER "sha256.h;sha1.h;hmac.h;base32.h;base58.h;base64.h;ripemd160.h;misc.h;")
 
