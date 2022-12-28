@@ -4,9 +4,8 @@
 #include <string.h>
 #include <time.h>
 
-#include "libmycrypto/ripemd160.h"
-#include "libmycrypto/misc.h"
-
+#include "mycrypto/ripemd160.h"
+#include "mycrypto/misc.h"
 
 #define TEST_COUNT 8
 #define TEST_SIZE 128

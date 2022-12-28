@@ -4,8 +4,8 @@
 #include <string.h>
 #include <time.h>
 
-#include "libmycrypto/base64.h"
-#include "libmycrypto/base32.h"
+#include "mycrypto/base64.h"
+#include "mycrypto/base32.h"
 
 #define TEST_COUNT 7
 #define TEST_SIZE 32
@@ -165,7 +165,7 @@ int test_base64_google() {
         output = decode_base64_string_to_bytes(goog_tv_encoded[i], &output_len);
 
         if (output == NULL || output_len <= 0) {
-            fprintf(stderr, "FAILED\decode_base64_string_to_bytes() failed\n");
+            fprintf(stderr, "FAILED\ndecode_base64_string_to_bytes() failed\n");
             return 1;
         }
         if (output_len != (int64_t)strlen(goog_decoded[i])) {
@@ -198,7 +198,7 @@ int test_base64_google() {
     for (size_t i = 0; i < sizeof(goog_tv_encoded_invalid)/sizeof(goog_tv_encoded_invalid[0]); ++i) {
         output = decode_base64_string_to_bytes(goog_tv_encoded_invalid[i], &output_len);
         if (!(output == NULL && output_len == -1)) {
-            fprintf(stderr, "FAILED\decode_base64_string_to_bytes() failed\n");
+            fprintf(stderr, "FAILED\ndecode_base64_string_to_bytes() failed\n");
             return 1;
         }
     }

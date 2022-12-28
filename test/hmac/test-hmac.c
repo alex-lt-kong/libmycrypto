@@ -3,10 +3,10 @@
 #include <stdio.h>
 #include <time.h>
 
-#include "libmycrypto/hmac.h"
-#include "libmycrypto/sha1.h"
-#include "libmycrypto/sha256.h"
-#include "libmycrypto/misc.h"
+#include "mycrypto/hmac.h"
+#include "mycrypto/sha1.h"
+#include "mycrypto/sha256.h"
+#include "mycrypto/misc.h"
 
 #define TEST_COUNT 7
 #define TEST_SIZE 512

@@ -5,9 +5,9 @@
 #include <string.h>
 #include <time.h>
 
-#include "libmycrypto/sha256.h"
-#include "libmycrypto/sha1.h"
-#include "libmycrypto/misc.h"
+#include "mycrypto/sha256.h"
+#include "mycrypto/sha1.h"
+#include "mycrypto/misc.h"
 
 #define BUF_SIZE 4096
 

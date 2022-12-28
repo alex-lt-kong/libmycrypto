@@ -2,8 +2,8 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "libmycrypto/base58.h"
-#include "libmycrypto/misc.h"
+#include "mycrypto/base58.h"
+#include "mycrypto/misc.h"
 
 #define OFFICIAL_TEST_SIZE 1024
 #define BTC_TEST_SIZE 1024

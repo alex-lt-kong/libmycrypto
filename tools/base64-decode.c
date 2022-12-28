@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "libmycrypto/base64.h"
+#include "mycrypto/base64.h"
 
 
 int main (int argc, char *argv[]) {
