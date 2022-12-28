@@ -5,9 +5,9 @@
 #include <string.h>
 #include <time.h>
 
-#include "../../src/sha256.h"
-#include "../../src/sha1.h"
-#include "../../src/misc.h"
+#include "libmycrypto/sha256.h"
+#include "libmycrypto/sha1.h"
+#include "libmycrypto/misc.h"
 
 #define BUF_SIZE 4096
 
@@ -40,7 +40,7 @@ int test_rsp_file(
             memcpy(official_md, line + 5, strlen(line) - 5 - 2);
 
             msg_bytes = hex_string_to_bytes(msg, &msg_bytes_len);
-            if (msg_bytes == NULL && msg_bytes_len > 0) {
+            if ((msg_bytes == NULL && msg_bytes_len > 0)) {
                 return 0;
             }
             hash_func(msg_bytes, msg_len / CHAR_BIT, sha_hash);
@@ -49,10 +49,9 @@ int test_rsp_file(
                 fprintf(stderr, "bytes_to_hex_string() failed\n");
                 return 1;
             }
-            if (strcmp(md_char, official_md) == 0) {
-
-            } else {
+            if (strcmp(md_char, official_md) != 0) {
                 fprintf(stderr, "FAILED\nExpect: %s\nActual: %s\n", official_md, md_char);
+                return 1;
             }
             free(md_char);
             free(msg_bytes);
@@ -66,26 +65,27 @@ int test_rsp_file(
 }
 
 int main() {
-    printf("Testing cal_sha256_hash with SHA256ShortMsg.rsp\n");
     int retval = 0;
+
+    printf("Testing cal_sha256_hash() with SHA256ShortMsg.rsp\n");
     if (test_rsp_file("SHA256ShortMsg.rsp", &cal_sha256_hash, SHA256_HASH_SIZE) != 0) {
         fprintf(stderr, "FAILED!!!\n");
         ++retval;
     }
 
-    printf("Testing cal_sha256_hash with SHA256LongMsg.rsp\n");
+    printf("Testing cal_sha256_hash() with SHA256LongMsg.rsp\n");
     if (test_rsp_file("SHA256LongMsg.rsp", &cal_sha256_hash, SHA256_HASH_SIZE) != 0) {
         fprintf(stderr, "FAILED!!!\n");
         ++retval;
     }
 
-    printf("Testing cal_sha1_hash with SHA1ShortMsg.rsp\n");
+    printf("Testing cal_sha1_hash() with SHA1ShortMsg.rsp\n");
     if (test_rsp_file("SHA1ShortMsg.rsp", &cal_sha1_hash, SHA1_HASH_SIZE) != 0) {
         fprintf(stderr, "FAILED!!!\n");
         ++retval;
     }
 
-    printf("Testing cal_sha1_hash with SHA1LongMsg.rsp\n");
+    printf("Testing cal_sha1_hash() with SHA1LongMsg.rsp\n");
     if (test_rsp_file("SHA1LongMsg.rsp", &cal_sha1_hash, SHA1_HASH_SIZE) != 0) {
         fprintf(stderr, "FAILED!!!\n");
         ++retval;

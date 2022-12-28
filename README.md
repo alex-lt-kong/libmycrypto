@@ -8,11 +8,11 @@ on cryptocurrency applications such as [bitcoin-internals](https://github.com/al
 * Available algorithms are: Base32, Base58, Base64, HMAC-SHA1, HMAC-SHA256, RIPEMD160, SHA1, SHA256.
   * All algorithms are tested against either official and/or well established test vectors.
 
+* Should work on Linux and Windows with gcc, clang and MSVC.
 
 ## Dependencies
 
 * `cmake` is used to generate `Makefile`: `apt install cmake`.
-* `criterion` is used for unit testing: `apt install libcriterion-dev libcriterion3`.
 
 ## Build and install
 

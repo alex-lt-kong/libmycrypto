@@ -18,6 +18,7 @@
     "criterion.h": "c",
     "limits": "c",
     "streambuf": "c",
-    "base64.h": "c"
+    "base64.h": "c",
+    "base58.h": "c"
   }
 }

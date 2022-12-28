@@ -11,6 +11,6 @@ if(NOT CRITERION_LIB)
   message(FATAL_ERROR "criterion library not found")
 endif()
 
-add_subdirectory(src)
+add_subdirectory(src/libmycrypto)
 add_subdirectory(tools)
 add_subdirectory(test)

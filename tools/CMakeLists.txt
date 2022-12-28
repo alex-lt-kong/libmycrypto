@@ -1,3 +1,5 @@
+include_directories (${PROJECT_SOURCE_DIR}/src/) 
+
 add_executable(base64-encode base64-encode.c)
 add_executable(base64-decode base64-decode.c)
 
