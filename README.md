@@ -8,7 +8,7 @@ on cryptocurrency applications such as [bitcoin-internals](https://github.com/al
 * Available algorithms are: Base32, Base58, Base64, HMAC-SHA1, HMAC-SHA256, RIPEMD160, SHA1, SHA256.
   * All algorithms are tested against either official and/or well established test vectors.
 
-* Should work on Linux and Windows with gcc, clang and MSVC.
+* Should work on Linux and Windows with gcc, clang.
 
 ## Dependencies
 
