@@ -11,8 +11,8 @@ add_executable(test-hmac ./hmac/test-hmac.c)
 target_link_libraries(test-sha       mycrypto)
 target_link_libraries(test-ripemd    mycrypto)
 target_link_libraries(test-base58    mycrypto)
-target_link_libraries(test-base32-64 mycrypto criterion m)
-target_link_libraries(test-hmac      mycrypto criterion)
+target_link_libraries(test-base32-64 mycrypto m)
+target_link_libraries(test-hmac      mycrypto)
 
 
 

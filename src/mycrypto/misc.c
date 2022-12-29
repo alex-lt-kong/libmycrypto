@@ -8,7 +8,7 @@ uint32_t rotate(const uint32_t value, const unsigned int bits, const bool is_lef
     else { return value >> bits | value << (32 - bits); }
 }
 
-bool is_big_endian() {
+bool is_big_endian(void) {
     volatile uint32_t i=0x01234567;    
     return (*((uint8_t*)(&i))) != 0x67;
 }

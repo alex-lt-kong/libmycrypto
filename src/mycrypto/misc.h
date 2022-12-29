@@ -24,7 +24,7 @@ uint32_t rotate(const uint32_t value, const unsigned int bits, const bool is_lef
  * @brief Check if the current system is in big or little endian
  * @returns If the system is in big endian
  */
-bool is_big_endian();
+bool is_big_endian(void);
 
 /**
  * @brief Switch the endianness of a given uint32_t variable
