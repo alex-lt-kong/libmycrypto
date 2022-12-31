@@ -35,11 +35,14 @@ void switch_endianness(uint32_t* val);
 /**
  * @brief Convert null-terminated hexadecimal string to a byte array
  * @param input_chars Pointer to a null-terminated hexadecimal string
- * @param output_len: Pointer to integer where the length of the output_chars will be saved to
+ * @param output_len: Pointer to integer where the length of the output_chars will be saved to. On error:
+ * -1 if input_chars' length is invalid (not a multiple of 2).
+ * -2 if malloc() failed.
+ * -3 if input_chars' value is invalid (not from 0 - e).
  * @returns Pointer to a byte array converted from input_chars or NULL on error or if an empty string is passed.
  * Users are reminded to free() the pointer after use.
  */
-uint8_t* hex_string_to_bytes(const char* input_chars, size_t* output_len);
+uint8_t* hex_string_to_bytes(const char* input_chars, int64_t* output_len);
 
 /**
  * @brief Convert a byte array to a null-terminated hexadecimal string.

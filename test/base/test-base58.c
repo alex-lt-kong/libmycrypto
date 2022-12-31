@@ -75,7 +75,7 @@ int test_base58_official() {
 int test_base58_btc() {
     char output[1024] = {0};
     uint8_t* input_bytes;
-    size_t input_len;
+    int64_t input_len;
     for (size_t i = 0; i < sizeof(btc_test_vectors_encoded) / sizeof(btc_test_vectors_encoded[0]); ++i) {        
         size_t output_len = 1024;
         input_bytes = hex_string_to_bytes(btc_test_vectors_decoded_hex_str[i], &input_len);

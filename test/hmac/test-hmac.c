@@ -86,7 +86,7 @@ int test_hmac(
     uint8_t hash[hash_size];
     char* hash_hex = NULL;
 
-    size_t key_len, data_len;
+    int64_t key_len, data_len;
     for (int i = 0; i < TEST_COUNT; ++i) {        
         key_bytes = hex_string_to_bytes(tv_keys[i], &key_len);
         data_bytes = hex_string_to_bytes(tv_data[i], &data_len);

@@ -20,19 +20,35 @@ uint8_t char_to_hex (const char c) {
     return 0xFF;
 }
 
-uint8_t* hex_string_to_bytes(const char* input_chars, size_t* output_len) {
-    if (strlen(input_chars) % 2 != 0) { return NULL; }
+uint8_t* hex_string_to_bytes(const char* input_chars, int64_t* output_len) {
+    if (strlen(input_chars) % 2 != 0) {
+        fprintf(stderr, "[%s] not a valid hex_string: length not a multiple of 2.\n", input_chars);
+        *output_len = -1;
+        return NULL;
+    }
 
     *output_len = strlen(input_chars) / 2;
     uint8_t* output_bytes = (uint8_t*)calloc(*output_len, sizeof(uint8_t));
-    if (output_bytes == NULL) { return NULL; }
+    if (output_bytes == NULL) {
+        *output_len = -2;
+        fprintf(stderr, "malloc() failed\n");
+        return NULL;
+    }
     uint8_t msn, lsn, byte;
     int out_idx = 0;
     while (*input_chars) {
         msn = char_to_hex(*input_chars++);
-        if (msn == 0xFF) { return NULL; }
+        if (msn == 0xFF) {
+            *output_len = -3;
+            fprintf(stderr, "%c is invalid\n", *(input_chars-1));
+            return NULL;
+        }
         lsn = char_to_hex(*input_chars++);
-        if (lsn == 0xFF) { return NULL; }
+        if (lsn == 0xFF) {
+            *output_len = -3;
+            fprintf(stderr, "%c is invalid\n", *(input_chars-1));
+            return NULL;
+        }
         byte = (msn << 4) + lsn;
 
         *(output_bytes + out_idx++) = byte;
