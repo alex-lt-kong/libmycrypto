@@ -22,7 +22,7 @@ int test_rsp_file(
         return 1;
     }
     char line[BUF_SIZE] = {0};
-    uint8_t sha_hash[hash_size];
+    uint8_t* sha_hash = malloc(hash_size * sizeof(uint8_t));
     uint8_t* msg_bytes;
     size_t msg_len = -1;
     int64_t msg_bytes_len = -1;
@@ -34,11 +34,24 @@ int test_rsp_file(
         if (strlen(line) >= 3 && strncmp(line, "Len", 3) == 0) {
             msg_len = strtol(line + 6, NULL, 10);
         } else if (strlen(line) >= 3 && strncmp(line, "Msg", 3) == 0) {
-            memcpy(msg, line + 6, strlen(line) - 6 - 2);
-            // rsp file's lines end with LFCR so it is two-byte long...
+            memcpy(msg, line + 6, strlen(line) - 6);
+            /* rsp file's lines end with 0x0d,0x0a (i.e., CRLF) so it is
+            two-byte long. However, the handling of CRLF could be different
+            on Linux and Windows, making the below loop necessary
+             */
+            while (
+                msg[strlen(msg) - 1] == 0x0d || msg[strlen(msg) - 1] == 0x0a
+            ) {
+                msg[strlen(msg) - 1] = '\0';
+            }
         } else if (strlen(line) >= 2 && strncmp(line, "MD", 2) == 0) {            
-            memcpy(official_md, line + 5, strlen(line) - 5 - 2);
-
+            memcpy(official_md, line + 5, strlen(line) - 5);
+            while (
+                official_md[strlen(official_md) - 1] == 0x0d ||
+                official_md[strlen(official_md) - 1] == 0x0a
+            ) {
+                official_md[strlen(official_md) - 1] = '\0';
+            }
             msg_bytes = hex_string_to_bytes(msg, &msg_bytes_len);
             if ((msg_bytes == NULL && msg_bytes_len > 0)) {
                 return 0;
@@ -50,7 +63,10 @@ int test_rsp_file(
                 return 1;
             }
             if (strcmp(md_char, official_md) != 0) {
-                fprintf(stderr, "FAILED\nExpect: %s\nActual: %s\n", official_md, md_char);
+                fprintf(
+                    stderr, "FAILED\nExpect: %s\nActual: %s\n",
+                    official_md, md_char
+                );
                 return 1;
             }
             free(md_char);
@@ -61,6 +77,7 @@ int test_rsp_file(
         memset(line, 0, sizeof(line));     
     }
     fclose(fp);
+    free(sha_hash);
     return 0;
 }
 
