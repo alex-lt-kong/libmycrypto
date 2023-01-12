@@ -34,6 +34,8 @@ on cryptocurrency applications such as [bitcoin-internals](https://github.com/al
   cmake ../ "-DCMAKE_TOOLCHAIN_FILE=.\vcpkg\scripts\buildsystems\vcpkg.cmake" -G "MinGW Makefiles"
   mingw32-make.exe
   ```
+  
+* Run all tests: `mingw32-make.exe test`.
 
 ## Test results
 
