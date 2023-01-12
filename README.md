@@ -18,7 +18,7 @@ on cryptocurrency applications such as [bitcoin-internals](https://github.com/al
 
 ### Linux
 * Build: 
-  ```
+  ```shell
   mkdir -p ./build
   cd ./build
   cmake ../
@@ -30,11 +30,13 @@ on cryptocurrency applications such as [bitcoin-internals](https://github.com/al
 ### Windows (vcpkg+MinGW)
 
 * Build:
-  ```
+  ```shell
+  mkdir -p ./build
+  cd ./build
   cmake ../ "-DCMAKE_TOOLCHAIN_FILE=.\vcpkg\scripts\buildsystems\vcpkg.cmake" -G "MinGW Makefiles"
   mingw32-make.exe
   ```
-  
+
 * Run all tests: `mingw32-make.exe test`.
 
 ## Test results
