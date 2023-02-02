@@ -55,3 +55,25 @@ RIPEMD160, SHA1, SHA256.
 | RIPEMD160     | 2023-01-12      | [The RIPEMD-160 homepage](https://homes.esat.kuleuven.be/~bosselae/ripemd160.html)|
 | SHA1          | 2023-01-12      | [NIST](https://csrc.nist.gov/Projects/Cryptographic-Algorithm-Validation-Program/Secure-Hashing)|
 | SHA256        | 2023-01-12      | [NIST](https://csrc.nist.gov/Projects/Cryptographic-Algorithm-Validation-Program/Secure-Hashing)|
+
+
+## Interoperability
+### C++
+
+* As C++ is mostly a superset of C, using this project does not need any extra
+modification. However, if we would like to take advantage of some of C++'s
+more "modern" features, we may want to do things a bit differently.
+
+* One common technique to apply is to use smart pointers when possible--so we
+can at least save some time thinking about when to `free()`:
+    * For example, we do:
+    ```C++
+    unique_ptr<uint8_t> bytes(hex_string_to_bytes(hex_cstr, &input_bytes_len));
+    return;
+    ```
+    instead of
+    ```C
+    uint8_t* bytes = hex_string_to_bytes(hex_cstr, &input_bytes_len);
+    free(bytes);
+    return;
+    ```
