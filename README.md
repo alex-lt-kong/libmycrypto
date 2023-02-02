@@ -64,11 +64,13 @@ RIPEMD160, SHA1, SHA256.
 modification. However, if we would like to take advantage of some of C++'s
 more "modern" features, we may want to do things a bit differently.
 
-* One common technique to apply is to use smart pointers when possible--so we
-can at least save some time thinking about when to `free()`:
+* For the sake of convenience, two zero-cost wrappers on top of
+`std::unique_ptr` (`unique_byte_ptr` and `unique_char_ptr`) are prepared
+in [misc.hpp](./src/mycrypto/misc.hpp).
+
     * For example, we do:
     ```C++
-    unique_ptr<uint8_t> bytes(hex_string_to_bytes(hex_cstr, &input_bytes_len));
+    unique_byte_ptr bytes(hex_string_to_bytes(hex_cstr, &input_bytes_len));
     return;
     ```
     instead of
