@@ -14,7 +14,7 @@ struct FreeDeleter
     }
 };
 
-using unique_byte_ptr = std::unique_ptr<uint8_t, FreeDeleter>;
-using unique_char_ptr = std::unique_ptr<char, FreeDeleter>;
+using unique_byte_ptr = std::unique_ptr<uint8_t[], FreeDeleter>;
+using unique_char_ptr = std::unique_ptr<char[], FreeDeleter>;
 
 #endif

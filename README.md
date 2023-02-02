@@ -69,13 +69,16 @@ more "modern" features, we may want to do things a bit differently.
 in [misc.hpp](./src/mycrypto/misc.hpp).
 
     * For example, we do:
-    ```C++
-    unique_byte_ptr bytes(hex_string_to_bytes(hex_cstr, &input_bytes_len));
-    return;
-    ```
-    instead of
-    ```C
-    uint8_t* bytes = hex_string_to_bytes(hex_cstr, &input_bytes_len);
-    free(bytes);
-    return;
-    ```
+
+      ```C++
+      unique_byte_ptr bytes(hex_string_to_bytes(hex_cstr, &input_bytes_len));
+      return;
+      ```
+
+      instead of
+
+      ```C
+      uint8_t* bytes = hex_string_to_bytes(hex_cstr, &input_bytes_len);
+      free(bytes);
+      return;
+      ```
