@@ -1,12 +1,16 @@
 # libmycrypto
 
-* Yet another cryptography library implemented in ISO C for study and general usage with a focus
-on cryptocurrency applications such as [bitcoin-internals](https://github.com/alex-lt-kong/bitcoin-internals).
-  * It could be more straightforwardly named just "libcrypto". This name, unfortunately, has been occupied by
-    the OpenSSL crypto library. Therefore, here let's use "libmycrypto" instead.
+* Yet another cryptography library implemented in ISO C for study and general
+usage with a focus on cryptocurrency applications such as
+[libmybitcoin](https://github.com/alex-lt-kong/libmybitcoin).
+  * It could be more straightforwardly named just "libcrypto". This name,
+  unfortunately, has been occupied by the OpenSSL crypto library. Therefore,
+  here let's use "libmycrypto" instead.
 
-* Available algorithms are: Base32, Base58, Base64, HMAC-SHA1, HMAC-SHA256, RIPEMD160, SHA1, SHA256.
-  * All algorithms are tested against either official and/or well established test vectors.
+* Available algorithms are: Base32, Base58, Base64, HMAC-SHA1, HMAC-SHA256,
+RIPEMD160, SHA1, SHA256.
+  * All algorithms are tested against either official and/or well established
+  test vectors.
 
 * Should work on Linux and Windows (MinGW) with gcc and clang.
 
