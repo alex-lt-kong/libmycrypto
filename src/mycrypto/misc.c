@@ -31,7 +31,7 @@ uint8_t* hex_string_to_bytes(const char* input_chars, int64_t* output_len) {
     uint8_t* output_bytes = (uint8_t*)calloc(*output_len, sizeof(uint8_t));
     if (output_bytes == NULL) {
         *output_len = -2;
-        fprintf(stderr, "malloc() failed\n");
+        fprintf(stderr, "[%s] malloc() failed\n", __func__);
         return NULL;
     }
     uint8_t msn, lsn, byte;
@@ -63,7 +63,7 @@ char* bytes_to_hex_string(const uint8_t* input_bytes, const size_t input_len, co
     }
     char* output_chars = (char*)calloc(input_len * 2 + 1, sizeof(char));
     if (output_chars == NULL) {
-        fprintf(stderr, "calloc() failed\n");
+        fprintf(stderr, "[%s] calloc() failed\n", __func__);
         return NULL;
     }
     int out_idx = 0;
