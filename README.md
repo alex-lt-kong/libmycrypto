@@ -64,21 +64,23 @@ RIPEMD160, SHA1, SHA256.
 modification. However, if we would like to take advantage of some of C++'s
 more "modern" features, we may want to do things a bit differently.
 
-* For the sake of convenience, two zero-cost wrappers on top of
-`std::unique_ptr` (`unique_byte_ptr` and `unique_char_ptr`) are prepared
-in [misc.hpp](./src/mycrypto/misc.hpp).
+* For the sake of convenience, `unique_fptr`, a "zero-cost" wrapper on top of
+`std::unique_ptr` (i.e., a unique_ptr with a `free()` delete) is prepared in
+[misc.hpp](./src/mycrypto/misc.hpp).
 
     * For example, we do:
 
       ```C++
-      unique_byte_ptr bytes(hex_string_to_bytes(hex_cstr, &input_bytes_len));
+      unique_fptr<uint8_t[]> bytes(hex_string_to_bytes(hex_cstr, &input_bytes_len));
       return;
       ```
 
-      instead of
+      in C++ to enjoy the benefit of RAII instead of
 
       ```C
       uint8_t* bytes = hex_string_to_bytes(hex_cstr, &input_bytes_len);
       free(bytes);
       return;
       ```
+
+      in C.
