@@ -64,8 +64,10 @@ RIPEMD160, SHA1, SHA256.
 modification. However, if we would like to take advantage of some of C++'s
 more "modern" features, we may want to do things a bit differently.
 
-* For the sake of convenience, `unique_fptr`, a "zero-cost" wrapper on top of
-`std::unique_ptr` (i.e., a unique_ptr with a `free()` deleter) is prepared in
+* For the sake of convenience, `unique_fptr`, a "zero-cost" (
+  [sort of](https://github.com/alex-lt-kong/the-nitty-gritty/tree/main/cpp/10_smart-pointers#is-unique_ptr-a-zero-cost-wrapper-on-top-of-raw-pointer))
+  wrapper on top of `std::unique_ptr` (i.e., a unique_ptr with a `free()`
+  deleter) is prepared in
 [misc.hpp](./src/mycrypto/misc.hpp).
 
     * For example, we do:
