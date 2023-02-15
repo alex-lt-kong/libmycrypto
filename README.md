@@ -84,3 +84,10 @@ more "modern" features, we may want to do things a bit differently.
       ```
 
       in C.
+
+## Quality assurance
+
+* Instead of `cmake ../`, run `cmake .. -DBUILD_ASAN=ON` then `make test` to
+test memory error with
+[AddressSanitizer](https://github.com/google/sanitizers/wiki/AddressSanitizer)
+* The repo is also frequently tested with `Valgrind`: `valgrind --leak-check=yes --log-file=valgrind.rpt ./test/test-hmac`. Unfortunately, this part is not automated.

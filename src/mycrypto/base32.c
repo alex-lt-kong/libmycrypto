@@ -46,7 +46,9 @@ char* encode_bytes_to_base32_string(const uint8_t *input_bytes, size_t input_len
   char* output = NULL;
   
   int out_pos = 0;
-  size_t output_len = ceil((float)input_len / BLOCK_SIZE) * GROUP_SIZE; /* 5-byte block into 8 groups of 5 bits */  
+  /* 5-byte block into 8 groups of 5 bits */  
+  size_t output_len = ceil((float)input_len / BLOCK_SIZE) * GROUP_SIZE + 1;
+  
   char buf[GROUP_SIZE];
   uint8_t tmp[BLOCK_SIZE];
 

@@ -44,12 +44,9 @@ const char official_tvs_b32_encoded[TEST_COUNT][TEST_SIZE] = {
 int test_base32_encode() {
     char* output;
     for (int i = 0; i < TEST_COUNT; ++i) {
-        printf("strlen(official_tvs_decoded[i]): %u\n", strlen(official_tvs_decoded[i]));
         output = encode_bytes_to_base32_string(
             (uint8_t*)official_tvs_decoded[i], strlen(official_tvs_decoded[i])
         );
-        printf("actual: [%s]\nexpect: [%s]\n", output,
-            (char*)official_tvs_b32_encoded[i]);
         if (strcmp(output, (char*)official_tvs_b32_encoded[i]) != 0) {
             fprintf(stderr, "FAILED\nExpect: %s\nActual: %s\n",
                 official_tvs_b32_encoded[i], output);
