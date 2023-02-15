@@ -44,11 +44,15 @@ const char official_tvs_b32_encoded[TEST_COUNT][TEST_SIZE] = {
 int test_base32_encode() {
     char* output;
     for (int i = 0; i < TEST_COUNT; ++i) {
+        printf("strlen(official_tvs_decoded[i]): %u\n", strlen(official_tvs_decoded[i]));
         output = encode_bytes_to_base32_string(
             (uint8_t*)official_tvs_decoded[i], strlen(official_tvs_decoded[i])
         );
+        printf("actual: [%s]\nexpect: [%s]\n", output,
+            (char*)official_tvs_b32_encoded[i]);
         if (strcmp(output, (char*)official_tvs_b32_encoded[i]) != 0) {
-            fprintf(stderr, "FAILED\nExpect: %s\nActual: %s\n", official_tvs_b32_encoded[i], output);
+            fprintf(stderr, "FAILED\nExpect: %s\nActual: %s\n",
+                official_tvs_b32_encoded[i], output);
             return 1;
         }
         free(output);
@@ -60,10 +64,12 @@ int test_base32_decode_valid() {
     uint8_t* output;
     int64_t output_len = -1;
     for (int i = 0; i < TEST_COUNT; ++i) {
-        output = decode_base32_string_to_bytes(official_tvs_b32_encoded[i], &output_len);
+        output = decode_base32_string_to_bytes(official_tvs_b32_encoded[i],
+            &output_len);
         for (int64_t j = 0; j < output_len; ++j) {
             if (official_tvs_decoded[i][j] != output[j]) {
-                fprintf(stderr, "FAILED\nExpect: %x\nActual: %x\n", official_tvs_decoded[i][j], output[j]);
+                fprintf(stderr, "FAILED\nExpect: %x\nActual: %x\n",
+                    official_tvs_decoded[i][j], output[j]);
                 return 1;
             }
         }

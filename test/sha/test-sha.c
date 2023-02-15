@@ -9,7 +9,7 @@
 #include "mycrypto/sha1.h"
 #include "mycrypto/misc.h"
 
-#define BUF_SIZE 32768
+#define BUF_SIZE 65536
 
 int test_rsp_file(
     char* rsp_file_dir, void (*hash_func)(const uint8_t*, size_t input_len, uint8_t*), const size_t hash_size
@@ -27,7 +27,7 @@ int test_rsp_file(
     size_t msg_len = -1;
     int64_t msg_bytes_len = -1;
     char msg[BUF_SIZE] = {0};
-    char official_md[65] = {0};
+    char official_md[SHA256_HASH_SIZE * 2 + 3] = {0};
     char* md_char;
     while (fgets(line, BUF_SIZE, fp) != NULL) {
 
@@ -44,8 +44,9 @@ int test_rsp_file(
             ) {
                 msg[strlen(msg) - 1] = '\0';
             }
-        } else if (strlen(line) >= 2 && strncmp(line, "MD", 2) == 0) {            
+        } else if (strlen(line) >= 2 && strncmp(line, "MD", 2) == 0) {
             memcpy(official_md, line + 5, strlen(line) - 5);
+            
             while (
                 official_md[strlen(official_md) - 1] == 0x0d ||
                 official_md[strlen(official_md) - 1] == 0x0a
