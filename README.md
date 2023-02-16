@@ -89,7 +89,12 @@ more "modern" features, we may want to do things a bit differently.
 
 ## Quality assurance
 
-* Instead of `cmake ../`, run `cmake .. -DBUILD_ASAN=ON` then `make test` to
-test memory error with
-[AddressSanitizer](https://github.com/google/sanitizers/wiki/AddressSanitizer)
+* Instead of `cmake ../`,
+    * run `cmake .. -DBUILD_ASAN=ON` then `make test` to test memory error with
+[AddressSanitizer](https://github.com/google/sanitizers/wiki/AddressSanitizer).
+    * run `cmake ../ -DBUILD_MSAN=ON` then `make test` to test the library with
+[MemorySanitizer](https://github.com/google/sanitizers/wiki/MemorySanitizer).
+Note that this test supports `clang` only.
+    * run `cmake ../ -DBUILD_UBSAN=ON` then `make test` to test the library with
+[UndefinedBehaviorSanitizer](https://clang.llvm.org/docs/UndefinedBehaviorSanitizer.html).
 * The repo is also frequently tested with `Valgrind`: `valgrind --leak-check=yes --log-file=valgrind.rpt ./test/test-hmac`. Unfortunately, this part is not automated.

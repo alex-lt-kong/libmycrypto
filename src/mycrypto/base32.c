@@ -94,7 +94,7 @@ uint8_t* decode_base32_string_to_bytes(const char *input_chars, int64_t *output_
   // *output_len will be shrunk a bit at the end.
   uint8_t *output_bytes = NULL;
   uint8_t buf[BLOCK_SIZE];
-  char tmp[GROUP_SIZE];
+  char tmp[GROUP_SIZE] = {0};
 
   output_bytes = (uint8_t *)malloc(*output_len * sizeof(uint8_t));
   if (NULL == output_bytes) {

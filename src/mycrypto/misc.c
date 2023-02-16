@@ -3,9 +3,15 @@
 #include <stdio.h>
 #include "misc.h"
 
-uint32_t rotate(const uint32_t value, const unsigned int bits, const bool is_left) {
-    if (is_left) { return value << bits | value >> (32 - bits);  }
-    else { return value >> bits | value << (32 - bits); }
+uint32_t rotate(const uint32_t value, uint32_t bits, const bool is_left) {
+    const uint32_t bit_width = sizeof(uint32_t) * CHAR_BIT;
+    bits = (bits % bit_width);
+    if (is_left) {
+        return value << bits | value >> ((bit_width - bits) % bit_width);
+    }
+    else {
+        return value >> bits | value << ((bit_width - bits) % bit_width);
+    }
 }
 
 bool is_big_endian(void) {
@@ -22,7 +28,9 @@ uint8_t char_to_hex (const char c) {
 
 uint8_t* hex_string_to_bytes(const char* input_chars, int64_t* output_len) {
     if (strlen(input_chars) % 2 != 0) {
-        fprintf(stderr, "[%s] not a valid hex_string: length not a multiple of 2.\n", input_chars);
+        fprintf(stderr, 
+            "[%s] not a valid hex_string: length not a multiple of 2.\n",
+            input_chars);
         *output_len = -1;
         return NULL;
     }
@@ -56,7 +64,8 @@ uint8_t* hex_string_to_bytes(const char* input_chars, int64_t* output_len) {
     return output_bytes;
 }
 
-char* bytes_to_hex_string(const uint8_t* input_bytes, const size_t input_len, const bool upper) {  
+char* bytes_to_hex_string(const uint8_t* input_bytes, const size_t input_len,
+    const bool upper) {  
     char hex_table[] = "0123456789abcdef";
     if (upper) {
         for (int i = 10; i < 16; ++i) {  hex_table[i] -= 32; }
@@ -79,5 +88,6 @@ char* bytes_to_hex_string(const uint8_t* input_bytes, const size_t input_len, co
 }
 
 void switch_endianness(uint32_t* val) {
-    *val = (*val & 0xff000000) >> 24 | (*val & 0x00ff0000) >> 8 | (*val & 0x0000ff00) << 8 | (*val & 0x000000ff) << 24;
+    *val = ((*val & 0xff000000) >> 24 | (*val & 0x00ff0000) >> 8 |
+            (*val & 0x0000ff00) << 8  | (*val & 0x000000ff) << 24);
 }

@@ -18,7 +18,7 @@ extern "C" {
  * @param is_left Should the ratotation be to left or to right
  * @returns The rotated value.
  */
-uint32_t rotate(const uint32_t value, const unsigned int bits, const bool is_left);
+uint32_t rotate(const uint32_t value, uint32_t bits, const bool is_left);
 
 /**
  * @brief Check if the current system is in big or little endian
