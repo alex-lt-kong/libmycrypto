@@ -4,8 +4,7 @@ project(LIBMYCRYPTO)
 
 option(BUILD_ASAN "Build with AddressSanitizer to detect memory error" OFF)
 option(BUILD_MSAN "Build with MemorySanitizer to detect memory error" OFF)
-option(BUILD_UBSAN "Build with UndefinedBehaviorSanitizer to detect "
-    "undefined behavior" OFF)
+option(BUILD_UBSAN "Build with UndefinedBehaviorSanitizer to detect undefined behavior" OFF)
 
 set(COUNTER 0)
 set(ALL_OPTIONS BUILD_ASAN;BUILD_MSAN;BUILD_UBSAN)
