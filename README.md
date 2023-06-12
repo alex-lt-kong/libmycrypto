@@ -12,7 +12,7 @@ RIPEMD160, SHA1, SHA256.
   * All algorithms are tested against either official and/or well established
   test vectors.
 
-* Should work on Linux and Windows (MinGW) with gcc and clang.
+* Should work on Unix-like platforms and Windows (MinGW) with gcc and clang.
 
 ## Dependencies
 

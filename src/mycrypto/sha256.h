@@ -5,8 +5,8 @@
 extern "C" {
 #endif
 
-#include <string.h>
 #include <stdint.h>
+#include <string.h>
 
 #define SHA256_HASH_SIZE 32
 #define SHA256_CHUNK_SIZE 64      // size in byte
@@ -19,7 +19,8 @@ extern "C" {
  * @param hash Preallocated 32-byte long array, where the result is delivered.
  * The array will be unchanged if errors occur
  */
-void cal_sha256_hash(const uint8_t* input_bytes, const size_t input_len, uint8_t* hash);
+void cal_sha256_hash(const uint8_t *input_bytes, const size_t input_len,
+                     uint8_t *hash);
 
 #ifdef __cplusplus
 }

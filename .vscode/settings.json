@@ -1,4 +1,5 @@
 {
+  "editor.formatOnSave": true,
   "files.associations": {
     "iostream": "cpp",
     "ostream": "cpp",
@@ -21,5 +22,6 @@
     "base64.h": "c",
     "base58.h": "c",
     "bit": "c"
-  }
+  },
+  "C_Cpp.default.configurationProvider": "ms-vscode.makefile-tools"
 }
