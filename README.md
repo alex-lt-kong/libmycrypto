@@ -89,6 +89,8 @@ more "modern" features, we may want to do things a bit differently.
 
 ## Quality assurance
 
+### Sanitizers
+
 * Instead of `cmake ../`,
     * run `cmake .. -DBUILD_ASAN=ON` then `make test` to test memory error with
 [AddressSanitizer](https://github.com/google/sanitizers/wiki/AddressSanitizer).
@@ -98,3 +100,16 @@ Note that this test supports `clang` only.
     * run `cmake ../ -DBUILD_UBSAN=ON` then `make test` to test the library with
 [UndefinedBehaviorSanitizer](https://clang.llvm.org/docs/UndefinedBehaviorSanitizer.html).
 * The repo is also frequently tested with `Valgrind`: `valgrind --leak-check=yes --log-file=valgrind.rpt ./test/test-hmac`. Unfortunately, this part is not automated.
+
+### Fuzz testing
+
+* The repo is tested with AFL++.
+
+* Build with instrumentation
+```
+cmake -DCMAKE_C_COMPILER=afl-clang-fast \
+      -DCMAKE_C_FLAGS="-frtti -fsanitize=undefined -fno-sanitize-recover=all -g" \
+      -DCMAKE_EXE_LINKER_FLAGS=" -frtti -fsanitize=undefined -fno-sanitize-recover=all" \
+      -DCMAKE_MODULE_LINKER_FLAGS="-frtti -fsanitize=undefined -fno-sanitize-recover=all" \
+    ..
+```
