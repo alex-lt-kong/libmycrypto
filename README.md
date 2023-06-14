@@ -113,3 +113,5 @@ cmake -DCMAKE_C_COMPILER=afl-clang-fast \
       -DCMAKE_MODULE_LINKER_FLAGS="-frtti -fsanitize=undefined -fno-sanitize-recover=all" \
     ..
 ```
+
+* Go: `afl-fuzz -i ../tests/afl++/inputs/ -o  /tmp/outputs/ ./tests/fuzz-base32 @@`

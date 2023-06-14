@@ -97,7 +97,7 @@ char *encode_bytes_to_base32_string(const uint8_t *input_bytes,
 }
 
 uint8_t *decode_base32_string_to_bytes(const char *input_chars,
-                                       int64_t *output_len) {
+                                       ssize_t *output_len) {
 
   int out_pos = 0;
   *output_len = strlen(input_chars) * BLOCK_SIZE / GROUP_SIZE;
