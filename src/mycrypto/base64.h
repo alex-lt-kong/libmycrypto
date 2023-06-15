@@ -31,7 +31,8 @@ char *encode_bytes_to_base64_string(const uint8_t *input_bytes,
  * -2 if malloc() failed.
  * @returns Pointer to a byte array or NULL (if error occurs), users are
  * reminded to free() the pointer after use. Note that the byte array returned
- * is NOT guaranteed to be null-terminated.
+ * is NOT guaranteed to be null-terminated. It is guaranteed that the pointer
+ * is non NULL if output_len >= 0.
  */
 uint8_t *decode_base64_string_to_bytes(const char *input_chars,
                                        int64_t *output_len);

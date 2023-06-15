@@ -1,3 +1,4 @@
+#include <errno.h>
 #include <getopt.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -5,6 +6,7 @@
 #include <string.h>
 
 #include "mycrypto/base32.h"
+#include "mycrypto/base64.h"
 
 void print_usage(char *binary_name) {
   printf("Usage: %s [OPTION]\n\n", binary_name);
@@ -58,11 +60,13 @@ void parse_options(int argc, char *argv[], char **out_test_case_path,
 int main(int argc, char *argv[]) {
   int retval = 0;
   FILE *fp;
-  char plain[4096], encoded[4096];
+  uint8_t input_bytes[8192];
+  size_t input_len;
   char *test_case_path = NULL;
   int encoding_scheme = -1;
   parse_options(argc, argv, &test_case_path, &encoding_scheme);
-  if (encoding_scheme == -1 || test_case_path == NULL) {
+  if ((encoding_scheme != 32 && encoding_scheme != 64) ||
+      test_case_path == NULL) {
     print_usage(argv[0]);
     retval = 1;
     goto err_invalid_argc;
@@ -71,53 +75,63 @@ int main(int argc, char *argv[]) {
   fp = fopen(test_case_path, "r");
   // No, I can't free() test_case_path here because fopen() takes a const char*
   if (fp == NULL) {
-    fprintf(stdout, "Error opening file %s\n", argv[1]);
+    fprintf(stdout, "Error opening file %s: %d(%s)\n", test_case_path, errno,
+            strerror(errno));
     retval = 1;
     goto err_fopen;
   }
 
-  if (fgets(plain, sizeof(plain), fp) == NULL ||
-      fgets(encoded, sizeof(encoded), fp) == NULL) {
-    fprintf(stderr, "Error reading lines from %s\n", argv[1]);
+  input_len = fread(input_bytes, 1, sizeof(input_bytes), fp);
+  if (input_len == 0) {
+    fprintf(stderr, "Error fread()ing data from %s\n", test_case_path);
     retval = 1;
-    goto err_fgets;
+    goto err_fread;
   }
-  if (strlen(plain) > 0) {
-    plain[strlen(plain) - 1] = '\0';
-  }
-  if (strlen(encoded) > 0) {
-    encoded[strlen(encoded) - 1] = '\0';
-  }
-  printf("%s\n%s\n", plain, encoded);
 
-  char *output = encode_bytes_to_base32_string((uint8_t *)plain, strlen(plain));
+  char *output;
+  if (encoding_scheme == 32) {
+    output = encode_bytes_to_base32_string(input_bytes, input_len);
+  } else if (encoding_scheme == 64) {
+    output = encode_bytes_to_base64_string(input_bytes, input_len, 0);
+  } else {
+    fprintf(stderr, "How come?\n");
+    abort();
+  }
+
   if (output == NULL) {
-    if (strlen(plain) > 0) {
-      fprintf(stderr, "Error encoding %s\n", plain);
-      retval = 1;
-      goto err_encode_bytes_to_base32_string;
-    }
+    fprintf(stderr, "Error encoding %s\n", input_bytes);
+    abort();
   } else {
     ssize_t output_len;
-    uint8_t *decoded_output =
-        decode_base32_string_to_bytes(output, &output_len);
+    uint8_t *decoded;
+    if (encoding_scheme == 32) {
+      decoded = decode_base32_string_to_bytes(output, &output_len);
+    } else if (encoding_scheme == 64) {
+      decoded = decode_base64_string_to_bytes(output, &output_len);
+    } else {
+      fprintf(stderr, "How come?\n");
+      abort();
+    }
     if (output_len >= 0) {
-      if (strncmp((char *)decoded_output, plain, output_len) != 0) {
-        fprintf(stderr, "Error decoding: %s vs %s\n", (char *)decoded_output,
-                plain);
-        retval = 1;
+      // Does passing NULL pointers to memcmp() cause undefined behavior?
+      // Seems it is not as clear as one might think:
+      // https://stackoverflow.com/questions/16362925/can-i-pass-a-null-pointer-to-memcmp
+      // But we tested output_len for non-negative value, so it should be fine.
+      if (memcmp(decoded, input_bytes, output_len) != 0) {
+        fprintf(stderr, "Error decoding: %s vs %s\n", (char *)decoded,
+                input_bytes);
         abort();
       } else {
         printf("OK\n");
       }
     } else {
-      fprintf(stderr, "Error!\n");
+      fprintf(stderr, "Error decoding: %s\n", output);
+      abort();
     }
   }
 
   free(output);
-err_encode_bytes_to_base32_string:
-err_fgets:
+err_fread:
   fclose(fp);
 err_fopen:
 err_invalid_argc:

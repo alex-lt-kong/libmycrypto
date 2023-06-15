@@ -21,7 +21,9 @@
     "streambuf": "c",
     "base64.h": "c",
     "base58.h": "c",
-    "bit": "c"
+    "bit": "c",
+    "cerrno": "c",
+    "base32.h": "c"
   },
   "C_Cpp.default.configurationProvider": "ms-vscode.makefile-tools"
 }
