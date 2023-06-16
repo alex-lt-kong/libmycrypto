@@ -114,4 +114,4 @@ cmake -DCMAKE_C_COMPILER=afl-clang-fast \
     ..
 ```
 
-* Go: `afl-fuzz -i ../tests/afl++/inputs/ -o  /tmp/outputs/ ./tests/fuzz-base32 @@`
+* Go: `afl-fuzz -i ../tests/afl++/inputs/ -o  /tmp/outputs/ ./tests/fuzz-base --encoding-scheme 32 --test-case-path @@`

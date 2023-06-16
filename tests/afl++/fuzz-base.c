@@ -1,12 +1,23 @@
 #include <errno.h>
 #include <getopt.h>
+#include <signal.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <unistd.h>
 
 #include "mycrypto/base32.h"
 #include "mycrypto/base64.h"
+
+#define PRINTF(fmt, ...)                                                       \
+  printf("[%s@%s:%d] " fmt, __FUNCTION__, __FILE__, __LINE__, ##__VA_ARGS__)
+#define FPRINTF_ERR(fmt, ...)                                                  \
+  fprintf(stderr, "[%s@%s:%d] " fmt, __FUNCTION__, __FILE__, __LINE__,         \
+          ##__VA_ARGS__)
+#define MY_BUF_SIZE 8192
 
 void print_usage(char *binary_name) {
   printf("Usage: %s [OPTION]\n\n", binary_name);
@@ -42,8 +53,8 @@ void parse_options(int argc, char *argv[], char **out_test_case_path,
     case 'p':
       if (optarg != NULL) {
         *out_test_case_path = strdup(optarg);
-        break;
       }
+      break;
     case 'e':
       if (strcmp(optarg, "32") == 0) {
         *out_encoding_scheme = 32;
@@ -57,10 +68,102 @@ void parse_options(int argc, char *argv[], char **out_test_case_path,
   }
 }
 
+void compare_with_gun_utils(const int encoding_scheme,
+                            const char *test_case_path,
+                            const char *actual_output) {
+
+  int pipefd_out[2], pipefd_err[2];
+  FILE *fp_out;
+  FILE *fp_err;
+  char buff[MY_BUF_SIZE];
+  int status;
+
+  if (pipe(pipefd_out) == -1 || pipe(pipefd_err) == -1) {
+    perror("pipe()");
+    abort();
+  }
+
+  pid_t child_pid = fork();
+  if (child_pid == -1) { // fork() failed, no child process created
+    perror("fork()");
+    abort();
+  }
+
+  if (child_pid == 0) { // fork() succeeded, we are in the child process
+    close(pipefd_out[0]);
+    close(pipefd_err[0]);
+    dup2(pipefd_out[1], STDOUT_FILENO);
+    dup2(pipefd_err[1], STDERR_FILENO);
+
+    if (encoding_scheme == 32) {
+      const char *args[] = {"/usr/bin/base32", test_case_path, "-w", "0", NULL};
+      execv(args[0], (char **)args);
+    } else if (encoding_scheme == 64) {
+      const char *args[] = {"/usr/bin/base64", test_case_path, "-w", "0", NULL};
+      execv(args[0], (char **)args);
+    }
+
+    perror("execl()/execv()");
+    // The exec() functions return only if an error has occurred.
+    // The return value is -1, and errno is set to indicate the error.
+    _exit(EXIT_FAILURE);
+    /* Have to _exit() explicitly in case of execl() failure.
+       Difference between _exit() and exit()? refer to:
+       https://github.com/alex-lt-kong/the-nitty-gritty/blob/main/c-cpp/common/04_posix-api/01_subprocess/main-naive.c
+    */
+  }
+
+  // Only parent gets here
+  close(pipefd_out[1]);
+  close(pipefd_err[1]);
+
+  if ((fp_out = fdopen(pipefd_out[0], "r")) == NULL ||
+      (fp_err = fdopen(pipefd_err[0], "r")) == NULL) {
+    perror("fdopen()");
+    abort();
+  }
+
+  while (fgets(buff, MY_BUF_SIZE, fp_out)) {
+  }
+
+  if (fclose(fp_out) != 0 || fclose(fp_err) != 0) {
+    perror("fclose()");
+    abort();
+  }
+  close(pipefd_out[0]);
+  close(pipefd_err[0]);
+
+  // wait for the child process to terminate
+  if (waitpid(child_pid, &status, 0) == -1) {
+    perror("waitpid()");
+    abort();
+  }
+  if (WIFEXITED(status)) {
+    PRINTF("Child process exited normally, rc: %d\n", WEXITSTATUS(status));
+  } else {
+    PRINTF("Child process exited unexpectedly ");
+    if (WIFSIGNALED(status)) {
+      PRINTF("(terminated by a signal: %d)\n", WTERMSIG(status));
+      abort();
+    } else if (WIFSTOPPED(status)) {
+      PRINTF("(stopped by delivery of a signal: %d)\n", WSTOPSIG(status));
+      abort();
+    } else {
+      PRINTF("(unknown status: %d)\n", status);
+      abort();
+    }
+  }
+  if (strcmp(buff, actual_output) == 0) {
+    PRINTF("OK!\n");
+  } else {
+    FPRINTF_ERR("\nExpect: %s\nActual: %s\n", buff, actual_output);
+  }
+}
+
 int main(int argc, char *argv[]) {
   int retval = 0;
   FILE *fp;
-  uint8_t input_bytes[8192];
+  uint8_t input_bytes[MY_BUF_SIZE];
   size_t input_len;
   char *test_case_path = NULL;
   int encoding_scheme = -1;
@@ -122,14 +225,14 @@ int main(int argc, char *argv[]) {
                 input_bytes);
         abort();
       } else {
-        printf("OK\n");
+        PRINTF("OK\n");
       }
     } else {
       fprintf(stderr, "Error decoding: %s\n", output);
       abort();
     }
   }
-
+  compare_with_gun_utils(encoding_scheme, test_case_path, output);
   free(output);
 err_fread:
   fclose(fp);

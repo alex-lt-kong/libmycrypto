@@ -23,7 +23,10 @@
     "base58.h": "c",
     "bit": "c",
     "cerrno": "c",
-    "base32.h": "c"
+    "base32.h": "c",
+    "cstdlib": "c",
+    "*.ipp": "c",
+    "stdio.h": "c"
   },
   "C_Cpp.default.configurationProvider": "ms-vscode.makefile-tools"
 }
