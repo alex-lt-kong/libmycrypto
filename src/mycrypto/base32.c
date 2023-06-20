@@ -13,7 +13,7 @@ static const char b32_table[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
 // 4648/3548 If need to change this, also need to change the invalid character
 // check in decode_base32_string_to_bytes()
 
-/*
+/**
  * @brief Encode a 5-byte long input bytes block to an 8-byte long output base32
  * char array
  * @param in a 5-byte long input block
@@ -30,7 +30,7 @@ void encode_block(uint8_t *in, char *out) {
   out[7] = in[4] & 0x1f;
 }
 
-/*
+/**
  * @brief Decode an 8-byte long input char array to a 5-byte long output byte
  * array
  * @param in an 8-byte long input char array

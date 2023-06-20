@@ -10,13 +10,13 @@
 #include <unistd.h>
 
 #include "mycrypto/base32.h"
+#include "mycrypto/base58.h"
 #include "mycrypto/base64.h"
 
 #define PRINTF(fmt, ...)                                                       \
-  printf("[%s@%s:%d] " fmt, __FUNCTION__, __FILE__, __LINE__, ##__VA_ARGS__)
+  printf("[%s:%d] " fmt, __FILE__, __LINE__, ##__VA_ARGS__)
 #define FPRINTF_ERR(fmt, ...)                                                  \
-  fprintf(stderr, "[%s@%s:%d] " fmt, __FUNCTION__, __FILE__, __LINE__,         \
-          ##__VA_ARGS__)
+  fprintf(stderr, "[%s:%d] " fmt, __FILE__, __LINE__, ##__VA_ARGS__)
 #define MY_BUF_SIZE 8192
 
 void print_usage(char *binary_name) {

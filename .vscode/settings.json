@@ -26,7 +26,12 @@
     "base32.h": "c",
     "cstdlib": "c",
     "*.ipp": "c",
-    "stdio.h": "c"
+    "stdio.h": "c",
+    "array": "c",
+    "bitset": "c",
+    "initializer_list": "c",
+    "ranges": "c",
+    "utility": "c"
   },
   "C_Cpp.default.configurationProvider": "ms-vscode.makefile-tools"
 }

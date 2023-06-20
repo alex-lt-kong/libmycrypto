@@ -18,6 +18,10 @@ RIPEMD160, SHA1, SHA256.
 
 * `cmake` is used to generate `Makefile`: `apt install cmake`.
 
+### Dev dependencies
+
+* `base58` to test base58 encoding/decoding: `apt install base58`
+
 ## Build and install
 
 ### Linux
