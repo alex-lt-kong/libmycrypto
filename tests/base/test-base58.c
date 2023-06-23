@@ -18,6 +18,7 @@ const char test_vectors_encoded[][OFFICIAL_TEST_SIZE] = {
     "2NEpo7TZRRrLZSi2U",
     "USm3fpXnKG5EUBx2ndxBDMPVciP5hGey2Jh4NDv6gmeo1LkMeiKrLJUUBk6Z", "11233QC4"};
 
+// clang-format off
 const char btc_test_vectors_decoded_hex_str[][BTC_TEST_SIZE] = {
     "",
     "61",
@@ -31,8 +32,7 @@ const char btc_test_vectors_decoded_hex_str[][BTC_TEST_SIZE] = {
     "ecac89cad93923c02321",
     "10c8511e",
     "00000000000000000000",
-    "000111d38e5fc9071ffcd20b4a763cc9ae4f252bb4e48fd66a835e252ada93ff480d6dd43d"
-    "c62a641155a5",
+    "000111d38e5fc9071ffcd20b4a763cc9ae4f252bb4e48fd66a835e252ada93ff480d6dd43dc62a641155a5",
     "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f2021222324"
     "25262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f40414243444546474849"
     "4a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e"
@@ -60,6 +60,7 @@ const char btc_test_vectors_encoded[][BTC_TEST_SIZE] = {
     "3ZNLmP5fSG6DGbbi2tuwMWPthr4boWwCxf7ewSgNQeacyozhKDDQQ1qL5fQFUW52QKUZDZ5fw3"
     "KXNQJMcNTcaB723LchjeKun7MuGW5qyCBZYzA1KjofN1gYBV3NqyhQJ3Ns746GNuf9N2pQPmHz"
     "4xpnSrrfCvy6TVVz5d4PdrjeshsWQwpZsZGzvbdAdN8MKV5QsBDY"};
+// clang-format on
 
 int test_base58_official() {
 
