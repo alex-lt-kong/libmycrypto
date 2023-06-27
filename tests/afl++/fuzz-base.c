@@ -24,9 +24,9 @@ void print_usage(char *binary_name) {
   printf("Description:\n");
   printf("  This program tests Base32/Base58/Base64 encoding/decoding\n\n");
   printf("Options:\n");
-  printf("  -p, --test-case-path <path>       Path to test case file\n");
-  printf("  -e, --encoding-scheme <32|58|64>  Encoding scheme\n");
-  printf("  -h, --help                        Print this help message\n");
+  printf("  -p, --test-case-path <path>         Path to test case file\n");
+  printf("  -s, --scheme <base32|base58|base64> Scheme\n");
+  printf("  -h, --help                          Print this help message\n");
 }
 
 /**
@@ -38,16 +38,16 @@ void print_usage(char *binary_name) {
  * @param out_encoding_scheme
  */
 void parse_options(int argc, char *argv[], char **out_test_case_path,
-                   int *out_encoding_scheme) {
+                   char **out_scheme) {
   static struct option long_options[] = {
       {"test-case-path", required_argument, 0, 'p'},
-      {"encoding-scheme", required_argument, 0, 'e'},
+      {"scheme", required_argument, 0, 's'},
       {"help", optional_argument, 0, 'h'},
       {0, 0, 0, 0}};
 
   int option_index = 0, opt;
 
-  while ((opt = getopt_long(argc, argv, "p:e:h", long_options,
+  while ((opt = getopt_long(argc, argv, "p:s:h", long_options,
                             &option_index)) != -1) {
     switch (opt) {
     case 'p':
@@ -55,13 +55,10 @@ void parse_options(int argc, char *argv[], char **out_test_case_path,
         *out_test_case_path = strdup(optarg);
       }
       break;
-    case 'e':
-      if (strcmp(optarg, "32") == 0) {
-        *out_encoding_scheme = 32;
-      } else if (strcmp(optarg, "58") == 0) {
-        *out_encoding_scheme = 58;
-      } else if (strcmp(optarg, "64") == 0) {
-        *out_encoding_scheme = 64;
+    case 's':
+      if (strcmp(optarg, "base32") == 0 || strcmp(optarg, "base58") == 0 ||
+          strcmp(optarg, "base64") == 0) {
+        *out_scheme = strdup(optarg);
       }
       break;
     default:
@@ -70,7 +67,7 @@ void parse_options(int argc, char *argv[], char **out_test_case_path,
   }
 }
 
-void compare_with_external_results(const int encoding_scheme,
+void compare_with_external_results(const char *scheme,
                                    const char *test_case_path,
                                    const char *actual_output) {
 
@@ -96,13 +93,13 @@ void compare_with_external_results(const int encoding_scheme,
     dup2(pipefd_out[1], STDOUT_FILENO);
     dup2(pipefd_err[1], STDERR_FILENO);
 
-    if (encoding_scheme == 32) {
+    if (strcmp(scheme, "base32") == 0) {
       const char *args[] = {"/usr/bin/base32", test_case_path, "-w", "0", NULL};
       execv(args[0], (char **)args);
-    } else if (encoding_scheme == 58) {
+    } else if (strcmp(scheme, "base58") == 0) {
       const char *args[] = {"/usr/bin/base58", test_case_path, NULL};
       execv(args[0], (char **)args);
-    } else if (encoding_scheme == 64) {
+    } else if (strcmp(scheme, "base642") == 0) {
       const char *args[] = {"/usr/bin/base64", test_case_path, "-w", "0", NULL};
       execv(args[0], (char **)args);
     }
@@ -180,10 +177,11 @@ int main(int argc, char *argv[]) {
   uint8_t input_bytes[MY_BUF_SIZE];
   size_t input_len;
   char *test_case_path = NULL;
-  int encoding_scheme = -1;
-  parse_options(argc, argv, &test_case_path, &encoding_scheme);
-  if ((encoding_scheme != 32 && encoding_scheme != 58 &&
-       encoding_scheme != 64) ||
+  char *scheme = NULL;
+  parse_options(argc, argv, &test_case_path, &scheme);
+  if (scheme == NULL ||
+      (strcmp(scheme, "base32") != 0 && strcmp(scheme, "base58") != 0 &&
+       strcmp(scheme, "base64") != 0) ||
       test_case_path == NULL) {
     print_usage(argv[0]);
     retval = 1;
@@ -207,11 +205,11 @@ int main(int argc, char *argv[]) {
   }
 
   char *output;
-  if (encoding_scheme == 32) {
+  if (strcmp(scheme, "base32") == 0) {
     output = encode_bytes_to_base32_string(input_bytes, input_len);
-  } else if (encoding_scheme == 58) {
+  } else if (strcmp(scheme, "base58") == 0) {
     output = encode_bytes_to_base58_string(input_bytes, input_len);
-  } else if (encoding_scheme == 64) {
+  } else if (strcmp(scheme, "base64") == 0) {
     output = encode_bytes_to_base64_string(input_bytes, input_len, 0);
   } else {
     fprintf(stderr, "How come?\n");
@@ -224,17 +222,17 @@ int main(int argc, char *argv[]) {
   } else {
     ssize_t output_len = 0;
     uint8_t *decoded = NULL;
-    if (encoding_scheme == 32) {
+    if (strcmp(scheme, "base32") == 0) {
       decoded = decode_base32_string_to_bytes(output, &output_len);
-    } else if (encoding_scheme == 58) {
+    } else if (strcmp(scheme, "base58") == 0) {
       PRINTF("Base58 doesn't have decoding method, skipped\n");
-    } else if (encoding_scheme == 64) {
+    } else if (strcmp(scheme, "base64") == 0) {
       decoded = decode_base64_string_to_bytes(output, &output_len);
     } else {
       fprintf(stderr, "How come?\n");
       abort();
     }
-    if (output_len >= 0 && encoding_scheme != 58) {
+    if (output_len >= 0 && strcmp(scheme, "base58") != 0) {
       // Does passing NULL pointers to memcmp() cause undefined behavior?
       // Seems it is not as clear as one might think:
       // https://stackoverflow.com/questions/16362925/can-i-pass-a-null-pointer-to-memcmp
@@ -246,18 +244,19 @@ int main(int argc, char *argv[]) {
       } else {
         PRINTF("OK\n");
       }
-    } else if (encoding_scheme == 58) {
+    } else if (strcmp(scheme, "base58") == 0) {
     } else {
       fprintf(stderr, "Error decoding: %s\n", output);
       abort();
     }
   }
-  compare_with_external_results(encoding_scheme, test_case_path, output);
+  compare_with_external_results(scheme, test_case_path, output);
   free(output);
 err_fread:
   fclose(fp);
 err_fopen:
 err_invalid_argc:
   free(test_case_path); // free() a NULL pointer is well-defined
+  free(scheme);
   return retval;
 }
