@@ -19,7 +19,7 @@ static const char b32_table[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
  * @param in a 5-byte long input block
  * @param out an array of 8 bytes of base32 character
  */
-void encode_block(uint8_t *in, char *out) {
+void encode_block(unsigned char *in, char *out) {
   out[0] = (in[0] & 0xf8) >> 3;
   out[1] = ((in[0] & 0x07) << 2) | ((in[1] & 0xc0) >> 6);
   out[2] = (in[1] & 0x3e) >> 1;
@@ -36,7 +36,7 @@ void encode_block(uint8_t *in, char *out) {
  * @param in an 8-byte long input char array
  * @param out an a 5-byte long output bytes array
  */
-void decode_group(char *in, uint8_t *out) {
+void decode_group(char *in, unsigned char *out) {
   out[0] = (in[0] << 0x03) + ((in[1] & 0x1c) >> 2);
   out[1] = ((in[1] & 0x03) << 6) + (in[2] << 1) + ((in[3] & 0x10) >> 4);
   out[2] = ((in[3] & 0x0f) << 4) + ((in[4] & 0x1e) >> 1);
@@ -44,7 +44,7 @@ void decode_group(char *in, uint8_t *out) {
   out[4] = ((in[6] & 0x07) << 5) + in[7];
 }
 
-char *encode_bytes_to_base32_string(const uint8_t *input_bytes,
+char *encode_bytes_to_base32_string(const unsigned char *input_bytes,
                                     size_t input_len) {
   int blk_idx = 0;
   int grp_idx = 0;
@@ -55,7 +55,7 @@ char *encode_bytes_to_base32_string(const uint8_t *input_bytes,
   size_t output_len = ceil((float)input_len / BLOCK_SIZE) * GROUP_SIZE + 1;
 
   char buf[GROUP_SIZE];
-  uint8_t tmp[BLOCK_SIZE];
+  unsigned char tmp[BLOCK_SIZE];
 
   output = (char *)calloc(output_len, sizeof(char));
   if (output == NULL) {
@@ -96,19 +96,19 @@ char *encode_bytes_to_base32_string(const uint8_t *input_bytes,
   return output;
 }
 
-uint8_t *decode_base32_string_to_bytes(const char *input_chars,
-                                       ssize_t *output_len) {
+unsigned char *decode_base32_string_to_bytes(const char *input_chars,
+                                             ssize_t *output_len) {
 
   int out_pos = 0;
   *output_len = strlen(input_chars) * BLOCK_SIZE / GROUP_SIZE;
   // We pre-allocate this number of bytes, but some of them may not be used due
   // to the existence of padding ='s *output_len will be shrunk a bit at the
   // end.
-  uint8_t *output_bytes = NULL;
-  uint8_t buf[BLOCK_SIZE];
+  unsigned char *output_bytes = NULL;
+  unsigned char buf[BLOCK_SIZE];
   char tmp[GROUP_SIZE] = {0};
 
-  output_bytes = (uint8_t *)malloc(*output_len * sizeof(uint8_t));
+  output_bytes = (unsigned char *)malloc(*output_len * sizeof(unsigned char));
   if (NULL == output_bytes) {
     *output_len = -2;
     return NULL;

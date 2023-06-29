@@ -92,14 +92,15 @@ const char tv_sha256_hash[TEST_COUNT][TEST_SIZE] = {
     "60e431591ee0b67f0d8a26aacbf5b77f8e0bc6213728c5140546040f0ee37f54",
     "9b09ffa71b942fcb27635fbcd5b0e944bfdc63644f0713938a7f51535c3a35e2"};
 
-int test_hmac(void (*hash_function)(const uint8_t *, size_t, const uint8_t *,
-                                    size_t, uint8_t *),
+int test_hmac(void (*hash_function)(const unsigned char *, size_t,
+                                    const unsigned char *, size_t,
+                                    unsigned char *),
               const size_t hash_size, const char tv_keys[TEST_COUNT][TEST_SIZE],
               const char tv_data[TEST_COUNT][TEST_SIZE],
               const char tv_hash[TEST_COUNT][TEST_SIZE]) {
-  uint8_t *key_bytes = NULL;
-  uint8_t *data_bytes = NULL;
-  uint8_t hash[hash_size];
+  unsigned char *key_bytes = NULL;
+  unsigned char *data_bytes = NULL;
+  unsigned char hash[hash_size];
   char *hash_hex = NULL;
 
   int64_t key_len, data_len;

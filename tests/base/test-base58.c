@@ -9,7 +9,7 @@
 #define BTC_TEST_SIZE 1024
 
 const size_t official_test_vectors_decoded_len[] = {12, 44, 6};
-const uint8_t official_test_vectors_decoded[][OFFICIAL_TEST_SIZE] = {
+const unsigned char official_test_vectors_decoded[][OFFICIAL_TEST_SIZE] = {
     "Hello World!",
     "The quick brown fox jumps over the lazy dog.",
     {0x00, 0x00, 0x28, 0x7f, 0xb4, 0xcd},
@@ -86,7 +86,7 @@ int test_base58_official() {
 
 int test_base58_btc() {
   char *output;
-  uint8_t *input_bytes;
+  unsigned char *input_bytes;
   int64_t input_len;
   for (size_t i = 0; i < sizeof(btc_test_vectors_encoded) /
                              sizeof(btc_test_vectors_encoded[0]);

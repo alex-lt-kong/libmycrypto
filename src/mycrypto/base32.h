@@ -15,7 +15,7 @@ extern "C" {
  * @returns Pointer to a null-terminated char array or NULL if fails to allocate
  * enough memory, users are reminded to free() the pointer after use.
  */
-char *encode_bytes_to_base32_string(const uint8_t *input_bytes,
+char *encode_bytes_to_base32_string(const unsigned char *input_bytes,
                                     const size_t input_len);
 
 /**
@@ -28,8 +28,8 @@ char *encode_bytes_to_base32_string(const uint8_t *input_bytes,
  * reminded to free() the pointer after use. Note that the byte array returned
  * is NOT guaranteed to be null-terminated.
  */
-uint8_t *decode_base32_string_to_bytes(const char *input_chars,
-                                       ssize_t *output_len);
+unsigned char *decode_base32_string_to_bytes(const char *input_chars,
+                                             ssize_t *output_len);
 
 #ifdef __cplusplus
 }

@@ -10,8 +10,8 @@ int main(int argc, char *argv[]) {
   }
   FILE *fp_in = NULL;
   FILE *fp_out = NULL;
-  uint8_t *buffer = NULL;
-  uint8_t *bytes_out = NULL;
+  unsigned char *buffer = NULL;
+  unsigned char *bytes_out = NULL;
   size_t file_len;
   size_t retval = 0;
   fp_in = fopen(argv[1], "rb"); // Open the file in binary mode
@@ -23,7 +23,7 @@ int main(int argc, char *argv[]) {
   fseek(fp_in, 0, SEEK_END); // Jump to the end of the file
   file_len = ftell(fp_in);   // Get the current byte offset in the file
   rewind(fp_in);
-  buffer = malloc(file_len * sizeof(uint8_t));
+  buffer = malloc(file_len * sizeof(unsigned char));
 
   if (NULL == buffer) {
     fprintf(stderr, "malloc() failed\n");
@@ -47,7 +47,8 @@ int main(int argc, char *argv[]) {
     retval = 1;
     goto finally;
   }
-  size_t bytes_written = fwrite(bytes_out, sizeof(uint8_t), output_len, fp_out);
+  size_t bytes_written =
+      fwrite(bytes_out, sizeof(unsigned char), output_len, fp_out);
   if (bytes_written < (size_t)output_len) {
     fprintf(stderr,
             "fwrite() failed, expecting %lu bytes but write %lu bytes only\n",

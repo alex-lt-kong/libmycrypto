@@ -77,14 +77,14 @@ more "modern" features, we may want to do things a bit differently.
     * For example, we do:
 
       ```C++
-      unique_fptr<uint8_t[]> bytes(hex_string_to_bytes(hex_cstr, &input_bytes_len));
+      unique_fptr<unsigned char[]> bytes(hex_string_to_bytes(hex_cstr, &input_bytes_len));
       return;
       ```
 
       in C++ to enjoy the benefit of RAII instead of
 
       ```C
-      uint8_t* bytes = hex_string_to_bytes(hex_cstr, &input_bytes_len);
+      unsigned char* bytes = hex_string_to_bytes(hex_cstr, &input_bytes_len);
       free(bytes);
       return;
       ```

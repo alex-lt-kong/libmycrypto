@@ -11,7 +11,7 @@
 static const char b58_table[] =
     "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
 
-char *encode_bytes_to_base58_string(const uint8_t *input_bytes,
+char *encode_bytes_to_base58_string(const unsigned char *input_bytes,
                                     const size_t input_len) {
 
   size_t zeros = 0;
@@ -31,7 +31,7 @@ char *encode_bytes_to_base58_string(const uint8_t *input_bytes,
   while (zeros < input_len && input_bytes[zeros] == 0)
     ++zeros;
 
-  uint8_t buf[size];
+  unsigned char buf[size];
   memset(buf, 0, size);
 
   size_t buf_idx;

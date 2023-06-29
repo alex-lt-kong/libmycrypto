@@ -19,7 +19,7 @@ extern "C" {
  * @returns Pointer to a null-terminated char array or NULL if fails to allocate
  * enough memory, users are reminded to free() the pointer after use.
  */
-char *encode_bytes_to_base64_string(const uint8_t *input_bytes,
+char *encode_bytes_to_base64_string(const unsigned char *input_bytes,
                                     const size_t input_len,
                                     const size_t chars_per_line);
 
@@ -34,8 +34,8 @@ char *encode_bytes_to_base64_string(const uint8_t *input_bytes,
  * is NOT guaranteed to be null-terminated. It is guaranteed that the pointer
  * is non NULL if output_len >= 0.
  */
-uint8_t *decode_base64_string_to_bytes(const char *input_chars,
-                                       int64_t *output_len);
+unsigned char *decode_base64_string_to_bytes(const char *input_chars,
+                                             int64_t *output_len);
 
 #ifdef __cplusplus
 }

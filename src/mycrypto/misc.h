@@ -44,7 +44,8 @@ void switch_endianness(uint32_t *val);
  * or if an empty string is passed. Users are reminded to free() the pointer
  * after use.
  */
-uint8_t *hex_string_to_bytes(const char *input_chars, ssize_t *output_len);
+unsigned char *hex_string_to_bytes(const char *input_chars,
+                                   ssize_t *output_len);
 
 /**
  * @brief Convert a byte array to a null-terminated hexadecimal string.
@@ -56,8 +57,8 @@ uint8_t *hex_string_to_bytes(const char *input_chars, ssize_t *output_len);
  * possible for a successful call to return NULL. Users are reminded to free()
  * the pointer after use.
  */
-char *bytes_to_hex_string(const uint8_t *input_bytes, const size_t input_len,
-                          const bool upper);
+char *bytes_to_hex_string(const unsigned char *input_bytes,
+                          const size_t input_len, const bool upper);
 
 #ifdef __cplusplus
 }

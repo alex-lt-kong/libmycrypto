@@ -13,10 +13,11 @@
 #include "misc.h"
 #include "sha256.h"
 
-void cal_sha256_hash(const uint8_t *input_bytes, const size_t input_len,
-                     uint8_t *hash) {
+int cal_sha256_hash(const unsigned char *input_bytes, const size_t input_len,
+                    unsigned char *hash) {
   if (input_len > 2147483647) {
-    return; // we support up to this length only
+    fprintf(stderr, "input_len is too large\n");
+    return -1; // we support up to this length only
   }
   // Initialize hash values:
   // first 32 bits of the fractional parts of the square roots of the first 8
@@ -65,7 +66,8 @@ void cal_sha256_hash(const uint8_t *input_bytes, const size_t input_len,
     padded_len += 64;
   }
 
-  uint8_t *padded_bytes = (uint8_t *)calloc(padded_len, sizeof(uint8_t));
+  unsigned char *padded_bytes =
+      (unsigned char *)calloc(padded_len, sizeof(unsigned char));
   memcpy(padded_bytes, input_bytes,
          input_len); // begin with the original message of length L bits
   padded_bytes[input_len] = 0x80; // append a single '1' bit
@@ -74,10 +76,10 @@ void cal_sha256_hash(const uint8_t *input_bytes, const size_t input_len,
 
   // append L as a 64-bit big-endian integer, making the total post-processed
   // length a multiple of 512 bits
-  padded_bytes[padded_len - 4] = (uint8_t)(input_len * CHAR_BIT >> 24);
-  padded_bytes[padded_len - 3] = (uint8_t)(input_len * CHAR_BIT >> 16);
-  padded_bytes[padded_len - 2] = (uint8_t)(input_len * CHAR_BIT >> 8);
-  padded_bytes[padded_len - 1] = (uint8_t)(input_len * CHAR_BIT >> 0);
+  padded_bytes[padded_len - 4] = (unsigned char)(input_len * CHAR_BIT >> 24);
+  padded_bytes[padded_len - 3] = (unsigned char)(input_len * CHAR_BIT >> 16);
+  padded_bytes[padded_len - 2] = (unsigned char)(input_len * CHAR_BIT >> 8);
+  padded_bytes[padded_len - 1] = (unsigned char)(input_len * CHAR_BIT >> 0);
   // such that the bits in the message are: <original message of length L> 1 <K
   // zeros> <L as 64 bit integer> , (the number of bits will be a multiple of
   // 512)
@@ -88,7 +90,7 @@ void cal_sha256_hash(const uint8_t *input_bytes, const size_t input_len,
     uint32_t w[SHA256_CHUNK_SIZE]; // create a 64-entry message schedule array
                                    // w[0..63] of 32-bit words. The initial
                                    // values in w[0..63] don't matter.
-    uint8_t *chunk_pos = padded_bytes + i * SHA256_CHUNK_SIZE;
+    unsigned char *chunk_pos = padded_bytes + i * SHA256_CHUNK_SIZE;
     for (int j = 0; j < 16; ++j) {
       // copy chunk into first 16 words w[0..15] of the message schedule array
       // (to handle endianness properly, we cant simply use memcpy()
@@ -165,4 +167,5 @@ void cal_sha256_hash(const uint8_t *input_bytes, const size_t input_len,
   memcpy(hash + 5 * sizeof(uint32_t), &h5, sizeof(uint32_t));
   memcpy(hash + 6 * sizeof(uint32_t), &h6, sizeof(uint32_t));
   memcpy(hash + 7 * sizeof(uint32_t), &h7, sizeof(uint32_t));
+  return 0;
 }

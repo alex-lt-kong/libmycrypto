@@ -22,7 +22,7 @@ extern "C" {
  * @returns the encoded base58 string or NULL if fails to allocate enough memory
  * (users are reminded to free() the pointer after use)
  */
-char *encode_bytes_to_base58_string(const uint8_t *input_bytes,
+char *encode_bytes_to_base58_string(const unsigned char *input_bytes,
                                     const size_t input_len);
 
 #ifdef __cplusplus

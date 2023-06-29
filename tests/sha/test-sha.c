@@ -12,8 +12,8 @@
 #define BUF_SIZE 65536
 
 int test_rsp_file(char *rsp_file_dir,
-                  void (*hash_func)(const uint8_t *, size_t input_len,
-                                    uint8_t *),
+                  int (*hash_func)(const unsigned char *, size_t input_len,
+                                   unsigned char *),
                   const size_t hash_size) {
 
   FILE *fp;
@@ -23,8 +23,8 @@ int test_rsp_file(char *rsp_file_dir,
     return 1;
   }
   char line[BUF_SIZE] = {0};
-  uint8_t *sha_hash = malloc(hash_size * sizeof(uint8_t));
-  uint8_t *msg_bytes;
+  unsigned char *sha_hash = malloc(hash_size * sizeof(unsigned char));
+  unsigned char *msg_bytes;
   size_t msg_len = -1;
   int64_t msg_bytes_len = -1;
   char msg[BUF_SIZE] = {0};

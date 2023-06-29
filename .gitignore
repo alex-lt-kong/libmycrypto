@@ -1,6 +1,16 @@
 build/*
 
+#
+# ===== clangd =====
+#
+out
+node_modules
+.vscode-test
+.cache/clangd
+
+#
 # ===== cmake =====
+#
 CMakeLists.txt.user
 CMakeCache.txt
 CMakeFiles
@@ -13,8 +23,9 @@ compile_commands.json
 CTestTestfile.cmake
 _deps
 
+#
 # ===== C =====
-
+#
 # Prerequisites
 *.d
 
@@ -68,7 +79,9 @@ Module.symvers
 Mkfile.old
 dkms.conf
 
+#
 # ===== VS Code =====
+#
 .vscode/*
 !.vscode/settings.json
 !.vscode/tasks.json

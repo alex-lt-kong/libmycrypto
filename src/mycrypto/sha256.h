@@ -7,6 +7,7 @@ extern "C" {
 
 #include <stdint.h>
 #include <string.h>
+#include <sys/types.h>
 
 #define SHA256_HASH_SIZE 32
 #define SHA256_CHUNK_SIZE 64      // size in byte
@@ -16,11 +17,14 @@ extern "C" {
  * @brief Calculate the SHA256 hash value from a given byte array
  * @param input_bytes Pointer to the data the hash shall be calculated on.
  * @param input_len Length of the input_bytes data, in byte.
- * @param hash Preallocated 32-byte long array, where the result is delivered.
- * The array will be unchanged if errors occur
+ * @param hash Preallocated 32-byte long array, where the result in bytes is
+ * delivered. The array will be unchanged if errors occur. Note that the result
+ * is an array of bytes, not a string of hex characters and it is NOT
+ * nul-terminated.
+ * @returns 0 on success and -1 on error
  */
-void cal_sha256_hash(const uint8_t *input_bytes, const size_t input_len,
-                     uint8_t *hash);
+int cal_sha256_hash(const unsigned char *input_bytes, const size_t input_len,
+                    unsigned char *hash);
 
 #ifdef __cplusplus
 }

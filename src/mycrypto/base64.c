@@ -5,16 +5,16 @@
 
 #include "base64.h"
 
-static const uint8_t base64_table[65] =
+static const unsigned char base64_table[65] =
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 // This table is defined in RFC 4648
 
-char *encode_bytes_to_base64_string(const uint8_t *input_bytes,
+char *encode_bytes_to_base64_string(const unsigned char *input_bytes,
                                     const size_t input_len,
                                     const size_t chars_per_line) {
   char *output_chars, *pos;
-  const uint8_t *input_start = input_bytes;
-  const uint8_t *input_end = input_start + input_len;
+  const unsigned char *input_start = input_bytes;
+  const unsigned char *input_end = input_start + input_len;
   size_t olen;
   size_t line_len;
   if (chars_per_line % 4 != 0) {
@@ -93,27 +93,27 @@ char *encode_bytes_to_base64_string(const uint8_t *input_bytes,
 
 // This function is pathetically slow, but let's leave the efficieny issue to
 // the next iteraiton...
-uint8_t *decode_base64_string_to_bytes(const char *input_chars,
-                                       int64_t *output_len) {
-  uint8_t dtable[256], *out, *pos, in[4], block[4], tmp;
+unsigned char *decode_base64_string_to_bytes(const char *input_chars,
+                                             int64_t *output_len) {
+  unsigned char dtable[256], *out, *pos, in[4], block[4], tmp;
   size_t valid_char_cnt, olen;
 
   memset(dtable, 0x80, 256);
 
   for (size_t i = 0; i < sizeof(base64_table) - 1; i++)
-    dtable[base64_table[i]] = (uint8_t)i;
+    dtable[base64_table[i]] = (unsigned char)i;
   dtable['='] = 0;
 
   valid_char_cnt = 0;
   for (size_t i = 0; i < strlen(input_chars); ++i) {
-    if (dtable[(uint8_t)input_chars[i]] != 0x80) {
+    if (dtable[(unsigned char)input_chars[i]] != 0x80) {
       // ASCII is from 0 to 0x7F(127) and 0x80 is the default NA value in dtable
       valid_char_cnt++;
     }
     if ((input_chars[i] == '=' && i < strlen(input_chars) - 4) ||
         (i < strlen(input_chars) - 1 &&
-         dtable[(uint8_t)input_chars[i + 1]] != 0x80 &&
-         input_chars[i + 1] != '=' && (uint8_t)input_chars[i] == '=')) {
+         dtable[(unsigned char)input_chars[i + 1]] != 0x80 &&
+         input_chars[i + 1] != '=' && (unsigned char)input_chars[i] == '=')) {
       fprintf(stderr, "Unexpected padding char at %ld\n", i);
       *output_len = -1;
       return NULL;
@@ -127,7 +127,7 @@ uint8_t *decode_base64_string_to_bytes(const char *input_chars,
     return NULL;
   }
   olen = valid_char_cnt / 4 * 3;
-  pos = out = (uint8_t *)malloc(olen * sizeof(uint8_t));
+  pos = out = (unsigned char *)malloc(olen * sizeof(unsigned char));
 
   if (out == NULL) {
     fprintf(stderr, "malloc() failed\n");
