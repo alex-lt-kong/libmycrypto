@@ -17,9 +17,9 @@ extern "C" {
  * @param input_bytes Pointer to the data the hash shall be calculated on.
  * @param input_len Length of the input data, in byte.
  * @param hash Preallocated 20-byte long array, where the result in bytes is
- * delivered. The array will be unchanged if errors occur. Note that the result
- * is an array of bytes, not a string of hex characters and it is NOT
- * nul-terminated.
+ * delivered. Note that the result is an array of bytes, not a string of
+ * hex characters and it is NOT nul-terminated. If you would like to get the
+ * hash value in hex string, call bytes_to_hex_string() declared misc.h.
  * @returns 0 on success and -1 on error
  */
 int cal_sha1_hash(const unsigned char *input_bytes, const size_t input_len,

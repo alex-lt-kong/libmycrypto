@@ -10,7 +10,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-static void H(void (*hash_func)(const unsigned char *, size_t, unsigned char *),
+static void H(int (*hash_func)(const unsigned char *, size_t, unsigned char *),
               const unsigned char *x, const size_t xlen, const unsigned char *y,
               const size_t ylen, unsigned char *out) {
   size_t buflen = (xlen + ylen);
@@ -24,7 +24,7 @@ static void H(void (*hash_func)(const unsigned char *, size_t, unsigned char *),
 }
 
 void hmac(const size_t BLOCK_SIZE, const size_t HASH_SIZE,
-          void (*hash_func)(const unsigned char *, size_t, unsigned char *),
+          int (*hash_func)(const unsigned char *, size_t, unsigned char *),
           const unsigned char *key, const size_t key_len,
           const unsigned char *msg, const size_t msg_len, unsigned char *out) {
 

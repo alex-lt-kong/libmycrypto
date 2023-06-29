@@ -68,6 +68,10 @@ int cal_sha256_hash(const unsigned char *input_bytes, const size_t input_len,
 
   unsigned char *padded_bytes =
       (unsigned char *)calloc(padded_len, sizeof(unsigned char));
+  if (padded_bytes == NULL) {
+    fprintf(stderr, "calloc() failed\n");
+    return -1;
+  }
   memcpy(padded_bytes, input_bytes,
          input_len); // begin with the original message of length L bits
   padded_bytes[input_len] = 0x80; // append a single '1' bit
