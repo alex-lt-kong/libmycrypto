@@ -154,10 +154,14 @@ void MDfinish(uint32_t *MDbuf, const unsigned char *strptr, uint32_t lswlen,
  * @brief Calculate the RIPEMD160 hash value from a given byte array
  * @param input_bytes Pointer to the data the hash shall be calculated on.
  * @param input_len Length of the input_bytes data, in byte.
- * @param hash Preallocated 20-byte long array, where the result is delivered.
+ * @param hash Preallocated 20-byte long array, where the result in bytes is
+ * delivered. Note that the result is an array of bytes, not a string of
+ * hex characters and it is NOT nul-terminated. If you would like to get the
+ * hash value in hex string, call bytes_to_hex_string() declared misc.h.
  */
-void cal_rpiemd160_hash(const unsigned char *input_bytes,
-                        const size_t input_len, unsigned char *hash);
+void cal_ripemd160_hash(const unsigned char *input_bytes,
+                        const size_t input_len,
+                        unsigned char hash[RIPEMD160_HASH_SIZE]);
 #ifdef __cplusplus
 }
 #endif

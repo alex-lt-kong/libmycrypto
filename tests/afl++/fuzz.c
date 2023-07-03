@@ -13,6 +13,7 @@
 #include "mycrypto/base58.h"
 #include "mycrypto/base64.h"
 #include "mycrypto/misc.h"
+#include "mycrypto/ripemd160.h"
 #include "mycrypto/sha1.h"
 #include "mycrypto/sha256.h"
 
@@ -25,7 +26,7 @@
 void print_usage(char *binary_name) {
   printf("Usage: %s [OPTION]\n\n", binary_name);
   printf("Description:\n");
-  printf("  This program tests Base32/Base58/Base64/SHA1/SHA256 "
+  printf("  This program tests base32/base58/base64/sha1/sha256/ripemd160 "
          "encoding/decoding schemes\n\n");
   printf("Options:\n");
   printf("  -p, --test-case-path <path>   Path to test case file\n");
@@ -62,7 +63,7 @@ void parse_options(int argc, char *argv[], char **out_test_case_path,
     case 's':
       if (strcmp(optarg, "base32") == 0 || strcmp(optarg, "base58") == 0 ||
           strcmp(optarg, "base64") == 0 || strcmp(optarg, "sha256") == 0 ||
-          strcmp(optarg, "sha1") == 0) {
+          strcmp(optarg, "sha1") == 0 || strcmp(optarg, "ripemd160") == 0) {
         *out_scheme = strdup(optarg);
       }
       break;
@@ -99,22 +100,41 @@ void compare_with_external_results(const char *scheme,
     dup2(pipefd_out[1], STDOUT_FILENO);
     dup2(pipefd_err[1], STDERR_FILENO);
 
+    const char *args[8];
     if (strcmp(scheme, "base32") == 0) {
-      const char *args[] = {"/usr/bin/base32", test_case_path, "-w", "0", NULL};
-      execv(args[0], (char **)args);
+      args[0] = "/usr/bin/base32";
+      args[1] = test_case_path;
+      args[2] = "-w";
+      args[3] = "0";
+      args[4] = NULL;
     } else if (strcmp(scheme, "base58") == 0) {
-      const char *args[] = {"/usr/bin/base58", test_case_path, NULL};
+      args[0] = "/usr/bin/base58";
+      args[1] = test_case_path;
+      args[2] = NULL;
       execv(args[0], (char **)args);
     } else if (strcmp(scheme, "base64") == 0) {
-      const char *args[] = {"/usr/bin/base64", test_case_path, "-w", "0", NULL};
+      args[0] = "/usr/bin/base64";
+      args[1] = test_case_path;
+      args[2] = "-w";
+      args[3] = "0";
+      args[4] = NULL;
       execv(args[0], (char **)args);
     } else if (strcmp(scheme, "sha1") == 0) {
-      const char *args[] = {"/usr/bin/sha1sum", test_case_path, NULL};
+      args[0] = "/usr/bin/sha1sum";
+      args[1] = test_case_path;
+      args[2] = NULL;
       execv(args[0], (char **)args);
     } else if (strcmp(scheme, "sha256") == 0) {
-      const char *args[] = {"/usr/bin/sha256sum", test_case_path, NULL};
-      execv(args[0], (char **)args);
+      args[0] = "/usr/bin/sha256";
+      args[1] = test_case_path;
+      args[2] = NULL;
+    } else if (strcmp(scheme, "ripemd160") == 0) {
+      args[0] = "/usr/bin/rhash";
+      args[1] = "--ripemd160";
+      args[2] = test_case_path;
+      args[3] = NULL;
     }
+    execv(args[0], (char **)args);
 
     perror("execl()/execv()");
     // The exec() functions return only if an error has occurred.
@@ -161,6 +181,7 @@ void compare_with_external_results(const char *scheme,
     perror("waitpid()");
     abort();
   }
+  printf("buff: %s\n", buff);
   if (WIFEXITED(status)) {
     PRINTF("Child process exited normally, rc: %d\n", WEXITSTATUS(status));
   } else {
@@ -182,6 +203,9 @@ void compare_with_external_results(const char *scheme,
   } else if (strcmp(scheme, "sha1") == 0 &&
              strncmp(buff, actual_output, SHA1_HASH_SIZE) == 0) {
     PRINTF("OK!\n");
+  } else if (strcmp(scheme, "ripemd160") == 0 &&
+             strncmp(buff, actual_output, RIPEMD160_HASH_SIZE) == 0) {
+    PRINTF("OK!\n");
   } else if (strcmp(buff, actual_output) == 0) {
     PRINTF("OK!\n");
   } else {
@@ -200,7 +224,7 @@ int main(int argc, char *argv[]) {
   if (scheme == NULL ||
       (strcmp(scheme, "base32") != 0 && strcmp(scheme, "base58") != 0 &&
        strcmp(scheme, "base64") != 0 && strcmp(scheme, "sha1") != 0 &&
-       strcmp(scheme, "sha256") != 0) ||
+       strcmp(scheme, "sha256") != 0 && strcmp(scheme, "ripemd160") != 0) ||
       test_case_path == NULL) {
     print_usage(argv[0]);
     retval = -1;
@@ -252,6 +276,14 @@ int main(int argc, char *argv[]) {
       fprintf(stderr, "bytes_to_hex_string() failed\n");
       abort();
     }
+  } else if (strcmp(scheme, "ripemd160") == 0) {
+    unsigned char hash_val[RIPEMD160_HASH_SIZE] = {0};
+    cal_ripemd160_hash(input_bytes, input_len, hash_val);
+    output = bytes_to_hex_string(hash_val, RIPEMD160_HASH_SIZE, false);
+    if (output == NULL) {
+      fprintf(stderr, "bytes_to_hex_string() failed\n");
+      abort();
+    }
   } else {
     fprintf(stderr, "How come?\n");
     abort();
@@ -268,14 +300,16 @@ int main(int argc, char *argv[]) {
     } else if (strcmp(scheme, "base64") == 0) {
       decoded = decode_base64_string_to_bytes(output, &output_len);
     } else if (strcmp(scheme, "base58") == 0 || strcmp(scheme, "sha1") == 0 ||
-               strcmp(scheme, "sha256") == 0) {
+               strcmp(scheme, "sha256") == 0 ||
+               strcmp(scheme, "ripemd160") == 0) {
       PRINTF("%s doesn't have decoding method, skipped\n", scheme);
     } else {
       fprintf(stderr, "How come?\n");
       abort();
     }
     if (output_len >= 0 && strcmp(scheme, "base58") != 0 &&
-        strcmp(scheme, "sha1") != 0 && strcmp(scheme, "sha256") != 0) {
+        strcmp(scheme, "sha1") != 0 && strcmp(scheme, "sha256") != 0 &&
+        strcmp(scheme, "ripemd160") != 0) {
       // Does passing NULL pointers to memcmp() cause undefined behavior?
       // Seems it is not as clear as one might think:
       // https://stackoverflow.com/questions/16362925/can-i-pass-a-null-pointer-to-memcmp
@@ -287,7 +321,8 @@ int main(int argc, char *argv[]) {
         PRINTF("OK\n");
       }
     } else if (strcmp(scheme, "base58") == 0 || strcmp(scheme, "sha1") == 0 ||
-               strcmp(scheme, "sha256") == 0) {
+               strcmp(scheme, "sha256") == 0 ||
+               strcmp(scheme, "ripemd160") == 0) {
     } else {
       FPRINTF_ERR("Error decoding: %s\n", output);
       abort();

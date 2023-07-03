@@ -282,7 +282,7 @@ void MDfinish(uint32_t *MDbuf, const unsigned char *strptr, uint32_t lswlen,
   return;
 }
 
-void cal_rpiemd160_hash(const unsigned char *input_bytes, const size_t length,
+void cal_ripemd160_hash(const unsigned char *input_bytes, const size_t length,
                         unsigned char *hash) {
   uint32_t MDbuf[RIPEMD160_HASH_SIZE / 4]; /* contains (A, B, C, D(, E))   */
   uint32_t X[16];                          /* current 16-word chunk        */

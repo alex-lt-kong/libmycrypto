@@ -36,7 +36,7 @@ int main() {
   unsigned char output_bytes[RIPEMD160_HASH_SIZE];
   char *output;
   for (int i = 0; i < TEST_COUNT; ++i) {
-    cal_rpiemd160_hash(message[i], strlen((char *)message[i]), output_bytes);
+    cal_ripemd160_hash(message[i], strlen((char *)message[i]), output_bytes);
     output = bytes_to_hex_string(output_bytes, RIPEMD160_HASH_SIZE, false);
     if (output == NULL) {
       return 1;

@@ -92,10 +92,11 @@ const char tv_sha256_hash[TEST_COUNT][TEST_SIZE] = {
     "60e431591ee0b67f0d8a26aacbf5b77f8e0bc6213728c5140546040f0ee37f54",
     "9b09ffa71b942fcb27635fbcd5b0e944bfdc63644f0713938a7f51535c3a35e2"};
 
-int test_hmac(void (*hash_function)(const unsigned char *, size_t,
-                                    const unsigned char *, size_t,
-                                    unsigned char *),
-              const size_t hash_size, const char tv_keys[TEST_COUNT][TEST_SIZE],
+typedef void hash_function(const unsigned char *, size_t, const unsigned char *,
+                           size_t, unsigned char *);
+
+int test_hmac(hash_function *hash_func, const size_t hash_size,
+              const char tv_keys[TEST_COUNT][TEST_SIZE],
               const char tv_data[TEST_COUNT][TEST_SIZE],
               const char tv_hash[TEST_COUNT][TEST_SIZE]) {
   unsigned char *key_bytes = NULL;
@@ -107,7 +108,7 @@ int test_hmac(void (*hash_function)(const unsigned char *, size_t,
   for (int i = 0; i < TEST_COUNT; ++i) {
     key_bytes = hex_string_to_bytes(tv_keys[i], &key_len);
     data_bytes = hex_string_to_bytes(tv_data[i], &data_len);
-    hash_function(key_bytes, key_len, data_bytes, data_len, hash);
+    hash_func(key_bytes, key_len, data_bytes, data_len, hash);
     hash_hex = bytes_to_hex_string(hash, hash_size, false);
     if (strlen(tv_hash[i]) <
         strlen(hash_hex)) { // i.e., test vector truncates the result
