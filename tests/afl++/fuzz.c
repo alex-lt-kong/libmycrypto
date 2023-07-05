@@ -12,6 +12,7 @@
 #include "mycrypto/base32.h"
 #include "mycrypto/base58.h"
 #include "mycrypto/base64.h"
+#include "mycrypto/hmac.h"
 #include "mycrypto/misc.h"
 #include "mycrypto/ripemd160.h"
 #include "mycrypto/sha1.h"
@@ -23,10 +24,13 @@
   fprintf(stderr, "[%s:%d] " fmt, __FILE__, __LINE__, ##__VA_ARGS__)
 #define MY_BUF_SIZE 65536
 
+const char hmac_key[] = "Hello world!";
+
 void print_usage(char *binary_name) {
   printf("Usage: %s [OPTION]\n\n", binary_name);
   printf("Description:\n");
-  printf("  This program tests base32/base58/base64/sha1/sha256/ripemd160 "
+  printf("  This program tests "
+         "base32/base58/base64/sha1/sha256/ripemd160/hmac-sha1 "
          "encoding/decoding schemes\n\n");
   printf("Options:\n");
   printf("  -p, --test-case-path <path>   Path to test case file\n");
@@ -63,7 +67,8 @@ void parse_options(int argc, char *argv[], char **out_test_case_path,
     case 's':
       if (strcmp(optarg, "base32") == 0 || strcmp(optarg, "base58") == 0 ||
           strcmp(optarg, "base64") == 0 || strcmp(optarg, "sha256") == 0 ||
-          strcmp(optarg, "sha1") == 0 || strcmp(optarg, "ripemd160") == 0) {
+          strcmp(optarg, "sha1") == 0 || strcmp(optarg, "ripemd160") == 0 ||
+          strcmp(optarg, "hmac-sha1") == 0) {
         *out_scheme = strdup(optarg);
       }
       break;
@@ -133,6 +138,32 @@ void compare_with_external_results(const char *scheme,
       args[1] = "--ripemd160";
       args[2] = test_case_path;
       args[3] = NULL;
+    } else if (strcmp(scheme, "hmac-sha1") == 0) {
+      FILE *fp;
+      unsigned char buffer[MY_BUF_SIZE];
+      fp = fopen(test_case_path, "rb");
+      if (fp == NULL) {
+        FPRINTF_ERR("Failed to open file %s\n", test_case_path);
+        abort();
+      }
+      size_t bytes_read = fread(buffer, 1, sizeof(buffer), fp);
+      fclose(fp);
+      if (bytes_read >= sizeof(buffer) - 1) {
+        FPRINTF_ERR("File %s is too large\n", test_case_path);
+        abort();
+      }
+      args[0] = "/usr/bin/openssl";
+      args[1] = "dgst";
+      args[2] = "-sha1";
+      args[3] = "-hmac";
+      args[4] = hmac_key;
+      args[5] = test_case_path;
+      args[6] = NULL;
+    } else {
+      FPRINTF_ERR(
+          "compare_with_external_results() get an unexpected parameter: %s",
+          scheme);
+      abort();
     }
     execv(args[0], (char **)args);
 
@@ -161,6 +192,7 @@ void compare_with_external_results(const char *scheme,
   size_t output_len = 0;
   while (fgets(buff, MY_BUF_SIZE, fp_out)) {
     size_t buffer_len = strlen(buff);
+
     if (output_len + buffer_len + 1 > MY_BUF_SIZE) {
       FPRINTF_ERR("output too long!\n");
       abort();
@@ -181,7 +213,7 @@ void compare_with_external_results(const char *scheme,
     perror("waitpid()");
     abort();
   }
-  printf("buff: %s\n", buff);
+
   if (WIFEXITED(status)) {
     PRINTF("Child process exited normally, rc: %d\n", WEXITSTATUS(status));
   } else {
@@ -206,6 +238,11 @@ void compare_with_external_results(const char *scheme,
   } else if (strcmp(scheme, "ripemd160") == 0 &&
              strncmp(buff, actual_output, RIPEMD160_HASH_SIZE) == 0) {
     PRINTF("OK!\n");
+  } else if (strcmp(scheme, "hmac-sha1") == 0 &&
+             strncmp(buff + strlen(buff) - SHA1_HASH_SIZE * 2 - 1,
+                     actual_output, SHA1_HASH_SIZE) == 0) {
+
+    PRINTF("OK!\n");
   } else if (strcmp(buff, actual_output) == 0) {
     PRINTF("OK!\n");
   } else {
@@ -224,7 +261,8 @@ int main(int argc, char *argv[]) {
   if (scheme == NULL ||
       (strcmp(scheme, "base32") != 0 && strcmp(scheme, "base58") != 0 &&
        strcmp(scheme, "base64") != 0 && strcmp(scheme, "sha1") != 0 &&
-       strcmp(scheme, "sha256") != 0 && strcmp(scheme, "ripemd160") != 0) ||
+       strcmp(scheme, "sha256") != 0 && strcmp(scheme, "ripemd160") != 0 &&
+       strcmp(scheme, "hmac-sha1") != 0) ||
       test_case_path == NULL) {
     print_usage(argv[0]);
     retval = -1;
@@ -284,8 +322,17 @@ int main(int argc, char *argv[]) {
       fprintf(stderr, "bytes_to_hex_string() failed\n");
       abort();
     }
+  } else if (strcmp(scheme, "hmac-sha1") == 0) {
+    unsigned char hash_val[SHA1_HASH_SIZE] = {0};
+    hmac_sha1((const unsigned char *)hmac_key, strlen(hmac_key), input_bytes,
+              input_len, hash_val);
+    output = bytes_to_hex_string(hash_val, SHA1_HASH_SIZE, false);
+    if (output == NULL) {
+      fprintf(stderr, "bytes_to_hex_string() failed\n");
+      abort();
+    }
   } else {
-    fprintf(stderr, "How come?\n");
+    FPRINTF_ERR("main() received unexpected parameter: %s\n", scheme);
     abort();
   }
 
@@ -301,15 +348,17 @@ int main(int argc, char *argv[]) {
       decoded = decode_base64_string_to_bytes(output, &output_len);
     } else if (strcmp(scheme, "base58") == 0 || strcmp(scheme, "sha1") == 0 ||
                strcmp(scheme, "sha256") == 0 ||
-               strcmp(scheme, "ripemd160") == 0) {
+               strcmp(scheme, "ripemd160") == 0 ||
+               strcmp(scheme, "hmac-sha1") == 0) {
       PRINTF("%s doesn't have decoding method, skipped\n", scheme);
     } else {
-      fprintf(stderr, "How come?\n");
+      FPRINTF_ERR("Output comparison received an unexpected parameter: %s\n",
+                  scheme);
       abort();
     }
     if (output_len >= 0 && strcmp(scheme, "base58") != 0 &&
         strcmp(scheme, "sha1") != 0 && strcmp(scheme, "sha256") != 0 &&
-        strcmp(scheme, "ripemd160") != 0) {
+        strcmp(scheme, "ripemd160") != 0 && strcmp(scheme, "hmac-sha1") != 0) {
       // Does passing NULL pointers to memcmp() cause undefined behavior?
       // Seems it is not as clear as one might think:
       // https://stackoverflow.com/questions/16362925/can-i-pass-a-null-pointer-to-memcmp
@@ -322,7 +371,8 @@ int main(int argc, char *argv[]) {
       }
     } else if (strcmp(scheme, "base58") == 0 || strcmp(scheme, "sha1") == 0 ||
                strcmp(scheme, "sha256") == 0 ||
-               strcmp(scheme, "ripemd160") == 0) {
+               strcmp(scheme, "ripemd160") == 0 ||
+               strcmp(scheme, "hmac-sha1") == 0) {
     } else {
       FPRINTF_ERR("Error decoding: %s\n", output);
       abort();

@@ -10,23 +10,23 @@
 #include <stdlib.h>
 #include <string.h>
 
-static void H(int (*hash_func)(const unsigned char *, size_t, unsigned char *),
-              const unsigned char *x, const size_t xlen, const unsigned char *y,
-              const size_t ylen, unsigned char *out) {
+static void H(hash_func *hash_func_ptr, const unsigned char *x,
+              const size_t xlen, const unsigned char *y, const size_t ylen,
+              unsigned char *out) {
   size_t buflen = (xlen + ylen);
   unsigned char *buf = (unsigned char *)malloc(buflen);
 
   memcpy(buf, x, xlen);
   memcpy(buf + xlen, y, ylen);
-  (*hash_func)(buf, buflen, out);
+  hash_func_ptr(buf, buflen, out);
 
   free(buf);
 }
 
 void hmac(const size_t BLOCK_SIZE, const size_t HASH_SIZE,
-          int (*hash_func)(const unsigned char *, size_t, unsigned char *),
-          const unsigned char *key, const size_t key_len,
-          const unsigned char *msg, const size_t msg_len, unsigned char *out) {
+          hash_func *hash_func_ptr, const unsigned char *key,
+          const size_t key_len, const unsigned char *msg, const size_t msg_len,
+          unsigned char *out) {
 
   unsigned char k_prime[BLOCK_SIZE];
   unsigned char ipad[BLOCK_SIZE]; // ipad is the block-sized inner padding,
@@ -41,7 +41,7 @@ void hmac(const size_t BLOCK_SIZE, const size_t HASH_SIZE,
   memset(opad, 0x5c, BLOCK_SIZE);
 
   if (key_len > BLOCK_SIZE) {
-    (*hash_func)(key, key_len, k_prime);
+    hash_func_ptr(key, key_len, k_prime);
   } else {
     memcpy(k_prime, key, key_len);
   }
@@ -53,8 +53,8 @@ void hmac(const size_t BLOCK_SIZE, const size_t HASH_SIZE,
 
   // Perform HMAC algorithm: ( https://tools.ietf.org/html/rfc2104 )
   //      `H(K XOR opad, H(K XOR ipad, data))`
-  H(hash_func, ipad, BLOCK_SIZE, msg, msg_len, ihash);
-  H(hash_func, opad, BLOCK_SIZE, ihash, HASH_SIZE, ohash);
+  H(hash_func_ptr, ipad, BLOCK_SIZE, msg, msg_len, ihash);
+  H(hash_func_ptr, opad, BLOCK_SIZE, ihash, HASH_SIZE, ohash);
   memcpy(out, ohash, HASH_SIZE);
 }
 
