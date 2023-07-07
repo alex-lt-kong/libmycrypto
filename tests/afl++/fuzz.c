@@ -139,19 +139,6 @@ void compare_with_external_results(const char *scheme,
       args[2] = test_case_path;
       args[3] = NULL;
     } else if (strcmp(scheme, "hmac-sha1") == 0) {
-      FILE *fp;
-      unsigned char buffer[MY_BUF_SIZE];
-      fp = fopen(test_case_path, "rb");
-      if (fp == NULL) {
-        FPRINTF_ERR("Failed to open file %s\n", test_case_path);
-        abort();
-      }
-      size_t bytes_read = fread(buffer, 1, sizeof(buffer), fp);
-      fclose(fp);
-      if (bytes_read >= sizeof(buffer) - 1) {
-        FPRINTF_ERR("File %s is too large\n", test_case_path);
-        abort();
-      }
       args[0] = "/usr/bin/openssl";
       args[1] = "dgst";
       args[2] = "-sha1";
