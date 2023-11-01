@@ -1,5 +1,5 @@
-#ifndef HMAC_SHA_H
-#define HMAC_SHA_H
+#ifndef LMC_HMAC_H
+#define LMC_HMAC_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -10,7 +10,7 @@ extern "C" {
 #include <stddef.h>
 #include <stdint.h>
 
-typedef int hash_func(const unsigned char *, size_t, unsigned char *);
+typedef int hash_func(const unsigned char *, size_t, unsigned char[]);
 
 /**
  * @brief The simple HMAC-SHA1 calculation function.
@@ -50,4 +50,4 @@ void hmac_sha256(const unsigned char *key, const size_t key_len,
 }
 #endif // __cplusplus
 
-#endif // HMAC_SHA_H
+#endif // LMC_HMAC_H

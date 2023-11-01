@@ -3,6 +3,9 @@
  * pseudocode at https://en.wikipedia.org/wiki/SHA-2
  */
 
+#include "sha256.h"
+#include "misc.h"
+
 #include <limits.h>
 #include <math.h>
 #include <stdint.h>
@@ -10,12 +13,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "misc.h"
-#include "sha256.h"
-
 int cal_sha256_hash(const unsigned char *input_bytes, const size_t input_len,
-                    unsigned char *hash) {
-  if (input_len > 2147483647) {
+                    unsigned char hash[SHA256_HASH_SIZE]) {
+  if (input_len > INT_MAX) {
     fprintf(stderr, "input_len is too large\n");
     return -1; // we support up to this length only
   }

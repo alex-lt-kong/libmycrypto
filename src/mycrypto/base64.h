@@ -1,12 +1,13 @@
-#ifndef BASE64_H
-#define BASE64_H
+#ifndef LMC_BASE64_H
+#define LMC_BASE64_H
+
+#include <stdbool.h>
+#include <stddef.h>
+#include <stdint.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#include <stdbool.h>
-#include <stdint.h>
 
 /**
  * @brief Encode a byte array into a printable and null-terminated base32 char
@@ -41,4 +42,4 @@ unsigned char *decode_base64_string_to_bytes(const char *input_chars,
 }
 #endif // __cplusplus
 
-#endif /* BASE64_H */
+#endif /* LMC_BASE64_H */

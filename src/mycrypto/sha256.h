@@ -1,5 +1,5 @@
-#ifndef SHA256_H
-#define SHA256_H
+#ifndef LMC_SHA256_H
+#define LMC_SHA256_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -24,10 +24,10 @@ extern "C" {
  * @returns 0 on success and -1 on error
  */
 int cal_sha256_hash(const unsigned char *input_bytes, const size_t input_len,
-                    unsigned char *hash);
+                    unsigned char hash[SHA256_HASH_SIZE]);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif
+#endif /* LMC_SHA256_H */

@@ -1,5 +1,5 @@
-#ifndef CRYPTO_UTILS_H
-#define CRYPTO_UTILS_H
+#ifndef LMC_MISC_H
+#define LMC_MISC_H
 
 #include <assert.h>
 #include <limits.h>
@@ -63,4 +63,4 @@ char *bytes_to_hex_string(const unsigned char *input_bytes,
 #ifdef __cplusplus
 }
 #endif
-#endif
+#endif /* LMC_MISC_H */

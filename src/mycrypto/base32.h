@@ -1,11 +1,13 @@
-#ifndef BASE32_H
-#define BASE32_H
+#ifndef LMC_BASE32_H
+#define LMC_BASE32_H
+
+#include <stddef.h>
+#include <stdint.h>
+#include <sys/types.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#include <stdint.h>
 
 /**
  * @brief Encode a byte array into a printable and null-terminated base32 char
@@ -35,4 +37,4 @@ unsigned char *decode_base32_string_to_bytes(const char *input_chars,
 }
 #endif // __cplusplus
 
-#endif /* BASE32_H */
+#endif /* LMC_BASE32_H */

@@ -1,5 +1,5 @@
-#ifndef SHA1_H
-#define SHA1_H
+#ifndef LMC_SHA1_H
+#define LMC_SHA1_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -29,4 +29,4 @@ int cal_sha1_hash(const unsigned char *input_bytes, const size_t input_len,
 }
 #endif
 
-#endif
+#endif /* LMC_SHA1_H */

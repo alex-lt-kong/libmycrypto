@@ -14,7 +14,7 @@
 #include "sha1.h"
 
 int cal_sha1_hash(const unsigned char *input_bytes, const size_t input_len,
-                  unsigned char *hash) {
+                  unsigned char hash[SHA1_HASH_SIZE]) {
   if (input_len > 2147483647) {
     fprintf(stderr, "input_len is too large\n");
     return -1; // we support up to this length only

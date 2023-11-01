@@ -33,8 +33,8 @@
  *
 \********************************************************************/
 
-#ifndef RMD160H /* make sure this file is read only once */
-#define RMD160H
+#ifndef LMC_RMD160_H /* make sure this file is read only once */
+#define LMC_RMD160_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -165,6 +165,6 @@ void cal_ripemd160_hash(const unsigned char *input_bytes,
 #ifdef __cplusplus
 }
 #endif
-#endif /* RMD160H */
+#endif /* LMC_RMD160_H */
 
 /*********************** end of file rmd160.h ***********************/

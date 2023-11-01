@@ -1,10 +1,10 @@
-#ifndef CRYPTO_UTILS_HPP
-#define CRYPTO_UTILS_HPP
+#ifndef LMC_MISC_HPP
+#define LMC_MISC_HPP
+
+#include "misc.h"
 
 #include <cstdlib>
 #include <memory>
-
-#include "misc.h"
 
 // According to this link:
 // https://stackoverflow.com/questions/76453866/stdunique-ptr-with-custom-deleter-for-wrapping-a-malloc-pointer
@@ -19,4 +19,4 @@ struct FreeDeleter {
 
 template <typename T> using unique_fptr = std::unique_ptr<T, FreeDeleter>;
 
-#endif
+#endif /* LMC_MISC_HPP */
